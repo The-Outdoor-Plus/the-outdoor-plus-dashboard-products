@@ -13,7 +13,7 @@
       ></v-text-field>  
     <v-data-table-server
       v-model:items-per-page="itemsPerPage"
-      :headers="headers"
+      :headers="(headers as [])"
       :search="search"
       :items-length="totalItems"
       :items="data.serverItems"
@@ -45,6 +45,7 @@
           </v-card>
         </v-dialog>
       </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot -->
       <template v-slot:item.actions="{ item }">
         <v-btn 
           size="small"
@@ -141,7 +142,7 @@ const deleteItemConfirm = async () => {
   }
 }
 
-const headers = reactive([
+const headers = ref([
   {
     title: 'ID',
     align: 'start',
