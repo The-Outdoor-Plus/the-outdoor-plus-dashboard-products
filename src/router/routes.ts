@@ -47,6 +47,36 @@ export default [
             onlyWhenLoggedOut: false,
             roles: ['MANAGER', 'ADMIN'],
           },
+        },
+        {
+          path: 'new',
+          name: 'NewUser',
+          component: () => import(/* webpackChunkName: "new-user" */'@/views/users/CreateUser.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          }
+        },
+        {
+          path: 'edit/:id',
+          name: 'EditUser',
+          component: () => import(/* webpackChunkName: "edit-user" */'@/views/users/EditUser.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        },
+        {
+          path: ':id',
+          name: 'ViewUser',
+          component: () => import(/* webpackChunkName: "view-user" */'@/views/users/ViewUser.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
         }
       ],
     }
