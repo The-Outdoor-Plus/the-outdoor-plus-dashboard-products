@@ -9,31 +9,41 @@
       <template v-for="(item, i) in navItems" :key="i">
         <template v-if="item.children.length">
           <v-list-group
+            v-if="isLinkAllowed(item.roles)"
             :value="item.label"
           >
             <template v-slot:activator="{ props }">
               <v-list-item
                 v-bind="props"
+                exact
                 :prepend-icon="item.icon"
                 :title="item.label"
               ></v-list-item>
             </template>
-
-            <v-list-item
+            <template
               v-for="(child, i) in item.children"
               :key="i"
-              :title="child.label"
-              :value="child.label"
-              :href="child.link"
-            ></v-list-item>
+            >
+              <v-list-item
+                v-if="isLinkAllowed(child.roles)"
+                exact
+                :title="child.label"
+                :value="child.label"
+                :to="child.link"
+              >
+              </v-list-item>
+            </template>
+            
           </v-list-group>
         </template>
         <template v-else>
           <v-list-item 
+            v-if="isLinkAllowed(item.roles)"
+            exact
             :prepend-icon="item.icon"
             :title="item.label"
             :value="item.label"
-            :href="item.link"
+            :to="item.link"
           ></v-list-item>
         </template>
       </template>
@@ -60,9 +70,11 @@
 import { ref, computed, reactive } from 'vue';
 import { useAppStore } from '@/store/app';
 import { useUserStore } from '@/store/user';
+import { useRouter } from 'vue-router';
 
 const store = useAppStore();
 const userStore = useUserStore();
+const router = useRouter();
 
 const navItems = reactive([
   {
@@ -241,6 +253,11 @@ const userEmail = computed(() => userStore.currentUser?.email);
 const avatar = computed(() => {
   return `https://ui-avatars.com/api/?background=FCB017&color=fff&name=${userStore.currentUser?.user_metadata?.first_name}+${userStore.currentUser?.user_metadata?.last_name}`;
 })
+
+const isLinkAllowed = (roles: string[]) => {
+  console.log(roles)
+  return roles.includes(userStore?.currentUser?.role || '');
+}
 
 </script>
 
