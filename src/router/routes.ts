@@ -79,5 +79,51 @@ export default [
           },
         }
       ],
+    },
+    {
+      path: '/gas-types',
+      component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'GasTypeList',
+          component: () => import(/* webpackChunkName: "gas-type-list" */'@/views/gas-types/GasTypeList.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        },
+        {
+          path: 'new',
+          name: 'NewGasType',
+          component: () => import(/* webpackChunkName: "new-gas-type" */'@/views/gas-types/CreateGasType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          }
+        },
+        {
+          path: 'edit/:id',
+          name: 'EditGasType',
+          component: () => import(/* webpackChunkName: "edit-gas-type" */'@/views/gas-types/EditGasType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        },
+        {
+          path: ':id',
+          name: 'ViewGasType',
+          component: () => import(/* webpackChunkName: "view-gas-type" */'@/views/gas-types/ViewGasType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        }
+      ],
     }
 ];
