@@ -27,7 +27,7 @@
           <v-toolbar-title>Users</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
-          <v-btn color="white" dark>New User <v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
+          <v-btn color="white" dark to="/users/new" exact>New User <v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
         </v-toolbar>
         <v-dialog v-model="dialogDelete" max-width="600px">
           <v-card class="pt-4 pb-3" :loading="deleteLoading">
@@ -46,21 +46,26 @@
         </v-dialog>
       </template>
       <template v-slot:item.actions="{ item }">
-        <v-icon
-          v-if="isActionEnabled((item.columns as Columns))"
+        <v-btn 
           size="small"
-          class="me-2"
-          @click="editItem((item.columns as Columns))"
-        >
-          mdi-pencil
-        </v-icon>
-        <v-icon
-          v-if="isActionEnabled((item.columns as Columns))"
+          icon="mdi-eye"
+          variant="text"
+          :to="`/users/${item.raw.id}`"
+        ></v-btn>
+        <v-btn 
+          v-if="isActionEnabled((item.raw as Columns))"
           size="small"
-          @click="deleteItem((item.columns as Columns))"
-        >
-          mdi-delete
-        </v-icon>
+          icon="mdi-pencil"
+          variant="text"
+          :to="`/users/edit/${item.raw.id}`"
+        ></v-btn>
+        <v-btn
+          v-if="isActionEnabled((item.raw as Columns))"
+          size="small"
+          @click="deleteItem((item.raw as Columns))"
+          icon="mdi-delete"
+          variant="text"
+        ></v-btn>
       </template>
     </v-data-table-server>
   </div>
@@ -102,10 +107,6 @@ const deleteItem = (item: Columns) => {
   itemToDelete.value = item;
 }
 
-const editItem = (item: Columns) => {
-  console.log('Edit item: ', item);
-}
-
 const closeDialogDelete = () => {
   dialogDelete.value = false;
   itemToDelete.value = null;
@@ -124,6 +125,7 @@ const deleteItemConfirm = async () => {
       title: 'User deleted successfully',
       duration: 5000,
     });
+    data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
   } catch (e: any) {
     console.error(e);
     notify({
