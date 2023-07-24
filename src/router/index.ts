@@ -11,7 +11,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const userStore = useUserStore();
 
-  const allowedRoles: String[] = (to.meta.roles as String[]);
+  const allowedRoles: String[] = (to.meta.roles as String[]) || [];
   const requiresAuth = to.meta.requiresAuth;
   const onlyWhenLoggedOut = to.meta.onlyWhenLoggedOut;
   const currentUser = userStore.currentUser;
