@@ -70,11 +70,9 @@
 import { ref, computed, reactive } from 'vue';
 import { useAppStore } from '@/store/app';
 import { useUserStore } from '@/store/user';
-import { useRouter } from 'vue-router';
 
 const store = useAppStore();
 const userStore = useUserStore();
-const router = useRouter();
 
 const navItems = reactive([
   {

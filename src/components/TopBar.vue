@@ -11,7 +11,7 @@
       class="tw-w-60 tw-px-6"
       src="@/assets/top_logo.png"
     />
-    <v-app-bar-title>{{ title }}</v-app-bar-title>
+    <v-app-bar-title>{{ props.title }}</v-app-bar-title>
     <v-spacer></v-spacer>
     <v-tooltip text="Sign Out" location="bottom">
       <template v-slot:activator="{ props }">

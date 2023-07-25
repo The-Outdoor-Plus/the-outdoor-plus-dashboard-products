@@ -318,7 +318,7 @@ const handleUpdate = async (values: User) => {
       company: form.company,
     }
     if (!form.password) delete userInformation.password;
-    const { data: { user }, error: err } = await supabaseAdmin.auth.admin.updateUserById(
+    const { error: err } = await supabaseAdmin.auth.admin.updateUserById(
       props?.user?.id || '',
       userInformation,
     );
