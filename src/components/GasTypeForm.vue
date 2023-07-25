@@ -1,6 +1,12 @@
 <template>
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
+      <v-btn
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
+        icon="mdi-arrow-left" 
+        flat
+        @click="$router.push('/gas-types')"
+      ></v-btn>
       <form @submit.prevent="submit">
         <div class="tw-w-full">
           <h1 class="tw-text-base tw-font-semibold">{{ title }}</h1>
