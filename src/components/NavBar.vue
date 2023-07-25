@@ -255,7 +255,6 @@ const avatar = computed(() => {
 })
 
 const isLinkAllowed = (roles: string[]) => {
-  console.log(roles)
   return roles.includes(userStore?.currentUser?.role || '');
 }
 

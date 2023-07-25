@@ -2,6 +2,7 @@
   "name": "the-outdoor-plus-products-dashboard",
   "version": "0.0.0",
   "scripts": {
+    "dev:host": "vite --host",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
