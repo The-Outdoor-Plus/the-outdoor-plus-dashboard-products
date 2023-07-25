@@ -125,5 +125,51 @@ export default [
           },
         }
       ],
+    },
+    {
+      path: '/ignition-types',
+      component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+      children: [
+        {
+          path: '',
+          name: 'IgnitionTypeList',
+          component: () => import(/* webpackChunkName: "ignition-type-list" */'@/views/ignition-types/IgnitionTypeList.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        },
+        {
+          path: 'new',
+          name: 'NewIgnitionType',
+          component: () => import(/* webpackChunkName: "new-ignition-type" */'@/views/ignition-types/CreateIgnitionType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          }
+        },
+        {
+          path: 'edit/:id',
+          name: 'EditIgnitionType',
+          component: () => import(/* webpackChunkName: "edit-ignition-type" */'@/views/ignition-types/EditIgnitionType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        },
+        {
+          path: ':id',
+          name: 'ViewIgnitionType',
+          component: () => import(/* webpackChunkName: "view-ignition-type" */'@/views/ignition-types/ViewIgnitionType.vue'),
+          meta: {
+            requiresAuth: true,
+            onlyWhenLoggedOut: false,
+            roles: ['MANAGER', 'ADMIN'],
+          },
+        }
+      ],
     }
 ];
