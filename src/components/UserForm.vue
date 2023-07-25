@@ -234,11 +234,13 @@ const subtitle = computed(() => {
 });
 
 const fillUserInformation = () => {
-  firstName.value.value = props.user?.first_name || '';
-  lastName.value.value = props.user?.last_name || '';
-  email.value.value = props.user?.email || '';
-  role.value.value = props.user?.role || '';
-  company.value.value = props.user?.company || '';
+  if (props.edit || props.readonly) {
+    firstName.value.value = props.user?.first_name || '';
+    lastName.value.value = props.user?.last_name || '';
+    email.value.value = props.user?.email || '';
+    role.value.value = props.user?.role || '';
+    company.value.value = props.user?.company || '';
+  }
 }
 
 onMounted(() => {
