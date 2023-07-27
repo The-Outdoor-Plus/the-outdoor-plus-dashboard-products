@@ -263,5 +263,51 @@ export default [
         },
       }
     ],
+  },
+  {
+    path: '/shapes',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'ShapeList',
+        component: () => import(/* webpackChunkName: "shape-list" */'@/views/shapes/ShapeList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewShape',
+        component: () => import(/* webpackChunkName: "new-shape" */'@/views/shapes/CreateShape.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditShape',
+        component: () => import(/* webpackChunkName: "edit-shape" */'@/views/shapes/EditShape.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewShape',
+        component: () => import(/* webpackChunkName: "view-shape" */'@/views/shapes/ViewShape.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
   }
 ];
