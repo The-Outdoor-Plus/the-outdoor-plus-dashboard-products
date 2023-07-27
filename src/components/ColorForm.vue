@@ -111,7 +111,7 @@
             </div>
             <div class="tw-w-full tw-mt-3 tw-mb-10 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
               <v-img
-                width="200"
+                width="250"
                 :lazy-src="color?.image_url || ''"
                 :src="color?.image_url || ''"
               >
