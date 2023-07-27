@@ -173,49 +173,95 @@ export default [
     ],
   },
   {
-      path: '/materials',
-      component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
-      children: [
-        {
-          path: '',
-          name: 'MaterialsList',
-          component: () => import(/* webpackChunkName: "materials-list" */'@/views/materials/MaterialsList.vue'),
-          meta: {
-            requiresAuth: true,
-            onlyWhenLoggedOut: false,
-            roles: ['MANAGER', 'ADMIN'],
-          },
+    path: '/materials',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'MaterialsList',
+        component: () => import(/* webpackChunkName: "materials-list" */'@/views/materials/MaterialsList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
         },
-        {
-          path: 'new',
-          name: 'NewMaterial',
-          component: () => import(/* webpackChunkName: "new-material" */'@/views/materials/CreateMaterials.vue'),
-          meta: {
-            requiresAuth: true,
-            onlyWhenLoggedOut: false,
-            roles: ['MANAGER', 'ADMIN'],
-          }
-        },
-        {
-          path: 'edit/:id',
-          name: 'EditMaterial',
-          component: () => import(/* webpackChunkName: "edit-material" */'@/views/materials/EditMaterials.vue'),
-          meta: {
-            requiresAuth: true,
-            onlyWhenLoggedOut: false,
-            roles: ['MANAGER', 'ADMIN'],
-          },
-        },
-        {
-          path: ':id',
-          name: 'ViewMaterial',
-          component: () => import(/* webpackChunkName: "view-material" */'@/views/materials/ViewMaterials.vue'),
-          meta: {
-            requiresAuth: true,
-            onlyWhenLoggedOut: false,
-            roles: ['MANAGER', 'ADMIN'],
-          },
+      },
+      {
+        path: 'new',
+        name: 'NewMaterial',
+        component: () => import(/* webpackChunkName: "new-material" */'@/views/materials/CreateMaterials.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
         }
-      ],
-    }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditMaterial',
+        component: () => import(/* webpackChunkName: "edit-material" */'@/views/materials/EditMaterials.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewMaterial',
+        component: () => import(/* webpackChunkName: "view-material" */'@/views/materials/ViewMaterials.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
+  },
+  {
+    path: '/colors',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'ColorsList',
+        component: () => import(/* webpackChunkName: "colors-list" */'@/views/colors/ColorsList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewColor',
+        component: () => import(/* webpackChunkName: "new-color" */'@/views/colors/CreateColor.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditColor',
+        component: () => import(/* webpackChunkName: "edit-color" */'@/views/colors/EditColor.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewColor',
+        component: () => import(/* webpackChunkName: "view-color" */'@/views/colors/ViewColor.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
+  }
 ];
