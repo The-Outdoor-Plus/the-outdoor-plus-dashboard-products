@@ -309,5 +309,51 @@ export default [
         },
       }
     ],
+  },
+  {
+    path: '/collections',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'CollectionList',
+        component: () => import(/* webpackChunkName: "collection-list" */'@/views/collections/CollectionList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewCollection',
+        component: () => import(/* webpackChunkName: "new-collection" */'@/views/collections/CreateCollection.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditCollection',
+        component: () => import(/* webpackChunkName: "edit-collection" */'@/views/collections/EditCollection.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewCollection',
+        component: () => import(/* webpackChunkName: "view-collection" */'@/views/collections/ViewCollection.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
   }
 ];
