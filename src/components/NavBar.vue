@@ -174,12 +174,12 @@ const navItems = reactive([
     children: [
       {
         label: 'View colors',
-        link: '/finishes',  
+        link: '/colors',  
         roles: ['MANAGER', 'ADMIN'],
       },
       {
         label: 'Create color',
-        link: '/finishes/new',
+        link: '/colors/new',
         roles: ['MANAGER', 'ADMIN']
       }
     ]
