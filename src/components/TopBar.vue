@@ -3,6 +3,7 @@
     flat
     border
     color="white"
+    class="!tw-fixed"
   >
     <template v-slot:prepend>
       <v-app-bar-nav-icon @click="store.rail = !store.rail"></v-app-bar-nav-icon>
