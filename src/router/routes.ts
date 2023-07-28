@@ -355,5 +355,51 @@ export default [
         },
       }
     ],
+  },
+  {
+    path: '/categories',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'CategoryList',
+        component: () => import(/* webpackChunkName: "category-list" */'@/views/categories/CategoryList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewCategory',
+        component: () => import(/* webpackChunkName: "new-category" */'@/views/categories/CreateCategory.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditCategory',
+        component: () => import(/* webpackChunkName: "edit-category" */'@/views/categories/EditCategory.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewCategory',
+        component: () => import(/* webpackChunkName: "view-category" */'@/views/categories/ViewCategory.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
   }
 ];
