@@ -230,6 +230,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
       const { data: categories, error, count } = await supabase
         .from('category')
         .select('*', { count: 'exact' })
+        .is(`parent_id`, null)
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
