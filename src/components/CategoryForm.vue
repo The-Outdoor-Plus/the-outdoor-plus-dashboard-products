@@ -5,7 +5,7 @@
         class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
         icon="mdi-arrow-left" 
         flat
-        @click="$router.push('/categories')"
+        @click="$router.back()"
       ></v-btn>
       <form @submit.prevent="submit">
         <div class="tw-w-full">
@@ -54,6 +54,28 @@
             </span>
           </div>
         </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Parent</h3>
+            <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
+            </span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-autocomplete
+              v-model="parent.value.value"
+              variant="outlined"
+              density="compact"
+              name="Material"
+              :items="parentCategories"
+              item-title="name"
+              item-value="id"
+              :error-messages="parent.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-autocomplete>
+          </div>
+        </div>
         <v-divider class="border-opacity-100 tw-mb-6 tw-mt-1"></v-divider>
         <div class="tw-w-full">
           <v-spacer></v-spacer>
@@ -75,6 +97,7 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRouter } from 'vue-router';
+import { Ref } from 'vue';
 
 /**
  * 
@@ -86,6 +109,7 @@ interface Category {
   id?: number;
   name: string;
   slug?: string;
+  parent_id?: number;
 }
 
 interface Props {
@@ -158,6 +182,35 @@ const slugify = (str: string) => (
 const slugPlaceholder = computed(() => slugify(name.value.value))
 
 /**
+ * Parent Category Definitions
+ */
+const parentCategories: Ref<Category[]> = ref<Category[]>([]) 
+const listParentCategories = async () => {
+  try {
+    isLoading.value = true;
+    const { data, error } = await supabase
+      .from('category')
+      .select('id, name');
+    if (error) throw error;
+    parentCategories.value = data;
+    parentCategories.value.unshift({
+      id: 0,
+      name: 'No Parent',
+    });
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: 'An error occurred while loading parent categories list',
+      text: e?.message || 'An error occurred trying to load parent categories list. Please contact TOP support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+/**
  * 
  * Handle Form
  * 
@@ -168,22 +221,26 @@ const { handleSubmit } = useForm({
     yup.object({
       name: yup.string().min(2).required(),
       slug: yup.string(),
+      parent: yup.number(),
     })
   ),
 });
 
 const name = useField<string>('name');
 const slug = useField<string>('slug');
+const parent = useField<number>('parent');
 
 const fillCategoryInformation = () => {
   if (props.edit || props.readonly) {
     name.value.value = props.category?.name || '';
     slug.value.value = props.category?.slug || '';
+    parent.value.value = Number(props.category?.parent_id) || 0
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   fillCategoryInformation();
+  await listParentCategories();
 });
 watch(
   () => props.category,
@@ -199,11 +256,9 @@ watch(
  * 
  */
 
-const handleCreate = async (values: Category) => {
+const handleCreate = async (form: Category) => {
   try {
     isLoading.value = true;
-    const form = JSON.parse(JSON.stringify(values));
-    if (!form.slug) form.slug = slugify(form.name);
     const { data: category , error } = await supabase
       .from('category')
       .insert(form)
@@ -228,11 +283,9 @@ const handleCreate = async (values: Category) => {
   }
 }
 
-const handleUpdate = async (values: Category) => {
+const handleUpdate = async (form: Category) => {
   try {
     isLoading.value = true;
-    const form = JSON.parse(JSON.stringify(values));
-    if (!form.slug) form.slug = slugify(form.name);
     const { data: category, error } = await supabase
       .from('category')
       .update(form)
@@ -242,6 +295,7 @@ const handleUpdate = async (values: Category) => {
     if(category.length) {
       name.value.value = category[0].name;
       slug.value.value = category[0].slug;
+      parent.value.value = Number(category[0].parent_id);
     }
     notify({
       title: 'Category updated successfully',
@@ -263,10 +317,15 @@ const handleUpdate = async (values: Category) => {
 }
 
 const submit = handleSubmit(async (values) => {
+  const form = JSON.parse(JSON.stringify(values));
+  if (!form.slug) form.slug = slugify(form.name);
+  if (Number(form.parent))
+    form.parent_id = Number(form.parent);
+  delete form.parent;
   if (props.new) {
-    await handleCreate(values);
+    await handleCreate(form);
   } else if (props.edit) {
-    await handleUpdate(values);
+    await handleUpdate(form);
   }
 })
 
