@@ -1,6 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
+    class="tw-max-h-[95vh] !tw-fixed"
     :rail="store.rail"
     permanent
     @click="store.rail = false"
@@ -70,11 +71,9 @@
 import { ref, computed, reactive } from 'vue';
 import { useAppStore } from '@/store/app';
 import { useUserStore } from '@/store/user';
-import { useRouter } from 'vue-router';
 
 const store = useAppStore();
 const userStore = useUserStore();
-const router = useRouter();
 
 const navItems = reactive([
   {
@@ -176,12 +175,12 @@ const navItems = reactive([
     children: [
       {
         label: 'View colors',
-        link: '/finishes',  
+        link: '/colors',  
         roles: ['MANAGER', 'ADMIN'],
       },
       {
         label: 'Create color',
-        link: '/finishes/new',
+        link: '/colors/new',
         roles: ['MANAGER', 'ADMIN']
       }
     ]
@@ -255,7 +254,6 @@ const avatar = computed(() => {
 })
 
 const isLinkAllowed = (roles: string[]) => {
-  console.log(roles)
   return roles.includes(userStore?.currentUser?.role || '');
 }
 

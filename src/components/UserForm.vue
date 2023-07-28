@@ -1,6 +1,12 @@
 <template>
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
+      <v-btn
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
+        icon="mdi-arrow-left" 
+        flat
+        @click="$router.push('/users')"
+      ></v-btn>
       <form
         @submit.prevent="submit"
       >
@@ -234,11 +240,13 @@ const subtitle = computed(() => {
 });
 
 const fillUserInformation = () => {
-  firstName.value.value = props.user?.first_name || '';
-  lastName.value.value = props.user?.last_name || '';
-  email.value.value = props.user?.email || '';
-  role.value.value = props.user?.role || '';
-  company.value.value = props.user?.company || '';
+  if (props.edit || props.readonly) {
+    firstName.value.value = props.user?.first_name || '';
+    lastName.value.value = props.user?.last_name || '';
+    email.value.value = props.user?.email || '';
+    role.value.value = props.user?.role || '';
+    company.value.value = props.user?.company || '';
+  }
 }
 
 onMounted(() => {
@@ -316,7 +324,7 @@ const handleUpdate = async (values: User) => {
       company: form.company,
     }
     if (!form.password) delete userInformation.password;
-    const { data: { user }, error: err } = await supabaseAdmin.auth.admin.updateUserById(
+    const { error: err } = await supabaseAdmin.auth.admin.updateUserById(
       props?.user?.id || '',
       userInformation,
     );
