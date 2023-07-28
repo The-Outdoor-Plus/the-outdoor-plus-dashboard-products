@@ -1,6 +1,7 @@
 <template>
   <v-navigation-drawer
     v-model="drawer"
+    class="tw-max-h-[95vh] !tw-fixed"
     :rail="store.rail"
     permanent
     @click="store.rail = false"
