@@ -13,6 +13,40 @@
           <div class="tw-text-sm">{{ subtitle }}</div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div>
+          <v-row>
+            <v-col
+              cols="12"
+              sm="6"
+              md="5"
+              lg="3"
+              xl="2"
+            >
+              <v-checkbox
+                v-model="enabled.value.value"
+                color="green-darken-1"
+                label="Enable Product"
+              ></v-checkbox>
+            </v-col>
+            <v-col
+              cols="12"
+              sm="6"
+              md="5"
+              lg="3"
+              xl="2"
+            >
+              <v-checkbox
+                v-model="published.value.value"
+                color="blue-darken-1"
+                label="Publish Product"
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <span class="tw-text-sm tw-text-gray-500"><b>Enable product: </b>If checked, it means that the product is enabled for display on the dashboard and on the quick view pricing tool. This will allow dealers and sales to see the details about the product.</span>
+          <br>
+          <span class="tw-text-sm tw-text-gray-500"><b>Publish product: </b>If checked, it means the product is ready to be published on the website and ready to start selling.</span>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Name</h3>
@@ -81,11 +115,67 @@
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Type</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="relation.value.value"
+              variant="outlined"
+              density="compact"
+              name="Relation"
+              placeholder="Product Type"
+              readonly
+              :error-messages="relation.errorMessage.value"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Company Division</h3>
+            <span class="tw-text-sm tw-text-gray-500">This defines which company division is the product from. The Outdoor Plus, Diamond Grills BBQ, TOP Flames, TFL, etc.</span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="companyDivision.value.value"
+              variant="outlined"
+              density="compact"
+              name="Division"
+              placeholder="The Outdoor Plus"
+              :error-messages="companyDivision.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Serial Base</h3>
+            <span class="tw-text-sm tw-text-gray-500">This will define the starting text part of the serial. E.g: E110-23</span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="productSerialBase.value.value"
+              variant="outlined"
+              density="compact"
+              name="SerialBase"
+              placeholder="Product Serial Base"
+              :error-messages="productSerialBase.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Prices</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
             <template 
-              v-for="(priceType, key) in priceTypeList"
+              v-for="(priceType, key) in productStore.priceTypeList"
               :key="key"
             >
               <h3 class="tw-text-base tw-font-semibold">{{ priceType.value }} Price</h3>
@@ -151,6 +241,7 @@
               clearable
               :items="itemsList.collection"
               :error-messages="collectionId.errorMessage.value"
+              :loading="itemsLoading.collectionLoading"
               :readonly="readonly"
             >
             </v-autocomplete>
@@ -173,6 +264,7 @@
               clearable
               :items="itemsList.category"
               :error-messages="categoryId.errorMessage.value"
+              :loading="itemsLoading.categoryLoading"
               :readonly="readonly"
             >
             </v-autocomplete>
@@ -195,6 +287,7 @@
               clearable
               :items="itemsList.shape"
               :error-messages="shapeId.errorMessage.value"
+              :loading="itemsLoading.shapeLoading"
               :readonly="readonly"
             >
             </v-autocomplete>
@@ -202,7 +295,7 @@
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Material</h3>
             <span class="tw-text-sm tw-text-gray-500">If Base Material is selected, this becomes the material of the top.</span>
           </div>
@@ -218,34 +311,12 @@
               clearable
               :items="itemsList.material"
               :error-messages="materialId.errorMessage.value"
+              :loading="itemsLoading.materialLoading"
               :readonly="readonly"
             >
             </v-autocomplete>
           </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
-            <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="materialId.value.value"
-              variant="outlined"
-              density="compact"
-              name="Material"
-              placeholder="Material"
-              item-title="name"
-              item-value="id"
-              clearable
-              :items="itemsList.material"
-              :error-messages="materialId.errorMessage.value"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
-        </div>
+        </div> 
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -264,11 +335,533 @@
               clearable
               :multiple="isParent"
               :chips="isParent"
-              :items="itemsList.material"
+              :items="itemsList.color"
               :error-messages="colorId.errorMessage.value"
+              :loading="itemsLoading.colorLoading"
               :readonly="readonly"
             >
             </v-autocomplete>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
+            <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-autocomplete
+              v-model="baseMaterialId.value.value"
+              variant="outlined"
+              density="compact"
+              name="Material"
+              placeholder="Material"
+              item-title="name"
+              item-value="id"
+              clearable
+              :items="itemsList.material"
+              :error-messages="baseMaterialId.errorMessage.value"
+              :loading="itemsLoading.materialLoading"
+              :readonly="readonly"
+            >
+            </v-autocomplete>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Colors</h3>
+            <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-autocomplete
+              v-model="baseColors"
+              variant="outlined"
+              density="compact"
+              name="Colors"
+              placeholder="Colors"
+              item-title="name"
+              item-value="id"
+              clearable
+              :multiple="isParent"
+              :chips="isParent"
+              :items="itemsList.baseColor"
+              :error-messages="baseColorId.errorMessage.value"
+              :loading="itemsLoading.baseColorLoading"
+              :readonly="readonly"
+            >
+            </v-autocomplete>
+          </div>
+        </div> 
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Ignition Types</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-autocomplete
+              v-model="ignitionTypes"
+              variant="outlined"
+              density="compact"
+              name="Ignition"
+              placeholder="Ignition Type"
+              item-title="name"
+              item-value="id"
+              clearable
+              :multiple="isParent"
+              :chips="isParent"
+              :items="itemsList.ignition"
+              :error-messages="ignitionId.errorMessage.value"
+              :loading="itemsLoading.ignitionLoading"
+              :readonly="readonly"
+            >
+            </v-autocomplete>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Gas Types</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-autocomplete
+              v-model="gasTypes"
+              variant="outlined"
+              density="compact"
+              name="Gas"
+              placeholder="Gas Type"
+              item-title="name"
+              item-value="id"
+              clearable
+              :multiple="isParent"
+              :chips="isParent"
+              :items="itemsList.gas"
+              :error-messages="gasId.errorMessage.value"
+              :loading="itemsLoading.gasLoading"
+              :readonly="readonly"
+            >
+            </v-autocomplete>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Certifications</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-9/12 tw-flex">
+            <v-checkbox
+              v-model="certifications"
+              color="blue-darken-1"
+              label="CSA Certified"
+              value="CSA"
+            ></v-checkbox>
+            <v-checkbox
+              v-model="certifications"
+              color="green-darken-2"
+              label="LC Certified"
+              value="LC"
+            ></v-checkbox>
+            <v-checkbox
+              v-model="certifications"
+              color="indigo"
+              label="UL Certified"
+              value="UL"
+            ></v-checkbox>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Short Description</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-textarea
+              v-model="shortDescription.value.value"
+              variant="outlined"
+              density="compact"
+              name="SDescription"
+              placeholder="Short Description"
+              :error-messages="shortDescription.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-textarea>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Description</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-9/12 xl:tw-w-6/12">
+            <v-textarea
+              v-model="description.value.value"
+              variant="outlined"
+              density="compact"
+              name="Description"
+              placeholder="Description"
+              :error-messages="description.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-textarea>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Dimensions</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-combobox
+              v-model="length"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="PLength"
+              placeholder="Product Length"
+              clearable
+              closable-chips
+              :multiple="isParent"
+              :chips="isParent"
+              :items="productStore.sizes"
+              :error-messages="productLength.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-combobox>
+            <v-combobox
+              v-model="diameter"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="PDiameter"
+              placeholder="Product Diameter"
+              clearable
+              closable-chips
+              :multiple="isParent"
+              :chips="isParent"
+              :items="productStore.sizes"
+              :error-messages="productDiameter.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-combobox>
+            <v-text-field
+              v-model="productWidth.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="PWidth"
+              placeholder="Product Width"
+              label="Product Width"
+              :error-messages="productWidth.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="productHeight.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="PHeight"
+              placeholder="Product Height"
+              label="Prodcut Height"
+              :error-messages="productHeight.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Dimensions</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="baseLength.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BLength"
+              placeholder="Base Length"
+              label="Base Length"
+              :error-messages="baseLength.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baseDiameter.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BDiameter"
+              placeholder="Base Diameter"
+              label="Base Diamater"
+              :error-messages="baseDiameter.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baseWidth.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BWidth"
+              placeholder="Base Width"
+              label="Base Width"
+              :error-messages="baseWidth.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baseOpening.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BOpening"
+              placeholder="Base Opening"
+              label="Base Opening"
+              :error-messages="baseOpening.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Scupper Attributes</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="scupperWidth.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="SWidth"
+              placeholder="Scupper Width"
+              label="Scupper Width"
+              :error-messages="scupperWidth.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="scupperInletOpening.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="SInlet"
+              placeholder="Scupper Inlet Opening"
+              label="Scupper Inlet Opening"
+              :error-messages="scupperInletOpening.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="gpm.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="SGpm"
+              placeholder="GPM"
+              label="GPM"
+              :error-messages="gpm.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">BA Dimensions</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="baLength.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BALength"
+              placeholder="BA Length"
+              label="BA Length"
+              :error-messages="baLength.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baDiameter.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BADiameter"
+              placeholder="BA Diameter"
+              label="BA Diamater"
+              :error-messages="baDiameter.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baWidth.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BAWidth"
+              placeholder="BA Width"
+              label="BA Width"
+              :error-messages="baWidth.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="baDepth.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BADepth"
+              placeholder="BA Depth"
+              label="BA Depth"
+              :error-messages="baDepth.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Burner Dimensions</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="burnerLength.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BurnerLength"
+              placeholder="Burner Length"
+              label="Burner Length"
+              :error-messages="burnerLength.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="burnerDiameter.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BurnerDiameter"
+              placeholder="Burner Diameter"
+              label="Burner Diameter"
+              :error-messages="burnerDiameter.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="burnerShape.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BurnerShape"
+              placeholder="Burner Shape"
+              label="Burner Shape"
+              :error-messages="burnerShape.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Accessories</h3>
+            <span class="tw-text-sm tw-text-gray-500">The value of a compatible accessory <i>must</i> be the SKU from that accessory.</span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="compatibleCanvasCover.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="CanvasCover"
+              placeholder="Compatible Canvas Cover"
+              label="Compatible Canvas Cover"
+              :error-messages="compatibleCanvasCover.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="compatibleBulletBurner.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="BulletBurner"
+              placeholder="Compatible Bullet Burner"
+              label="Compatible Bullet Burner"
+              :error-messages="compatibleBulletBurner.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="compatibleGlassWindGuard.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="GlassWindGuard"
+              placeholder="Compatible Glass Wind Guard"
+              label="Compatible Glass Wind Guard"
+              :error-messages="compatibleGlassWindGuard.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-checkbox
+              v-model="accessDoor.value.value"
+              class="tw-w-full lg:tw-w-5/12 -tw-mt-1"
+              color="green-darken-1"
+              label="Has Access Door?"
+            ></v-checkbox>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Extra Attributes</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+            <v-text-field
+              v-model="toeKick.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="ToeKick"
+              placeholder="Toe Kick"
+              label="Toe Kick"
+              :error-messages="toeKick.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="fireGlass.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="FireGlass"
+              placeholder="Fire Glass"
+              label="Fire Glass"
+              :error-messages="fireGlass.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+            <v-text-field
+              v-model="soilUsage.value.value"
+              class="tw-w-full lg:tw-w-5/12"
+              variant="outlined"
+              density="compact"
+              name="SoilUsage"
+              placeholder="Soil Usage"
+              label="Soil Usage"
+              :error-messages="soilUsage.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-mb-6 tw-mt-1"></v-divider>
@@ -285,163 +878,14 @@
   </div>
 </template>
 <script lang="ts" setup>
-import * as yup from 'yup';
-import { toTypedSchema } from '@vee-validate/yup';
 import { useField, useForm } from 'vee-validate';
 import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
+import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-
-/**
- * 
- * Defining Interfaces
- * 
- */
-interface Shape {
-  id?: number;
-  name: string;
-}
-
-interface Material {
-  id?: number;
-  name: string;
-}
-
-interface IgnitionType {
-  id?: number;
-  name: string;
-}
-
-interface GasType {
-  id?: number;
-  name: string;
-}
-
-interface Color {
-  id?: number;
-  name: string;
-}
-
-interface Collection {
-  id?: number;
-  name: string;
-}
-
-interface Category {
-  id?: number;
-  name: string;
-}
-
-interface ItemsList {
-  category: Category[];
-  collection: Collection[];
-  color: Color[];
-  gas: GasType[];
-  ignition: IgnitionType[];
-  material: Material[];
-  shape: Shape[];
-}
-
-interface Price {
-  id?: number;
-  product_id?: number;
-  price?: number;
-  year?: number;
-}
-
-interface PriceData {
-  msrp: Price[];
-  map: Price[];
-  internet: Price[];
-  group: Price[];
-  dealer: Price[];
-  distributor: Price[];
-  landscape: Price[];
-  master_distributor: Price[];
-}
-
-interface ProductImage {
-  product_id?: number;
-  image_id?: number;
-  display_order?: number;
-  is_primary?: boolean;
-  url?: string;
-  name?: string;
-}
-
-interface Product {
-  id?: number;
-  sku?: string
-  upc_codes?: string;
-  encoded_upc_codes?: string;
-  relation: string;
-  product_length?: string;
-  product_diameter?: string;
-  product_width?: string;
-  product_height?: string;
-  base_length?: string;
-  base_diameter?: string;
-  base_width?: string;
-  base_opening?: string;
-  toe_kick?: string;
-  soil_usage?: string;
-  scupper_width?: string;
-  scupper_inlet_opening?: string;
-  gpm?: string;
-  fire_glass?: string;
-  ba_length?: string;
-  ba_diameter?: string;
-  ba_width?: string;
-  ba_depth?: string;
-  burner_shape?: string;
-  burner_length?: string;
-  burner_diameter?: string;
-  compatible_canvas_cover?: string;
-  compatible_bullet_burner?: string;
-  compatible_glass_wind_guard?: string;
-  access_door?: boolean;
-  parent_id?: number;
-  collection_id?: number;
-  category_id?: number;
-  shape_id?: number;
-  material_id?: number;
-  color_id?: number;
-  ignition_id?: number;
-  gas_id?: number;
-  product_serial_base?: string;
-  certifications?: string[];
-  base_color_id?: number;
-  base_material_id?: number;
-  published?: boolean;
-  enabled?: boolean;
-  created_by?: string;
-  updated_by?: string;
-  company_division?: string;
-  updated_at?: string;
-  created_at?: string;
-  name?: string;
-  short_description?: string;
-  description?: string;
-  dealer_prices?: Price[];
-  distributor_prices?: Price[];
-  group_prices?: Price[];
-  internet_prices?: Price[];
-  landscape_prices?: Price[];
-  map_prices?: Price[];
-  master_distributor_prices?: Price[];
-  msrp_prices?: Price[];
-  images?: ProductImage[];
-}
-
-interface Props {
-  new?: boolean;
-  edit?: boolean;
-  readonly?: boolean;
-  product?: Product | null;
-  loading?: boolean;
-}
+import { ItemsList, Price, PriceData, Product, Props } from '@/types/product';
 
 /**
  * 
@@ -451,6 +895,7 @@ interface Props {
 
  const router = useRouter();
  const route = useRoute();
+ const productStore = useProductStore();
  const isLoading = ref(false);
  const { notify } = useNotification();
 
@@ -474,6 +919,12 @@ const isParent = computed(() => {
   return false;
 });
 
+onMounted(() => {
+  if (!route.params.parent_id) relation.value.value = 'PARENT'
+  else if (route.params.relation_type === 'parent') relation.value.value = 'PARENT'
+  else relation.value.value = 'CHILD';
+});
+
 const title = computed(() => {
   if (props.new) return 'Create Product';
   if (props.edit) return 'Edit Product';
@@ -488,6 +939,17 @@ const subtitle = computed(() => {
   return '';
 });
 
+const itemsLoading = ref({
+  categoryLoading: false,
+  collectionLoading: false,
+  colorLoading: false,
+  gasLoading: false,
+  ignitionLoading: false,
+  materialLoading: false,
+  shapeLoading: false,
+  baseColorLoading: false,
+});
+
 const itemsList: Ref<ItemsList> = ref<ItemsList>({
   category: [],
   collection: [],
@@ -496,10 +958,11 @@ const itemsList: Ref<ItemsList> = ref<ItemsList>({
   ignition: [],
   material: [],
   shape: [],
+  baseColor: [],
 });
 const loadItemsList = async (itemType: keyof ItemsList) => {
   try {
-    isLoading.value = true;
+    itemsLoading.value[`${itemType}Loading`] = true;
     const { data, error } = await supabase
       .from(itemType)
       .select('id, name');
@@ -514,7 +977,7 @@ const loadItemsList = async (itemType: keyof ItemsList) => {
       duration: 6000,
     }); 
   } finally {
-    isLoading.value = false;
+    itemsLoading.value[`${itemType}Loading`] = false;
   }
 }
 
@@ -531,17 +994,6 @@ const generateYearList = (currentYear: number): number[] => {
   return yearArray;
 }
   
-const priceTypeList = ref([
-  { value: 'Internet', key: 'internet' },
-  { value: 'MAP', key: 'map' }, 
-  { value: 'MSRP', key: 'msrp' },
-  { value: 'Group', key: 'group' },
-  { value: 'Dealer', key: 'dealer' }, 
-  { value: 'Distributor', key: 'distributor' }, 
-  { value: 'Landscape', key: 'landscape' }, 
-  { value: 'Master Distributor', key: 'master_distributor' },
-]);
-
 const yearToShowList = (priceType: keyof PriceData) => {
   const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
   return yearList.value.filter((year: number) => !yearsToExclude.has(year));
@@ -554,9 +1006,8 @@ const removeYearFromList = (priceType: keyof PriceData, item: Price) => {
 onMounted(async () => {
   await loadItemsList('category');
   await loadItemsList('collection');
-  await loadItemsList('color');
-  // await loadItemsList('gas');
-  // await loadItemsList('ignition');
+  await loadItemsList('gas');
+  await loadItemsList('ignition');
   await loadItemsList('material');
   await loadItemsList('shape');
 
@@ -582,86 +1033,13 @@ const addPrice = (priceType: keyof PriceData) => {
 
 /**
  * 
- * Slug definitions
- * 
- */
-
-
-/**
- * Grabbed from https://byby.dev/js-slugify-string
- */
-const slugify = (str: string) => (
-  String(str)
-    .normalize('NFKD') // split accented characters into their base characters and diacritical marks
-    .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
-    .trim() // trim leading or trailing whitespace
-    .toLowerCase() // convert to lowercase
-    .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
-    .replace(/\s+/g, '-') // replace spaces with hyphens
-    .replace(/-+/g, '-') // remove consecutive hyphens
-)
-
-const slugPlaceholder = computed(() => slugify(name.value.value))
-
-/**
- * 
  * Handle Form
  * 
  */
 
 const { handleSubmit } = useForm({
-  validationSchema: toTypedSchema(
-    yup.object({
-      name: yup.string().min(2).required(),
-      sku: yup.string().min(2),
-      upc_codes: yup.string(),
-      encoded_upc_codes: yup.string(),
-      relation: yup.string().required(),
-      product_length: yup.string(),
-      product_diameter: yup.string(),
-      product_width: yup.string(),
-      product_height: yup.string(),
-      base_length: yup.string(),
-      base_diameter: yup.string(),
-      base_width: yup.string(),
-      base_opening: yup.string(),
-      toe_kick: yup.string(),
-      soil_usage: yup.string(),
-      scupper_width: yup.string(),
-      scupper_inlet_opening: yup.string(),
-      gpm: yup.string(),
-      fire_glass: yup.string(),
-      ba_length: yup.string(),
-      ba_diameter: yup.string(),
-      ba_width: yup.string(),
-      ba_depth: yup.string(),
-      burner_shape: yup.string(),
-      burner_length: yup.string(),
-      burner_diameter: yup.string(),
-      compatible_canvas_cover: yup.string(),
-      compatible_bullet_burner: yup.string(),
-      compatible_glass_wind_guard: yup.string(),
-      access_door: yup.boolean(),
-      parent_id: yup.number(),
-      collection_id: yup.number().nullable(),
-      category_id: yup.number().nullable(),
-      shape_id: yup.number().nullable(),
-      material_id: yup.number().nullable(),
-      color_id: yup.number().nullable(),
-      ignition_id: yup.number().nullable(),
-      gas_id: yup.number().nullable(),
-      product_serial_base: yup.string(),
-      certifications: yup.array(),
-      base_color_id: yup.number(),
-      base_material_id: yup.number(),
-      published: yup.boolean(),
-      enabled: yup.boolean(),
-      created_by: yup.string(),
-      company_division: yup.string(),
-      short_description: yup.string(),
-      description: yup.string(),
-    })
-  ),
+  validationSchema: productStore.formValidation,
+  initialValues: productStore.initialValues,
 });
 
 const name = useField<string>('name');
@@ -670,11 +1048,13 @@ const upcCodes = useField<string>('upc_codes');
 const encodedUpcCodes = useField<string>('encoded_upc_codes');
 const relation = useField<string>('relation');
 const productLength = useField<string>('product_length');
+const length = ref([]);
 const productDiameter = useField<string>('product_diameter');
+const diameter = ref([]);
 const productWidth = useField<string>('product_width');
 const productHeight = useField<string>('product_height');
 const baseLength = useField<string>('base_length');
-const baseDiiameter = useField<string>('base_diameter');
+const baseDiameter = useField<string>('base_diameter');
 const baseWidth = useField<string>('base_width');
 const baseOpening = useField<string>('base_opening');
 const toeKick = useField<string>('toe_kick');
@@ -694,22 +1074,23 @@ const compatibleCanvasCover = useField<string>('compatible_canvas_cover');
 const compatibleBulletBurner = useField<string>('compatible_bullet_burner');
 const compatibleGlassWindGuard = useField<string>('compatible_glass_wind_guard');
 const accessDoor = useField<boolean>('access_door');
-const parentId = useField<number>('parent_id');
 const collectionId = useField<number>('collection_id');
 const categoryId = useField<number>('category_id');
 const shapeId = useField<number>('shape_id');
 const materialId = useField<number>('material_id');
 const colorId = useField<number>('color_id');
 const colors = ref([]);
+const baseColors = ref([]);
 const ignitionId = useField<number>('ignition_id');
+const ignitionTypes = ref([]);
 const gasId = useField<number>('gas_id');
+const gasTypes = ref([]);
 const productSerialBase = useField<string>('product_serial_base');
-const certifications = useField<string[]>('certifications');
+const certifications = ref([]);
 const baseColorId = useField<number>('base_color_id');
 const baseMaterialId = useField<number>('base_material_id');
 const published = useField<boolean>('published');
 const enabled = useField<boolean>('enabled');
-const createdBy = useField<string>('created_by');
 const companyDivision = useField<string>('company_division');
 const shortDescription = useField<string>('short_description');
 const description = useField<string>('description');
@@ -719,6 +1100,29 @@ const fillProductInformation = () => {
     name.value.value = props.product?.name || '';
   }
 }
+
+const loadMaterialColors = async (colorType: keyof ItemsList, id: number) => {
+  try {
+    itemsLoading.value[`${colorType}Loading`] = true;
+    const { data, error } = await supabase
+      .from('color')
+      .select('id, name')
+      .eq(`material_id`, id);
+    if (error) throw error;
+    itemsList.value[colorType] = data;
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: `Error loading color list`,
+      text: e?.message || `An error occurred trying to load color list. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    }); 
+  } finally {
+    itemsLoading.value[`${colorType}Loading`] = false;
+  }
+}
+
 onMounted(() => {
   fillProductInformation();
 });
@@ -728,6 +1132,20 @@ watch(
     fillProductInformation();
   },
   { deep: true }
+);
+
+watch(
+  () => materialId.value.value,
+  async () => {
+    await loadMaterialColors('color', materialId.value.value);
+  },
+);
+
+watch(
+  () => baseMaterialId.value.value,
+  async () => {
+    await loadMaterialColors('baseColor', baseMaterialId.value.value);
+  },
 );
 
 /**
@@ -797,6 +1215,7 @@ const handleUpdate = async (values: Product) => {
 }
 
 const submit = handleSubmit(async (values) => {
+  const form: typeof values = JSON.parse(JSON.stringify(values));
   if (props.new) {
     await handleCreate(values);
   } else if (props.edit) {
