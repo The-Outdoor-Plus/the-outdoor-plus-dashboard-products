@@ -1215,7 +1215,7 @@ const handleUpdate = async (values: Product) => {
 }
 
 const submit = handleSubmit(async (values) => {
-  const form: typeof values = JSON.parse(JSON.stringify(values));
+  const form = JSON.parse(JSON.stringify(values)) as typeof values;
   if (props.new) {
     await handleCreate(values);
   } else if (props.edit) {
