@@ -313,6 +313,7 @@
               :error-messages="materialId.errorMessage.value"
               :loading="itemsLoading.materialLoading"
               :readonly="readonly"
+              @click:clear="materialId.value.value = 0"
             >
             </v-autocomplete>
           </div>
@@ -325,7 +326,7 @@
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
             <v-autocomplete
-              v-model="colors"
+              v-model="productAttrs.colors.value"
               variant="outlined"
               density="compact"
               name="Colors"
@@ -333,6 +334,7 @@
               item-title="name"
               item-value="id"
               clearable
+              closable-chips
               :multiple="isParent"
               :chips="isParent"
               :items="itemsList.color"
@@ -375,7 +377,7 @@
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
             <v-autocomplete
-              v-model="baseColors"
+              v-model="productAttrs.baseColors.value"
               variant="outlined"
               density="compact"
               name="Colors"
@@ -383,6 +385,7 @@
               item-title="name"
               item-value="id"
               clearable
+              closable-chips
               :multiple="isParent"
               :chips="isParent"
               :items="itemsList.baseColor"
@@ -400,7 +403,7 @@
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
             <v-autocomplete
-              v-model="ignitionTypes"
+              v-model="productAttrs.ignitionTypes.value"
               variant="outlined"
               density="compact"
               name="Ignition"
@@ -408,6 +411,7 @@
               item-title="name"
               item-value="id"
               clearable
+              closable-chips
               :multiple="isParent"
               :chips="isParent"
               :items="itemsList.ignition"
@@ -425,7 +429,7 @@
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
             <v-autocomplete
-              v-model="gasTypes"
+              v-model="productAttrs.gasTypes.value"
               variant="outlined"
               density="compact"
               name="Gas"
@@ -433,6 +437,7 @@
               item-title="name"
               item-value="id"
               clearable
+              closable-chips
               :multiple="isParent"
               :chips="isParent"
               :items="itemsList.gas"
@@ -885,7 +890,7 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-import { ItemsList, Price, PriceData, Product, Props } from '@/types/product';
+import { Attrs, ItemsList, Price, PriceData, Product, Props } from '@/types/product';
 import { valueToNode } from '@babel/types';
 
 /**
@@ -1080,12 +1085,19 @@ const categoryId = useField<number>('category_id');
 const shapeId = useField<number>('shape_id');
 const materialId = useField<number>('material_id');
 const colorId = useField<number>('color_id');
-const colors = ref([]);
-const baseColors = ref([]);
+const productAttrs: {
+  colors: Ref<number[] | number>
+  baseColors: Ref<number[] | number>
+  ignitionTypes: Ref<number[] | number>
+  gasTypes: Ref<number[] | number>
+} = {
+  colors: ref<number[] | number>([]),
+  baseColors: ref<number[] | number>([]),
+  ignitionTypes: ref<number[] | number>([]),
+  gasTypes: ref<number[] | number>([]),
+}
 const ignitionId = useField<number>('ignition_id');
-const ignitionTypes = ref([]);
 const gasId = useField<number>('gas_id');
-const gasTypes = ref([]);
 const productSerialBase = useField<string>('product_serial_base');
 const certifications = ref([]);
 const baseColorId = useField<number>('base_color_id');
@@ -1138,14 +1150,26 @@ watch(
 watch(
   () => materialId.value.value,
   async () => {
-    await loadMaterialColors('color', materialId.value.value);
+    productAttrs.colors.value = [];
+    if (materialId.value.value)
+      await loadMaterialColors('color', materialId.value.value);
+    else {
+      itemsList.value.color = [];
+      colorId.value.value = 0;
+    }
   },
 );
 
 watch(
   () => baseMaterialId.value.value,
   async () => {
-    await loadMaterialColors('baseColor', baseMaterialId.value.value);
+    productAttrs.baseColors.value = [];
+    if (baseMaterialId.value.value)
+      await loadMaterialColors('baseColor', baseMaterialId.value.value);
+    else {
+      itemsList.value.baseColor = [];
+      baseColorId.value.value = 0;
+    }
   },
 );
 
@@ -1215,23 +1239,176 @@ const handleUpdate = async (values: Product) => {
   }
 }
 
-const savePrice = (type: string, price: any) => {
-
+const savePrice = async (type: string, priceForm: { 
+  year: number,
+  price: number,
+  product_id: number
+}) => {
+  try {
+    isLoading.value = true;
+    const { data, error } = await supabase
+      .from(`${type}_price`)
+      .insert(priceForm)
+      .select();
+    if (error) throw error;
+    return data;
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving ${type} price.`,
+      text: e?.message || `An error ocurred trying to save ${type} price. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
 }
 
-const setPrices = (productId: number) => {
+const setPrices = async (productId: number) => {
   const availablePrices = Object.fromEntries(
     Object.entries(prices.value).filter(([key, value]) => value.length > 0)
   );
+  const savePrices: Promise<any>[] = [];
+  console.log('Available Prices', availablePrices);
+  Object.entries(availablePrices).forEach(([key, value]) => {
+    value.forEach(({ year, price }: any) => {
+      const priceForm = {
+        year: year,
+        price: +price,
+        product_id: productId,
+      };
+      console.log(key, priceForm);
+    // savePrices.push(savePrice(key, priceForm));
+    });
+  });
 
+  try {
+    isLoading.value = true;
+    console.log(savePrices);
+    // const promiseResult = await Promise.allSettled(savePrices);
+    // console.log(promiseResult);
+  } catch (e: any) {
+    notify({
+      title: `Error saving  prices.`,
+      text: e?.message || `An error ocurred trying to save prices. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const saveAttribute = async (form: Attrs, attrType: string) => {
+  try {
+    isLoading.value = true;
+    const { data, error } = await supabase
+      .from(`product_${attrType}`)
+      .insert(form)
+      .select();
+    if (error) throw error;
+    return data;
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving ${attrType}`,
+      text: e?.message || `An error ocurred trying to save ${attrType}. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setAttributes = async (
+  productId: number,
+  attrType: keyof (typeof productAttrs),
+  type?: 'default' | 'base'
+) => {
+  const saveAttributes: Promise<any>[] = [];
+  const keys = {
+    colors: 'color',
+    baseColors: 'color',
+    ignitionTypes: 'iginition',
+    gasTypes: 'gas',
+  };
+  (productAttrs[attrType].value as number[]).forEach((id) => {
+    const form = {
+      product_id: +productId,
+      [`${keys[attrType]}_id`]: +id,
+      type,
+    }
+    if (!form.type) delete form.type;
+    console.log(`${attrType}`, form);
+    // saveAttributes.push(saveAttribute(form, keys[attrType]));
+  });
+
+  try {
+    isLoading.value = true;
+    console.log(saveAttributes);
+    // const promiseResult = await Promise.allSettled(saveAttributes);
+    // console.log(promiseResult);
+  } catch (e: any)  {
+    notify({
+      title: `Error saving ${attrType}`,
+      text: e?.message || `An error occurred trying to save ${attrType}. Please contact TOP suppport.`,
+      type: 'error',
+      duration: 6000,
+    });
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
 }
 
 const submit = handleSubmit(async (values) => {
-  const form = JSON.parse(JSON.stringify(values)) as typeof values;
+  console.log('Values', values);
+  let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
+  console.log('Before form', values);
+  await setPrices(0);
+  if (isParent.value) {
+    if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
+      await setAttributes(0, 'colors', 'default');
+    if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
+      await setAttributes(0, 'baseColors', 'base');
+    if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
+      await setAttributes(0, 'gasTypes');
+    if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
+      await setAttributes(0, 'ignitionTypes');
+    form = {
+      ...form,
+      product_length: length.value.join(', ') ?? null,
+      product_diameter: diameter.value.join(', ') ?? null,
+    }
+  } else {
+    const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
+    const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
+    const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
+    const gas_id = typeof productAttrs.gasTypes.value === 'number' ? productAttrs.gasTypes.value : null;
+    form = {
+      ...form,
+      color_id,
+      base_color_id,
+      ignition_id,
+      gas_id,
+      product_length: (length.value as unknown as string) ?? null,
+      product_diameter: (diameter.value as unknown as string) ?? null,
+    };
+
+  }
+
+  form = {
+    ...form,
+    certifications: certifications.value,
+  }
+  
+  console.log('After Form', form);
   if (props.new) {
-    await handleCreate(values);
+    // await handleCreate(values);
   } else if (props.edit) {
-    await handleUpdate(values);
+    // await handleUpdate(values);
   }
 })
 

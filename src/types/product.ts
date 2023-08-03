@@ -147,3 +147,9 @@ export interface Props {
   product?: Product | null;
   loading?: boolean;
 }
+
+export interface Attrs {
+  [x: string]: string | number | undefined;
+  product_id: number;
+  type: string | undefined;
+}
