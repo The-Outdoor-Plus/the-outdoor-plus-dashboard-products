@@ -886,6 +886,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
 import { ItemsList, Price, PriceData, Product, Props } from '@/types/product';
+import { valueToNode } from '@babel/types';
 
 /**
  * 
@@ -914,14 +915,14 @@ watch(
 );
 
 const isParent = computed(() => {
-  if (!route.params.parent_id) return true
-  if (route.params.relation_type === 'parent') return true
+  if (!route.query.parent_id) return true
+  if (route.query.relation_type === 'parent') return true
   return false;
 });
 
 onMounted(() => {
-  if (!route.params.parent_id) relation.value.value = 'PARENT'
-  else if (route.params.relation_type === 'parent') relation.value.value = 'PARENT'
+  if (!route.query.parent_id) relation.value.value = 'PARENT'
+  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT'
   else relation.value.value = 'CHILD';
 });
 
@@ -1212,6 +1213,17 @@ const handleUpdate = async (values: Product) => {
   } finally {
     isLoading.value = false;
   }
+}
+
+const savePrice = (type: string, price: any) => {
+
+}
+
+const setPrices = (productId: number) => {
+  const availablePrices = Object.fromEntries(
+    Object.entries(prices.value).filter(([key, value]) => value.length > 0)
+  );
+
 }
 
 const submit = handleSubmit(async (values) => {
