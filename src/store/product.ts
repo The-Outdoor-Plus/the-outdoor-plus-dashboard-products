@@ -1,14 +1,13 @@
 import { defineStore } from "pinia";
-import { TypedSchema } from "vee-validate";
 import { toTypedSchema } from '@vee-validate/yup';
 import * as yup from 'yup';
-import { Product } from "@/types/product";
 
 interface State<T> {
   priceTypeList: { value: string, key: string }[];
   sizes: string[];
   formValidation: T;
   initialValues: any;
+  productKeys: string[];
 }
 
 export const useProductStore = defineStore('product', {
@@ -157,11 +156,76 @@ export const useProductStore = defineStore('product', {
       description: '',
     }
 
+    const productKeys = [
+      'id',
+      'sku',
+      'upc_codes',
+      'encoded_upc_codes',
+      'relation',
+      'product_length',
+      'product_diameter',
+      'product_width',
+      'product_height',
+      'base_length',
+      'base_diameter',
+      'base_width',
+      'base_opening',
+      'toe_kick',
+      'soil_usage',
+      'scupper_width',
+      'scupper_inlet_opening',
+      'gpm',
+      'fire_glass',
+      'ba_length',
+      'ba_diameter',
+      'ba_width',
+      'ba_depth',
+      'burner_shape',
+      'burner_length',
+      'burner_diameter',
+      'compatible_canvas_cover',
+      'compatible_bullet_burner',
+      'compatible_glass_wind_guard',
+      'access_door',
+      'parent_id',
+      'collection_id',
+      'category_id',
+      'shape_id',
+      'material_id',
+      'color_id',
+      'ignition_id',
+      'gas_id',
+      'product_serial_base',
+      'certifications',
+      'base_color_id',
+      'base_material_id',
+      'published',
+      'enabled',
+      'created_by',
+      'updated_by',
+      'company_division',
+      'updated_at',
+      'created_at',
+      'name',
+      'short_description',
+      'description',
+      'dealer_prices',
+      'distributor_prices',
+      'group_prices',
+      'internet_prices',
+      'landscape_prices',
+      'map_prices',
+      'master_distributor_prices',
+      'msrp_prices',
+      'images',
+    ];
+
     return {
       priceTypeList,
       sizes,
       formValidation,
       initialValues,
+      productKeys,
     }
   },
   actions: {},
