@@ -891,7 +891,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
 import { Attrs, ItemsList, Price, PriceData, Product, Props } from '@/types/product';
-import { valueToNode } from '@babel/types';
 
 /**
  * 
@@ -1179,65 +1178,11 @@ watch(
  * 
  */
 
-const handleCreate = async (values: Product) => {
-  try {
-    isLoading.value = true;
-    const form = JSON.parse(JSON.stringify(values));
-    const { data: product , error } = await supabase
-      .from('product')
-      .insert(form)
-      .select();
-    if (error) throw error;
-    if (product.length) router.push(`/products/${product[0].id}`);
-    notify({
-      title: 'Product created successfully',
-      type: 'success',
-      duration: 6000,
-    });
-  } catch (e: any) {
-    console.error(e);
-    notify({
-      title: 'Error creating product',
-      text: e?.message || 'An error occurred trying to create a product. Please contact TOP Support.',
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const handleUpdate = async (values: Product) => {
-  try {
-    isLoading.value = true;
-    const form = JSON.parse(JSON.stringify(values));
-    const { data: product, error } = await supabase
-      .from('product')
-      .update(form)
-      .eq('id', props?.product?.id || 0)
-      .select();
-    if (error) throw error;
-    if(product.length) {
-      name.value.value = product[0].name;
-    }
-    notify({
-      title: 'Product updated successfully',
-      type: 'success',
-      duration: 6000,
-    });
-  } catch (e: any) {
-    console.error(e);
-    
-    notify({
-      title: 'Error updating product',
-      text: e?.message || 'An error ocurred trying to update the product. Please contact TOP support.',
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
+const filterFormPayload = (form: Product) => (
+  Object.fromEntries(Object.entries(form).filter(([key, value]) => {
+    return productStore.productKeys.includes(key);
+  }))
+)
 
 const savePrice = async (type: string, priceForm: { 
   year: number,
@@ -1266,28 +1211,23 @@ const savePrice = async (type: string, priceForm: {
 }
 
 const setPrices = async (productId: number) => {
-  const availablePrices = Object.fromEntries(
-    Object.entries(prices.value).filter(([key, value]) => value.length > 0)
-  );
-  const savePrices: Promise<any>[] = [];
-  console.log('Available Prices', availablePrices);
-  Object.entries(availablePrices).forEach(([key, value]) => {
-    value.forEach(({ year, price }: any) => {
-      const priceForm = {
-        year: year,
-        price: +price,
-        product_id: productId,
-      };
-      console.log(key, priceForm);
-    // savePrices.push(savePrice(key, priceForm));
-    });
-  });
-
   try {
+    const availablePrices = Object.fromEntries(
+      Object.entries(prices.value).filter(([key, value]) => value.length > 0)
+    );
+    const savePrices: Promise<any>[] = [];
+    Object.entries(availablePrices).forEach(([key, value]) => {
+      value.forEach(({ year, price }: any) => {
+        const priceForm = {
+          year: year,
+          price: +price,
+          product_id: productId,
+        };
+      savePrices.push(savePrice(key, priceForm));
+      });
+    });
     isLoading.value = true;
-    console.log(savePrices);
-    // const promiseResult = await Promise.allSettled(savePrices);
-    // console.log(promiseResult);
+    const promiseResult = await Promise.allSettled(savePrices);
   } catch (e: any) {
     notify({
       title: `Error saving  prices.`,
@@ -1327,29 +1267,27 @@ const setAttributes = async (
   attrType: keyof (typeof productAttrs),
   type?: 'default' | 'base'
 ) => {
-  const saveAttributes: Promise<any>[] = [];
-  const keys = {
-    colors: 'color',
-    baseColors: 'color',
-    ignitionTypes: 'iginition',
-    gasTypes: 'gas',
-  };
-  (productAttrs[attrType].value as number[]).forEach((id) => {
-    const form = {
-      product_id: +productId,
-      [`${keys[attrType]}_id`]: +id,
-      type,
-    }
-    if (!form.type) delete form.type;
-    console.log(`${attrType}`, form);
-    // saveAttributes.push(saveAttribute(form, keys[attrType]));
-  });
-
   try {
+    const saveAttributes: Promise<any>[] = [];
+    const keys = {
+      colors: 'color',
+      baseColors: 'color',
+      ignitionTypes: 'ignition',
+      gasTypes: 'gas',
+    };
+
+    (productAttrs[attrType].value as number[]).forEach((id) => {
+      const form = {
+        product_id: +productId,
+        [`${keys[attrType]}_id`]: +id,
+        type,
+      }
+      if (!form.type) delete form.type;
+      saveAttributes.push(saveAttribute(form, keys[attrType]));
+    });
+
     isLoading.value = true;
-    console.log(saveAttributes);
-    // const promiseResult = await Promise.allSettled(saveAttributes);
-    // console.log(promiseResult);
+    const promiseResult = await Promise.allSettled(saveAttributes);
   } catch (e: any)  {
     notify({
       title: `Error saving ${attrType}`,
@@ -1363,26 +1301,63 @@ const setAttributes = async (
   }
 }
 
-const submit = handleSubmit(async (values) => {
-  console.log('Values', values);
-  let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
-  console.log('Before form', values);
-  await setPrices(0);
-  if (isParent.value) {
-    if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
-      await setAttributes(0, 'colors', 'default');
-    if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
-      await setAttributes(0, 'baseColors', 'base');
-    if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
-      await setAttributes(0, 'gasTypes');
-    if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
-      await setAttributes(0, 'ignitionTypes');
-    form = {
-      ...form,
-      product_length: length.value.join(', ') ?? null,
-      product_diameter: diameter.value.join(', ') ?? null,
+const handleCreate = async (values: Product) => {
+  try {
+    isLoading.value = true;
+    const form = JSON.parse(JSON.stringify(values));
+    const { data: product , error } = await supabase
+      .from('product')
+      .insert(form)
+      .select();
+    if (error) throw error; 
+    return product;
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: 'Error creating product',
+      text: e?.message || 'An error occurred trying to create a product. Please contact TOP Support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const handleUpdate = async (values: Product) => {
+  try {
+    isLoading.value = true;
+    const form = JSON.parse(JSON.stringify(values));
+    const { data: product, error } = await supabase
+      .from('product')
+      .update(form)
+      .eq('id', props?.product?.id || 0)
+      .select();
+    if (error) throw error;
+    if(product.length) {
+      name.value.value = product[0].name;
     }
-  } else {
+    notify({
+      title: 'Product updated successfully',
+      type: 'success',
+      duration: 6000,
+    });
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: 'Error updating product',
+      text: e?.message || 'An error ocurred trying to update the product. Please contact TOP support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const submit = handleSubmit(async (values) => {
+  let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
+  if (!isParent.value) {
     const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
     const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
     const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
@@ -1396,20 +1371,57 @@ const submit = handleSubmit(async (values) => {
       product_length: (length.value as unknown as string) ?? null,
       product_diameter: (diameter.value as unknown as string) ?? null,
     };
-
+  } else {
+    form = {
+      ...form,
+      product_length: length.value.join(', ') ?? null,
+      product_diameter: diameter.value.join(', ') ?? null,
+    }
   }
 
   form = {
     ...form,
     certifications: certifications.value,
   }
-  
-  console.log('After Form', form);
-  if (props.new) {
-    // await handleCreate(values);
-  } else if (props.edit) {
-    // await handleUpdate(values);
-  }
+
+  form = filterFormPayload(form);
+  console.log('Payload', form);
+  try {
+    isLoading.value = true;
+    if (props.new) {
+      const product = await handleCreate(form);
+
+      console.log('Product Response', product);
+      if (product && product.length) {
+        await setPrices(product[0].id);
+
+        if (isParent.value) {
+          if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
+            await setAttributes(product[0].id, 'colors', 'default');
+          if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
+            await setAttributes(product[0].id, 'baseColors', 'base');
+          if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
+            await setAttributes(product[0].id, 'gasTypes');
+          if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
+            await setAttributes(product[0].id, 'ignitionTypes'); 
+        }
+
+        notify({
+          title: 'Product created successfully',
+          type: 'success',
+          duration: 6000,
+        });
+
+        // router.push(`/products/${product[0].id}`);
+      } 
+    } else if (props.edit) {
+      // await handleUpdate(values);
+    }
+  } catch (e: any) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  } 
 })
 
 </script>
