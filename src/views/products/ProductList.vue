@@ -107,15 +107,9 @@ interface Columns {
   id: number;
   name: string;
   sku: string;
-  collection: {
-    name: string;
-  };
-  category: {
-    name: string;
-  };
-  material: {
-    name: string;
-  };
+  collection: string;
+  category: string;
+  material: string;
   published: boolean;
   enabled: boolean;
 }
@@ -145,9 +139,9 @@ const headers = ref([
   },
   { title: 'Name', align: 'end', key: 'name', width: '250px' },
   { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
-  { title: 'Collection', align: 'end', key: 'collection.name', width: '150px' },
-  { title: 'Category', align: 'end', key: 'category.name', width: '220px' },
-  { title: 'Material', align: 'end', key: 'material.name', width: '220px' },
+  { title: 'Collection', align: 'end', key: 'collection', width: '150px' },
+  { title: 'Category', align: 'end', key: 'category', width: '220px' },
+  { title: 'Material', align: 'end', key: 'material', width: '220px' },
   { title: 'Published', align: 'end', key: 'published' },
   { title: 'Enabled', align: 'end', key: 'enabled' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
@@ -241,7 +235,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
     const { from, to } = usePagination(page -1, itemsPerPage);
     if (searchFilter.value) {
       const { data: products, error } = await supabase
-        .rpc('search_products', {
+        .rpc('search_parent_products', {
           search_term: searchFilter.value,
           sort_term: sortBy?.[0]?.key || 'name',
           sort_order: sortBy?.[0]?.order === 'desc' ? 'DESC' : 'ASC',
@@ -261,7 +255,13 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
         })
         .range(from, to);
       if (error) throw error;
-      data.serverItems = products || [];
+      const transformedProducts = products.map(product => ({
+        ...product,
+        category: (product.category as any)?.name || '', 
+        material: (product.material as any)?.name || '',
+        collection: (product.collection as any)?.name || '',
+      }));  
+      data.serverItems = transformedProducts || [];
       totalItems.value = count || 0;
     }
   } catch (e: any) {
