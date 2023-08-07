@@ -35,6 +35,8 @@
             <v-card-title class="text-h5">Are you sure you want to delelete this product?</v-card-title>
             <v-card-text>
               Product <strong>{{ itemToDelete?.name }}</strong> will be deleted.
+              You are about to delete a parent product, if you delete it, all of the 
+              child products associated with it (variations), will also be deleted.
               This action cannot be reversed. Are you sure you want to continue?
             </v-card-text>
             <v-card-actions>
@@ -46,25 +48,37 @@
         </v-dialog>
       </template>
       <!-- eslint-disable-next-line vue/valid-v-slot -->
+      <template v-slot:item.published="{ item }">
+        <v-icon v-if="item.raw.published" icon="mdi-checkbox-marked-circle-outline" color="green"></v-icon>
+        <v-icon v-else icon="mdi-close-circle-outline" color="red"></v-icon>
+      </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot -->
+      <template v-slot:item.enabled="{ item }">
+        <v-icon v-if="item.raw.enabled" icon="mdi-checkbox-marked-circle-outline" color="green"></v-icon>
+        <v-icon v-else icon="mdi-close-circle-outline" color="red"></v-icon>
+      </template>
+      <!-- eslint-disable-next-line vue/valid-v-slot -->
       <template v-slot:item.actions="{ item }">
-        <v-btn
-          size="small"
-          icon="mdi-eye"
-          variant="text"
-          :to="`/products/${item.raw.id}`"
-        ></v-btn>
-        <v-btn
-          size="small"
-          icon="mdi-pencil"
-          variant="text"
-          :to="`/products/edit/${item.raw.id}`"
-        ></v-btn>
-        <v-btn
-          size="small"
-          @click="deleteItem((item.raw as Columns))"
-          icon="mdi-delete"
-          variant="text"
-        ></v-btn>
+        <div class="tw-flex tw-flex-nowrap tw-justify-end -tw-mr-1.5">
+          <v-btn
+            size="small"
+            icon="mdi-eye"
+            variant="text"
+            :to="`/products/${item.raw.id}`"
+          ></v-btn>
+          <v-btn
+            size="small"
+            icon="mdi-pencil"
+            variant="text"
+            :to="`/products/edit/${item.raw.id}`"
+          ></v-btn>
+          <v-btn
+            size="small"
+            @click="deleteItem((item.raw as Columns))"
+            icon="mdi-delete"
+            variant="text"
+          ></v-btn>
+        </div>
       </template>
     </v-data-table-server>
   </div>
@@ -76,18 +90,13 @@ import { supabase } from '@/supabase';
 import { useAppStore } from '@/store/app';
 import { useNotification } from '@kyvg/vue3-notification';
 import { usePagination } from '@/utils';
+import { Product } from '@/types/product';
 
 /**
  * 
  * Defining Interfaces
  * 
  */
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-}
 
 interface Data {
   serverItems: Product[];
@@ -97,7 +106,18 @@ interface Columns {
   actions: null | undefined;
   id: number;
   name: string;
-  slug: string;
+  sku: string;
+  collection: {
+    name: string;
+  };
+  category: {
+    name: string;
+  };
+  material: {
+    name: string;
+  };
+  published: boolean;
+  enabled: boolean;
 }
 
 interface TableOptions {
@@ -123,8 +143,13 @@ const headers = ref([
     sortable: false,
     key: 'id',
   },
-  { title: 'Name', align: 'end', key: 'name' },
-  { title: 'Slug', align: 'end', key: 'slug' },
+  { title: 'Name', align: 'end', key: 'name', width: '250px' },
+  { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
+  { title: 'Collection', align: 'end', key: 'collection.name', width: '150px' },
+  { title: 'Category', align: 'end', key: 'category.name', width: '220px' },
+  { title: 'Material', align: 'end', key: 'material.name', width: '220px' },
+  { title: 'Published', align: 'end', key: 'published' },
+  { title: 'Enabled', align: 'end', key: 'enabled' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
 const data: Data = reactive({
@@ -229,7 +254,8 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
     } else {
       const { data: products, error, count } = await supabase
         .from('product')
-        .select('*', { count: 'exact' })
+        .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
+        .eq(`relation`, 'PARENT')
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
