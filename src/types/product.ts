@@ -49,6 +49,22 @@ export interface ItemsList {
   baseColor: Color[];
 }
 
+export interface Image {
+  id?: number;
+  url?: string;
+  name?: string;
+  display_order?: number;
+  is_primary?: boolean;
+  product_id?: number;
+}
+
+export interface SpecificationSheet {
+  id?: number;
+  url?: string;
+  name?: string;
+  product_id?: number;
+}
+
 export interface Price {
   id?: number;
   product_id?: number;
