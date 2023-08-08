@@ -5,7 +5,7 @@
         class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
         icon="mdi-arrow-left" 
         flat
-        @click="$router.push('/products')"
+        @click="router.back()"
       ></v-btn>
       <form @submit.prevent="submit">
         <div class="tw-w-full">
@@ -349,57 +349,6 @@
             >
             </v-autocomplete>
           </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
-            <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="baseMaterialId.value.value"
-              variant="outlined"
-              density="compact"
-              name="Material"
-              placeholder="Material"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :items="itemsList.material"
-              :error-messages="baseMaterialId.errorMessage.value"
-              :loading="itemsLoading.materialLoading"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Colors</h3>
-            <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="productAttrs.baseColors.value"
-              variant="outlined"
-              density="compact"
-              name="Colors"
-              placeholder="Colors"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
-              :items="itemsList.baseColor"
-              :error-messages="baseColorId.errorMessage.value"
-              :loading="itemsLoading.baseColorLoading"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
         </div> 
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
@@ -453,11 +402,197 @@
             </v-autocomplete>
           </div>
         </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Images</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(image, i) in images"
+              :key="i"
+              class="tw-mb-10"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="image.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="image.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeImageFromList(image)"
+                ></v-btn>
+              </div>
+              <div
+                class="tw-flex tw-items-center tw-10/12 lg:tw-w-8/12 tw-mt-4 tw-mb-2"
+              >
+                <v-select
+                  v-model="image.display_order"
+                  :items="[...Array(images.length).keys()]"
+                  class="tw-w-2/12 2xl:tw-w-1/12"
+                  label="Position"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-select>
+                <v-checkbox
+                  v-model="image.is_primary"
+                  color="blue-darken-1"
+                  label="Is Primary?"
+                  class="-tw-mb-5 tw-ml-6"
+                  :readonly="readonly"
+                  @click="toggleImageIsPrimary(image.id, image.is_primary)"
+                ></v-checkbox>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2" 
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addImage"
+            >
+              Add Image
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Specification Sheets</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(specSheet, i) in specificationSheets"
+              :key="i"
+              class="tw-mb-4"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="specSheet.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="specSheet.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeSpecSheetFromList(specSheet)"
+                ></v-btn>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2" 
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addSpecificationSheet"
+            >
+              Add Spec Sheet
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <v-expansion-panels variant="accordion" class="tw-mb-6 tw-mt-4 tw-w-full">
           <v-expansion-panel elevation="0">
             <v-expansion-panel-title color="grey-lighten-4">More Information</v-expansion-panel-title>
             <v-expansion-panel-text>
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-4">
+                <div class="tw-w-full lg:tw-w-3/12">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
+                  <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+                  <v-autocomplete
+                    v-model="baseMaterialId.value.value"
+                    variant="outlined"
+                    density="compact"
+                    name="Material"
+                    placeholder="Material"
+                    item-title="name"
+                    item-value="id"
+                    :clearable="!readonly"
+                    :items="itemsList.material"
+                    :error-messages="baseMaterialId.errorMessage.value"
+                    :loading="itemsLoading.materialLoading"
+                    :readonly="readonly"
+                  >
+                  </v-autocomplete>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Colors</h3>
+                  <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+                  <v-autocomplete
+                    v-model="productAttrs.baseColors.value"
+                    variant="outlined"
+                    density="compact"
+                    name="Colors"
+                    placeholder="Colors"
+                    item-title="name"
+                    item-value="id"
+                    :clearable="!readonly"
+                    :closable-chips="!readonly"
+                    :multiple="isParent"
+                    :chips="isParent"
+                    :items="itemsList.baseColor"
+                    :error-messages="baseColorId.errorMessage.value"
+                    :loading="itemsLoading.baseColorLoading"
+                    :readonly="readonly"
+                  >
+                  </v-autocomplete>
+                </div>
+              </div> 
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Certifications</h3>
                 </div>
@@ -905,7 +1040,7 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-import { Attrs, ItemsList, Price, PriceData, Product, Props } from '@/types/product';
+import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet } from '@/types/product';
 
 /**
  * 
@@ -1051,6 +1186,52 @@ const addPrice = (priceType: keyof PriceData) => {
   prices.value[priceType].push(newPrice);
 }
 
+const images: Ref<Image[]> = ref<Image[]>([]);
+
+const addImage = () => {
+  let imagesTemp: Image[] = JSON.parse(JSON.stringify(images.value));
+  imagesTemp = imagesTemp.sort((a: Image, b: Image) => (a?.id || 0) - (b?.id || 0))
+  const id = imagesTemp.length ? (imagesTemp[imagesTemp.length - 1]?.id || 0) + 1 : 0
+  const newImage: Image = {
+    id,
+    url: '',
+    name: '',
+    display_order: (images.value.length - 1) + 1,
+    is_primary: false,
+  }
+  images.value.push(newImage);
+}
+
+const removeImageFromList = (item: Image) => {
+  images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
+}
+
+const toggleImageIsPrimary = (imageId?: number, value?: boolean) => {
+  const valueToSet = !value;
+  images.value = images.value.map((img) => ({
+    ...img,
+    is_primary: img.id === imageId ? valueToSet : false
+  }))
+}
+
+const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
+
+const addSpecificationSheet = () => {
+  let specSheetTemp: SpecificationSheet[] = JSON.parse(JSON.stringify(specificationSheets.value));
+  specSheetTemp = specSheetTemp.sort((a: SpecificationSheet, b: SpecificationSheet) => (a?.id || 0) - (b?.id || 0));
+  const id = specSheetTemp.length ? (specSheetTemp[specSheetTemp.length - 1]?.id || 0) + 1 : 0;
+  const newSpecSheet: SpecificationSheet = {
+    id,
+    url: '',
+    name: '',
+  }
+  specificationSheets.value.push(newSpecSheet);
+}
+
+const removeSpecSheetFromList = (item: SpecificationSheet) => {
+  specificationSheets.value = specificationSheets.value.filter((specSheetItem) => specSheetItem.id !== item.id);
+}
+
 /**
  * 
  * Handle Form
@@ -1165,6 +1346,70 @@ const loadProductAttributes = async (attr_type: string, product_id: number, colo
   }
 }
 
+const loadProductImages = async (product_id: number) => {
+  try {
+    isLoading.value = true;
+    const { data: images, error } = await supabase.from(`product_image`)
+      .select(`product_id, image:image_id(id, name, url), display_order, is_primary`)
+      .eq(`product_id`, product_id)
+    if (error) throw error;
+    console.log(images);
+    return images.map((item) => ({
+      id: item.image?.length ? 
+        item.image[0].id :
+        (item.image as Image).id,
+      name: item.image?.length ?
+        item.image[0].name :
+        (item.image as Image).name,
+      url: item.image?.length ?
+        item.image[0].url :
+        (item.image as Image).url,
+      display_order: item.display_order,
+      is_primary: item.is_primary,
+    }));
+  } catch(e: any) {
+    notify({
+      title: `Error loading image`,
+      text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    }); 
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const loadSpecificationSheets = async (product_id: number) => {
+  try {
+    isLoading.value = true;
+    const { data: specSheets, error } = await supabase.from(`product_specification_sheet`)
+      .select(`product_id, specification_sheet:specification_sheet_id(id, name, url)`)
+      .eq(`product_id`, product_id)
+    if (error) throw error;
+    console.log(specSheets);
+    return specSheets.map((item) => ({
+      id: item.specification_sheet?.length ?
+        item.specification_sheet[0].id :
+        (item.specification_sheet as SpecificationSheet).id,
+      name: item.specification_sheet?.length ?
+        item.specification_sheet[0].name :
+        (item.specification_sheet as SpecificationSheet).name,
+      url: item.specification_sheet?.length ?
+        item.specification_sheet[0].url :
+        (item.specification_sheet as SpecificationSheet).url,
+    }));
+  } catch(e: any) {
+    notify({
+      title: `Error loading specification sheets`,
+      text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    }); 
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
     baseMaterialId.value.value = props.product?.base_material_id ?? null;
@@ -1186,6 +1431,8 @@ const fillProductInformation = async () => {
         productAttrs.baseColors.value = await loadProductAttributes('color', +props.product?.id, 'base') || [];
         productAttrs.gasTypes.value = await loadProductAttributes('gas', +props.product?.id) || [];
         productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', +props.product?.id) || [];
+        images.value = await loadProductImages(+props.product?.id) || [];
+        specificationSheets.value = await loadSpecificationSheets(+props.product?.id) || [];
       }
     } else {
       productAttrs.colors.value = props.product?.color_id || 0;
@@ -1390,6 +1637,124 @@ const setAttributes = async (
   }
 }
 
+const saveSpecSheet = async (specSheetForm: SpecificationSheet, productSpecSheetForm: SpecificationSheet) => {
+  try {
+    isLoading.value = true;
+    const { data: specSheet, error } = await supabase
+      .from('specification_sheet')
+      .insert(specSheetForm)
+      .select(`id`);
+    if (error) throw error;
+    const { data, error: e } = await supabase
+      .from('product_specification_sheet')
+      .insert({
+        ...productSpecSheetForm,
+        specification_sheet_id: specSheet[0].id,
+      })
+      .select();
+    if (e) throw e;
+    return data;
+  } catch (e: any) {
+    notify({
+      title: `Error saving Specification Sheets`,
+      text: e?.message || `An error ocurred trying to save Specification Sheets. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setSpecSheets = async (productId: number) => {
+  try {
+    const saveSpecSheets: Promise<any>[] = [];
+
+    specificationSheets.value.forEach((specSheet) => {
+      const specSheetForm = {
+        url: specSheet.url,
+        name: specSheet.name,
+      }
+      const productSpecSheetForm = {
+        product_id: productId,
+      }
+      saveSpecSheets.push(saveSpecSheet(specSheetForm, productSpecSheetForm));
+    });
+    isLoading.value = true;
+    const promiseResult = await Promise.allSettled(saveSpecSheets);
+  } catch(e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving images`,
+      text: e?.message || `An error occurred trying to save images. Please contact TOP suppport.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const saveImage = async (imageForm: Image, productImgForm: Image) => {
+  try {
+    isLoading.value = true;
+    const { data: image, error } = await supabase
+      .from('image')
+      .insert(imageForm)
+      .select(`id`);
+    if (error) throw error;
+    const { data, error: e } = await supabase
+      .from('product_image')
+      .insert({
+        ...productImgForm,
+        image_id: image[0].id,
+      })
+      .select();
+    if (e) throw e;
+    return data;
+  } catch (e: any) {
+    notify({
+      title: `Error saving images`,
+      text: e?.message || `An error ocurred trying to save image. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setImages = async (productId: number) => {
+  try {
+    const saveImages: Promise<any>[] = [];
+
+    images.value.forEach((img) => {
+      const imageForm = {
+        url: img.url,
+        name: img.name,
+      }
+      const productImageForm = {
+        product_id: productId,
+        display_order: img.display_order,
+        is_primary: img.is_primary,
+      }
+      saveImages.push(saveImage(imageForm, productImageForm));
+    });
+    isLoading.value = true;
+    const promiseResult = await Promise.allSettled(saveImages);
+  } catch(e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving images`,
+      text: e?.message || `An error occurred trying to save images. Please contact TOP suppport.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const handleCreate = async (values: Product) => {
   try {
     isLoading.value = true;
@@ -1471,7 +1836,7 @@ const submit = handleSubmit(async (values) => {
   form = {
     ...form,
     certifications: certifications.value,
-    parent_id: +route?.params?.parent_id ?? undefined,
+    parent_id: route?.query?.parent_id ? +route.query.parent_id : undefined,
   }
 
   form = filterFormPayload(form);
@@ -1495,6 +1860,9 @@ const submit = handleSubmit(async (values) => {
           if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
             await setAttributes(product[0].id, 'ignitionTypes'); 
         }
+
+        await setImages(product[0].id);
+        await setSpecSheets(product[0].id);
 
         notify({
           title: 'Product created successfully',
