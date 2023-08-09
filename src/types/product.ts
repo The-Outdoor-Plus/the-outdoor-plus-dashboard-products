@@ -56,10 +56,6 @@ export interface Image {
   display_order?: number;
   is_primary?: boolean;
   product_id?: number;
-  image?: {
-    name?: string;
-    url?: string;
-  }
 }
 
 export interface SpecificationSheet {
