@@ -8,6 +8,7 @@ interface State<T> {
   formValidation: T;
   initialValues: any;
   productKeys: string[];
+  pricesByRole: { [key: string]: string[] }
 }
 
 export const useProductStore = defineStore('product', {
@@ -220,14 +221,29 @@ export const useProductStore = defineStore('product', {
       'images',
     ];
 
+    const pricesByRole = {
+      USER: ['msrp'],
+      GUEST: ['msrp'],
+      DEALER: ['dealer', 'internet', 'map', 'msrp'],
+      DISTRIBUTOR: ['distributor', 'map', 'msrp'],
+      MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
+      ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
+    }
+
     return {
       priceTypeList,
       sizes,
       formValidation,
       initialValues,
       productKeys,
+      pricesByRole,
     }
   },
-  actions: {},
-  getters: {},
+  actions: {
+    allowedPrices(userRole: string) {
+      return this.pricesByRole[userRole];
+    }
+  },
+  getters: {
+  },
 });
