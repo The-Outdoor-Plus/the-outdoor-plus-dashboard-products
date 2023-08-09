@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="tw-w-full tw-text-center">
-      <h1 class="tw-text-3xl tw-font-bold">Quick View Pricing Tool</h1>
-      <span class="tw-text-base">Enter SKU in the search bar below</span>
+      <h1 class="tw-text-4xl tw-font-bold">Quick View Pricing Tool</h1>
+      <span class="tw-text-lg">Enter SKU in the search bar below</span>
     </div>
 
     <div class="tw-w-full tw-mt-8">
@@ -14,84 +14,157 @@
     </div>
     <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
       <div class="tw-w-full lg:tw-w-7/12">
-
-      </div>
-      <div class="tw-w-full lg:tw-w-5/12">
-        <v-card
-          v-if="product && allImages.length"
-          max-height="400"
+        <v-card 
+          v-if="product && product.id"
+          class="py-6 px-8 tw-text-base"
         >
-          <v-carousel
-            hide-delimiter-background
-            class="tw-max-h-[400px]"
-          >
-            <v-carousel-item
-              v-for="(img, i) in allImages"
-              :key="i"
-              :src="img.previewUrl"
-              :lazy-src="img.previewUrl"
-              max-height="400"
-            ></v-carousel-item>
-          </v-carousel>
-        </v-card>
-        <h3 v-show="product && allSpecSheets.length" class="tw-text-xl tw-font-bold tw-my-8">Specification Sheets:</h3>
-        <div class="tw-w-full">
-          <v-card
-            v-for="(specSheet, i) in allSpecSheets"
-            :key="i"
-            class="px-4 py-2"
-          >
-            <div class="tw-w-full tw-flex tw-items-center">
-              <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
-                <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
-              </v-avatar>
-              <a 
-                class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
-                rel="noopener noreferrer"
-                :href="specSheet.previewUrl"
-                target="_blank"
-              >{{ specSheet.name }}</a>
-              <v-spacer></v-spacer>
-              <v-btn
-                variant="text"
-                color="green-darken-2"
-                text="PREVIEW"
-                @click="previewPdf(specSheet?.previewUrl || '')"
-              ></v-btn>
-              <v-btn
-                variant="text"
-                icon="mdi-open-in-new"
-                color="gray-darken-2"
-                tag="a"
-                target="_blank"
-                :href="specSheet.previewUrl"
-              ></v-btn>
-              <v-btn
-                variant="text"
-                icon="mdi-download"
-                color="gray-darken-2"
-                tag="a"
-                :href="specSheet.url"
-              ></v-btn>
-            </div>
-          </v-card>
-          <div v-if="showPDF && showPDF.pages && showPDF.pages">
-            <div v-if="showPDF.pages > 1">
-              <v-btn
-                @click="page = page > 1 ? page - 1 : page"
-              >
-                Prev
-              </v-btn>
-              <span>{{ page }} / {{ showPDF.pages }}</span>
-              <v-btn
-                @click="page = page < showPDF.pages ? page + 1 : page"
-              >
-                Prev
-              </v-btn>
-            </div>
-            <VuePDF :pdf="showPDF.pdf" :page="page"></VuePDF>
+          <h2 class="tw-font-bold tw-text-3xl tw-text-center">{{ product.name }}</h2>
+          <div class="tw-text-lg tw-text-center">
+            <span class="tw-font-semibold">Part #: </span><span class="tw-text-blue-600">{{ product.sku }}</span>
           </div>
-        </div>
+          <div class="tw-w-full tw-flex tw-flex-row tw-flex-wrap tw-mt-4 tw-justify-center">
+            <template
+              v-for="(priceType, i) in allowedPrices"
+              :key="i"
+            >
+              <div
+                v-if="getPriceByYear(priceType as keyof PriceData, currentYear)"
+                class="tw-min-w-[50%] tw-px-4 tw-mb-4 tw-text-2xl tw-flex-grow"
+              >
+              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span> 
+              {{ formatPrice(getPriceByYear(priceType as keyof PriceData, currentYear)) }}
+            </div>
+            </template>
+            
+          </div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
+            <div class="tw-w-6/12 tw-px-4">
+              <!-- Material -->
+              <div v-if="product?.material?.name" class="mb-4">
+                <span class="tw-font-semibold">Material: </span>
+                <span>{{ product.material.name }}</span>
+              </div>
+              <!-- Ignition -->
+              <div v-if="product?.gas?.name" class="mb-4">
+                <span class="tw-font-semibold">Gas Type: </span>
+                <span>{{ product.gas.name }}</span>
+              </div>
+              <!-- Collection -->
+              <div v-if="product?.color?.name" class="mb-4">
+                <span class="tw-font-semibold">Color: </span>
+                <span>{{ product.color.name }}</span>
+              </div>
+              <!-- Collection -->
+              <div v-if="product?.collection?.name" class="mb-4">
+                <span class="tw-font-semibold">Collection: </span>
+                <span>{{ product.collection.name }}</span>
+              </div>
+              <!-- Shape -->
+              <div v-if="product?.shape?.name" class="mb-4">
+                <span class="tw-font-semibold">Shape: </span>
+                <span>{{ product.shape.name }}</span>
+              </div>
+            </div>
+            <div class="tw-w-6/12 tw-px-4">
+              <!-- Ignition -->
+              <div v-if="product?.ignition?.name" class="mb-4">
+                <span class="tw-font-semibold">Ignition Type: </span>
+                <span>{{ product.ignition.name }}</span>
+              </div>
+              <!-- Size -->
+              <div v-if="product?.product_length" class="mb-4">
+                <span class="tw-font-semibold">Size (Length): </span>
+                <span>{{ product.product_length }}</span>
+              </div>
+              <div v-else-if="product?.product_diameter" class="mb-4">
+                <span class="tw-font-semibold">Size (Diameter): </span>
+                <span>{{ product.product_diameter }}</span>
+              </div>
+              <!-- Width -->
+              <div v-if="product?.product_width" class="mb-4">
+                <span class="tw-font-semibold">Width: </span>
+                <span>{{ product.product_width }}</span>
+              </div>
+              <!-- Width -->
+              <div v-if="product?.product_height" class="mb-4">
+                <span class="tw-font-semibold">Height: </span>
+                <span>{{ product.product_height }}</span>
+              </div>
+              <!-- Company Division -->
+              <div v-if="product?.company_division && (userStore.user?.user_metadata.role === 'ADMIN' || userStore.user?.user_metadata.role === 'MANAGER')" class="mb-4">
+                <span class="tw-font-semibold">Division: </span>
+                <span>{{ product.company_division }}</span>
+              </div>
+            </div>
+          </div>
+        </v-card>
+      </div>
+      <div class="tw-w-full lg:tw-w-5/12 lg:tw-pl-10">
+        <v-skeleton-loader v-if="isLoading" type="image" class="mb-6 tw-h-96">
+        </v-skeleton-loader>
+        <template v-else>
+          <v-card
+            v-if="product && allImages.length"
+            max-height="400"
+          >
+            <v-carousel
+              hide-delimiter-background
+              class="tw-max-h-[400px]"
+            >
+              <v-carousel-item
+                v-for="(img, i) in allImages"
+                :key="i"
+                :src="img.previewUrl"
+                :lazy-src="img.previewUrl"
+                max-height="400"
+              ></v-carousel-item>
+            </v-carousel>
+          </v-card>
+        </template>
+        <template v-if="isLoading">
+          <v-skeleton-loader v-for="i in 3" :key="i" type="list-item-avatar" class="mt-4">
+          </v-skeleton-loader>
+        </template>
+        <template v-else>
+          <template v-if="!!(product && product.id && allSpecSheets.length)">
+            <h3 class="tw-text-xl tw-font-bold tw-my-8">Specification Sheets:</h3>
+            <div class="tw-w-full">
+              <v-card
+                v-for="(specSheet, i) in allSpecSheets"
+                :key="i"
+                class="px-4 py-2"
+              >
+                <div class="tw-w-full tw-flex tw-items-center">
+                  <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
+                    <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
+                  </v-avatar>
+                  <a 
+                    class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
+                    rel="noopener noreferrer"
+                    :href="specSheet.previewUrl"
+                    target="_blank"
+                  >{{ specSheet.name }}</a>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-open-in-new"
+                    color="gray-darken-2"
+                    tag="a"
+                    target="_blank"
+                    :href="specSheet.previewUrl"
+                  ></v-btn>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-download"
+                    color="gray-darken-2"
+                    tag="a"
+                    :href="specSheet.url"
+                  ></v-btn>
+                </div>
+              </v-card>
+            </div>
+          </template>
+        </template>
       </div>
     </div>
   </div>
@@ -99,9 +172,14 @@
 
 <script lang="ts" setup>
 import { supabase } from '@/supabase';
-import { ref, computed, Ref } from 'vue';
-import { Product as BaseProduct, Image } from '@/types/product';
-import { VuePDF, usePDF } from '@tato30/vue-pdf';
+import { ref, computed, watch, Ref } from 'vue';
+import { Product as BaseProduct, Image, PriceData } from '@/types/product';
+import { VSkeletonLoader } from 'vuetify/lib/labs/components.mjs';
+import { useNotification } from '@kyvg/vue3-notification';
+import { useUserStore } from '@/store/user';
+import { useProductStore } from '@/store/product';
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 
 interface Product extends BaseProduct {
   base_color?: {
@@ -152,39 +230,53 @@ interface Img extends Image {
   previewUrl?: string;
 }
 
+const { notify } = useNotification();
+const userStore = useUserStore();
+const productStore = useProductStore();
+const route = useRoute();
+const router = useRouter();
+
 const skuSearch = ref('');
 const isLoading = ref(false);
-const page = ref(1);
 const product: Ref<Product | undefined> = ref<Product | undefined>({});
 const images: Ref<Img[]> = ref<Img[]>([]);
 const parentImages: Ref<Img[]> = ref<Img[]>([]);
 const specSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
 const parentSpecSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
-const pdfToPreview: Ref<{ url?: string | null }> = ref<{ url?: string | null}>({
-  url: null,
+const allowedPrices: Ref<string[]> = ref<string[]>([]);
+const currentYear = ref(0);
+const prices: Ref<PriceData> = ref<PriceData>({
+  map: [],
+  dealer: [],
+  distributor: [],
+  group: [],
+  internet: [],
+  landscape: [],
+  master_distributor: [],
+  msrp: [],
 });
 
-const showPDF: Ref<{
-  pdf: any,
-  pages: any,
-}> = ref({
-  pdf: null,
-  pages: null,
+onMounted(async () => {
+  console.log(route.query.sku);
+  if (route.query.sku) {
+    skuSearch.value = String(route.query.sku);
+    await loadProductInformation();
+  }
 })
 
-const previewPdf = (url: string) => {
-  pdfToPreview.value.url = url;
-  let pdf = null;
-  let pages = null;
-  if (pdfToPreview.value && pdfToPreview.value.url) {
-    const { pdf: pdfFile, pages: pagesCount } = usePDF(pdfToPreview.value.url);
-    pdf = pdfFile;
-    pages = pagesCount;
-  }
+const formatPrice = (price: number | null) => {
+  if (!price)
+    return 'No Price Available';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
+}
 
-  showPDF.value.pages = pages;
-  showPDF.value.pdf = pdf;
-};
+const getPriceByYear = (priceType: keyof PriceData, year: number) => {
+  const item = prices.value[priceType].find((price) => price.year === year);
+  return item?.price || null;
+}
 
 const allImages = computed(() => {
   let imgs: Img[] = JSON.parse(JSON.stringify(images.value));
@@ -234,19 +326,29 @@ const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
 
 const onEnterSearch = async () => {
   await loadProductInformation();
+  if (skuSearch.value)
+    router.push(`/?sku=${skuSearch.value}`);
+  else
+    router.push('/');
 }
 
 const loadProductInformation = async () => {
   try {
     isLoading.value = true;
     product.value = await loadProduct();
-    console.log(product.value);
     if (product.value) {
+      allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
+      const pricesPromises: any = [];
+      allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
+      const pricesResponse = await Promise.allSettled(pricesPromises);
+      setPrices(pricesResponse.filter((priceResponse) => priceResponse.status === 'fulfilled'));
       images.value = await loadImages(product.value?.id!) || [];
       specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
       if (product.value.parent_id) {
-        parentImages.value = await loadImages(product.value.parent_id) || [];
-        parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
+        if (images.value.length <= 0)
+          parentImages.value = await loadImages(product.value.parent_id) || [];
+        if (specSheets.value.length <= 0)
+          parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
       }
     }
   } catch (e) {
@@ -255,6 +357,35 @@ const loadProductInformation = async () => {
     isLoading.value = false;
   }
 }
+
+const setPrices = (pricesList: any[]) => {
+  pricesList.forEach(({ value }) => {
+    prices.value[value.price_type as keyof PriceData] = value.prices;
+  });
+}
+
+const availableYears = computed(() => {
+  const yearsSet = new Set();
+
+  for (const key in prices.value) {
+    const hasKey = Object.prototype.hasOwnProperty.call(prices.value, key);
+    if (hasKey && Array.isArray(prices.value[key as keyof PriceData])) {
+      prices.value[key as keyof PriceData].forEach((item) => {
+        if (item.year) {
+          yearsSet.add(item.year);
+        }
+      })
+    }
+  }
+  return Array.from(yearsSet).sort((a: any, b: any) => a - b);
+});
+
+watch(
+  () => availableYears.value,
+  () => {
+    currentYear.value = availableYears.value[0] as number;
+  },
+);
 
 const loadProduct = async () => {
   try {
@@ -272,11 +403,12 @@ const loadProduct = async () => {
         shape:shape_id(name)
       `)
       .eq(`sku`, skuSearch.value)
-      .limit(1)
-      .single();
+      .eq(`enabled`, true)
+      .maybeSingle();
     if (error) throw error;
     return product as unknown as Product;
   } catch(e: any) {
+    product.value = {};
     console.error(e);
   }
 }
@@ -313,5 +445,25 @@ const replaceDropboxLink = (url: string | undefined, queryParam: string) => {
     return `${withoutQueryParam}${separator}${queryParam}`;
   }
   return url || '';
+}
+
+const loadProductPrices = async (type: string, product_id: number) => {
+  try {
+    const { data: price, error } = await supabase.from(`${type}_price`)
+      .select('price, year')
+      .eq(`product_id`, product_id);
+    if (error) throw error;
+    return {
+      price_type: type,
+      prices: price,
+    };
+  } catch (e: any) {
+    notify({
+      title: `Error loading prices.`,
+      text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    }); 
+  }
 }
 </script>
