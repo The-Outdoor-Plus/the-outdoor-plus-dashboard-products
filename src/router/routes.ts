@@ -401,5 +401,51 @@ export default [
         },
       }
     ],
+  },
+  {
+    path: '/products',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'ProductList',
+        component: () => import(/* webpackChunkName: "product-list" */'@/views/products/ProductList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewProduct',
+        component: () => import(/* webpackChunkName: "new-product" */'@/views/products/CreateProduct.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditProduct',
+        component: () => import(/* webpackChunkName: "edit-product" */'@/views/products/EditProduct.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewProduct',
+        component: () => import(/* webpackChunkName: "view-product" */'@/views/products/ViewProduct.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
   }
 ];
