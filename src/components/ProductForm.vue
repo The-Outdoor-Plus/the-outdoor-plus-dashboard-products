@@ -1870,7 +1870,7 @@ const submit = handleSubmit(async (values) => {
           duration: 6000,
         });
 
-        // router.push(`/products/${product[0].id}`);
+        router.push(`/products/${product[0].id}`);
       } 
     } else if (props.edit) {
       // await handleUpdate(values);
