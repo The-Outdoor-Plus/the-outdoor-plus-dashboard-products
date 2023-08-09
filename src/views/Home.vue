@@ -1,7 +1,9 @@
 <template>
-  <HelloWorld></HelloWorld>
+  <div>
+    <quick-view-pricing-tool></quick-view-pricing-tool>
+  </div>
 </template>
 
 <script lang="ts" setup>
-  import HelloWorld from '@/components/HelloWorld.vue'
+  import QuickViewPricingTool from '@/components/QuickViewPricingTool.vue';
 </script>
