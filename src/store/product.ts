@@ -224,8 +224,9 @@ export const useProductStore = defineStore('product', {
     const pricesByRole = {
       USER: ['msrp'],
       GUEST: ['msrp'],
-      DEALER: ['dealer', 'internet', 'map', 'msrp'],
+      DEALER: ['dealer', 'map', 'msrp'],
       DISTRIBUTOR: ['distributor', 'map', 'msrp'],
+      MASTER_DISTRIBUTOR: ['dealer', 'distributor', 'group', 'master_distributor', 'landscape', 'msrp', 'map'],
       MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
     }
