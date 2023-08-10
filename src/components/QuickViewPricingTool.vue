@@ -14,7 +14,7 @@
     </div>
     <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
       <div class="tw-w-full lg:tw-w-7/12">
-        <div class="tw-w-full tw-flex">
+        <div v-if="product && product.id" class="tw-w-full tw-flex">
           <v-spacer></v-spacer>
           <v-menu>
             <template v-slot:activator="{ props }">
