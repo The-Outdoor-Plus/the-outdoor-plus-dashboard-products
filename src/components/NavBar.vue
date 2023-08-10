@@ -77,8 +77,8 @@ const userStore = useUserStore();
 
 const navItems = reactive([
   {
-    label: 'Home',
-    icon: 'mdi-home',
+    label: 'Quick View Pricing Tool',
+    icon: 'mdi-tag-search',
     link: '/',
     roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MANAGER', 'ADMIN'],
     children: [],
@@ -86,12 +86,12 @@ const navItems = reactive([
   {
     label: 'Products',
     icon: 'mdi-layers-search',
-    roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+    roles: ['MANAGER', 'ADMIN'],
     children: [
       {
         label: 'View Products',
         link: '/products',  
-        roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+        roles: ['MANAGER', 'ADMIN'],
       },
       {
         label: 'Create Product',
