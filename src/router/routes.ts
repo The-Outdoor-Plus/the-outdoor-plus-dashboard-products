@@ -13,7 +13,7 @@ export default [
         meta: { 
           requiresAuth: true, 
           onlyWhenLoggedOut: false,
-          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
         }
       },
     ],
@@ -29,7 +29,7 @@ export default [
         meta: { 
           requiresAuth: false, 
           onlyWhenLoggedOut: true, 
-          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
         }
       }
     ],

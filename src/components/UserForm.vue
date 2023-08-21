@@ -193,13 +193,17 @@ const roles = [
     value: 'DISTRIBUTOR',
   },
   {
+    title: 'Master Distributor',
+    value: 'MASTER_DISTRIBUTOR',
+  },
+  {
     title: 'Manager',
     value: 'MANAGER',
   },
   {
     title: 'Admin',
     value: 'ADMIN',
-  }
+  },
 ];
 const passwordVisible = ref(false);
 const isLoading = ref(false);
