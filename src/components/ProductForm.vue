@@ -1418,7 +1418,7 @@ const fillProductInformation = async () => {
       prices.value.msrp = await loadProductPrices('msrp', +props.product?.id) || [];
       prices.value.internet = await loadProductPrices('internet', +props.product?.id) || [];
       prices.value.map = await loadProductPrices('map', +props.product?.id) || [];
-      prices.value.group = await loadProductPrices('map', +props.product?.id) || [];
+      prices.value.group = await loadProductPrices('group', +props.product?.id) || [];
       prices.value.dealer = await loadProductPrices('dealer', +props.product?.id) || [];
       prices.value.distributor = await loadProductPrices('distributor', +props.product?.id) || [];
       prices.value.landscape = await loadProductPrices('landscape', +props.product?.id) || [];

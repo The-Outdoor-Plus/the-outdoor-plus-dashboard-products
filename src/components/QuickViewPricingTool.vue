@@ -14,6 +14,30 @@
     </div>
     <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
       <div class="tw-w-full lg:tw-w-7/12">
+        <div v-if="product && product.id" class="tw-w-full tw-flex">
+          <v-spacer></v-spacer>
+          <v-menu>
+            <template v-slot:activator="{ props }">
+              <v-btn
+                color="white"
+                v-bind="props"
+                class="tw-mb-5"
+              >
+                Year: {{ currentYear }}
+                <v-icon class="tw-ml-2" icon="mdi-filter-variant"></v-icon>
+              </v-btn>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(item, index) in availableYears"
+                :key="index"
+                :value="index"
+              >
+                <v-list-item-title @click="currentYear = item">{{ item }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+        </div>
         <v-card 
           v-if="product && product.id"
           class="py-6 px-8 tw-text-base"
@@ -364,7 +388,7 @@ const setPrices = (pricesList: any[]) => {
   });
 }
 
-const availableYears = computed(() => {
+const availableYears = computed((): number[] => {
   const yearsSet = new Set();
 
   for (const key in prices.value) {
@@ -377,7 +401,7 @@ const availableYears = computed(() => {
       })
     }
   }
-  return Array.from(yearsSet).sort((a: any, b: any) => a - b);
+  return (Array.from(yearsSet).sort((a: any, b: any) => a - b) as number[]);
 });
 
 watch(
@@ -402,7 +426,7 @@ const loadProduct = async () => {
         material:material_id(name),
         shape:shape_id(name)
       `)
-      .eq(`sku`, skuSearch.value)
+      .eq(`sku`, skuSearch.value.toUpperCase())
       .eq(`enabled`, true)
       .maybeSingle();
     if (error) throw error;
