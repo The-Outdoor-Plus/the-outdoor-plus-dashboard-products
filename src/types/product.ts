@@ -162,6 +162,10 @@ export interface Props {
   readonly?: boolean;
   product?: Product | null;
   loading?: boolean;
+  productPrices?: PriceData;
+  productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  productImages?: Image[];
+  productSpectSheets?: SpecificationSheet[];
 }
 
 export interface Attrs {
