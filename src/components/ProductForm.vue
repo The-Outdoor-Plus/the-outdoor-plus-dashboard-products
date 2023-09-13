@@ -340,8 +340,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.color"
               :error-messages="colorId.errorMessage.value"
               :loading="itemsLoading.colorLoading"
@@ -366,8 +366,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.ignition"
               :error-messages="ignitionId.errorMessage.value"
               :loading="itemsLoading.ignitionLoading"
@@ -392,8 +392,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.gas"
               :error-messages="gasId.errorMessage.value"
               :loading="itemsLoading.gasLoading"
@@ -581,8 +581,8 @@
                     item-value="id"
                     :clearable="!readonly"
                     :closable-chips="!readonly"
-                    :multiple="isParent"
-                    :chips="isParent"
+                    :multiple="isParent || isParentGroup"
+                    :chips="isParent || isParentGroup"
                     :items="itemsList.baseColor"
                     :error-messages="baseColorId.errorMessage.value"
                     :loading="itemsLoading.baseColorLoading"
@@ -1060,6 +1060,7 @@ import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, Specificatio
   readonly: false,
   product: null,
   loading: false,
+
  });
 watch(
   () => props.loading,
@@ -1069,14 +1070,20 @@ watch(
 );
 
 const isParent = computed(() => {
-  if (!route.query.parent_id) return true
-  if (route.query.relation_type === 'parent') return true
+  if (route.query.relation_type === 'parent') return true;
+  if (!route.query.parent_id) return true;
+  return false;
+});
+
+const isParentGroup = computed(() => {
+  if (route.query.relation_type === 'parent_group') return true;
   return false;
 });
 
 onMounted(() => {
-  if (!route.query.parent_id) relation.value.value = 'PARENT'
-  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT'
+  if (route.query.relation_type === 'parent_group') relation.value.value = 'PARENT_GROUP';
+  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT';
+  else if (!route.query.parent_id) relation.value.value = 'PARENT';
   else relation.value.value = 'CHILD';
 });
 
@@ -1303,137 +1310,13 @@ const companyDivision = useField<string>('company_division');
 const shortDescription = useField<string>('short_description');
 const description = useField<string>('description');
 
-const loadProductPrices = async (type: string, product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: price, error } = await supabase.from(`${type}_price`)
-      .select('price, year')
-      .eq(`product_id`, product_id);
-
-    if (error) throw error;
-    return price;
-  } catch (e: any) {
-    notify({
-      title: `Error loading prices.`,
-      text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadProductAttributes = async (attr_type: string, product_id: number, color_type?: string) => {
-  try {
-    isLoading.value = true;
-    let query = supabase.from(`product_${attr_type}`)
-      .select(`${attr_type}_id`)
-      .eq(`product_id`, product_id)
-    if (color_type) query = query.eq(`type`, color_type);
-    const { data: attribute, error } = await query;
-    if (error) throw error;
-    return attribute.map((item) => +(item?.[`${attr_type}_id` as any]) as number);
-  } catch(e: any) {
-    notify({
-      title: `Error loading ${attr_type} attribute.`,
-      text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadProductImages = async (product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: images, error } = await supabase.from(`product_image`)
-      .select(`product_id, image:image_id(id, name, url), display_order, is_primary`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    console.log(images);
-    return images.map((item) => ({
-      id: item.image?.length ? 
-        item.image[0].id :
-        (item.image as Image).id,
-      name: item.image?.length ?
-        item.image[0].name :
-        (item.image as Image).name,
-      url: item.image?.length ?
-        item.image[0].url :
-        (item.image as Image).url,
-      display_order: item.display_order,
-      is_primary: item.is_primary,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading image`,
-      text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadSpecificationSheets = async (product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: specSheets, error } = await supabase.from(`product_specification_sheet`)
-      .select(`product_id, specification_sheet:specification_sheet_id(id, name, url)`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    console.log(specSheets);
-    return specSheets.map((item) => ({
-      id: item.specification_sheet?.length ?
-        item.specification_sheet[0].id :
-        (item.specification_sheet as SpecificationSheet).id,
-      name: item.specification_sheet?.length ?
-        item.specification_sheet[0].name :
-        (item.specification_sheet as SpecificationSheet).name,
-      url: item.specification_sheet?.length ?
-        item.specification_sheet[0].url :
-        (item.specification_sheet as SpecificationSheet).url,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading specification sheets`,
-      text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
 const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
     baseMaterialId.value.value = props.product?.base_material_id ?? null;
     materialId.value.value = props.product?.material_id ?? null;
-    if (props.product?.id) {
-      prices.value.msrp = await loadProductPrices('msrp', +props.product?.id) || [];
-      prices.value.internet = await loadProductPrices('internet', +props.product?.id) || [];
-      prices.value.map = await loadProductPrices('map', +props.product?.id) || [];
-      prices.value.group = await loadProductPrices('group', +props.product?.id) || [];
-      prices.value.dealer = await loadProductPrices('dealer', +props.product?.id) || [];
-      prices.value.distributor = await loadProductPrices('distributor', +props.product?.id) || [];
-      prices.value.landscape = await loadProductPrices('landscape', +props.product?.id) || [];
-      prices.value.master_distributor = await loadProductPrices('master_distributor', +props.product?.id) || [];
-    }
-    if (props.product?.relation === 'PARENT') {
+    
+    if (props.product?.relation === 'PARENT' || props.product?.relation === 'PARENT_GROUP') {
       diameter.value = props.product?.product_diameter?.split(',') || [];
-      if (props.product?.id) {
-        productAttrs.colors.value = await loadProductAttributes('color', +props.product?.id, 'default') || [];
-        productAttrs.baseColors.value = await loadProductAttributes('color', +props.product?.id, 'base') || [];
-        productAttrs.gasTypes.value = await loadProductAttributes('gas', +props.product?.id) || [];
-        productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', +props.product?.id) || [];
-        images.value = await loadProductImages(+props.product?.id) || [];
-        specificationSheets.value = await loadSpecificationSheets(+props.product?.id) || [];
-      }
     } else {
       productAttrs.colors.value = props.product?.color_id || 0;
       productAttrs.baseColors.value = props.product?.base_color_id || 0;
@@ -1480,6 +1363,46 @@ watch(
     fillProductInformation();
   },
   { deep: true }
+);
+
+watch(
+  () => props.productPrices,
+  () => {
+    if (props.productPrices)
+      prices.value = props.productPrices;
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.productAttributes,
+  () => {
+    if (props.productAttributes) {
+      productAttrs.colors = props.productAttributes?.colors;
+      productAttrs.baseColors = props.productAttributes?.baseColors;
+      productAttrs.gasTypes = props.productAttributes?.gasTypes;
+      productAttrs.ignitionTypes = props.productAttributes?.ignitionTypes;
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.productImages,
+  () => {
+    if (props.productImages)
+      images.value = props.productImages;
+  },
+  { deep: true },
+);
+
+watch(
+  () => props.productSpectSheets,
+  () => {
+    if (props.productSpectSheets)
+      specificationSheets.value = props.productSpectSheets;
+  },
+  { deep: true },
 );
 
 watch(
@@ -1850,7 +1773,7 @@ const submit = handleSubmit(async (values) => {
       if (product && product.length) {
         await setPrices(product[0].id);
 
-        if (isParent.value) {
+        if (isParent.value || isParentGroup.value) {
           if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
             await setAttributes(product[0].id, 'colors', 'default');
           if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
