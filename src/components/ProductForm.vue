@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="router.back()"
       ></v-btn>
@@ -176,7 +176,7 @@
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Prices</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
-            <template 
+            <template
               v-for="(priceType, key) in productStore.priceTypeList"
               :key="key"
             >
@@ -218,7 +218,7 @@
               </div>
               <v-btn
                 v-if="yearToShowList(priceType.key as keyof PriceData).length && !readonly"
-                color="teal-darken-2" 
+                color="teal-darken-2"
                 class="px-2 tw-mt-2 tw-mb-5"
                 size="small"
                 @click="addPrice(priceType.key as keyof PriceData)"
@@ -226,7 +226,7 @@
                 Add Price
                 <v-icon icon="mdi-plus" class="ml-2"></v-icon>
               </v-btn>
-            </template> 
+            </template>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
@@ -322,7 +322,7 @@
             >
             </v-autocomplete>
           </div>
-        </div> 
+        </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -349,7 +349,7 @@
             >
             </v-autocomplete>
           </div>
-        </div> 
+        </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -470,7 +470,7 @@
             </div>
             <v-btn
               v-if="!readonly"
-              color="teal-darken-2" 
+              color="teal-darken-2"
               class="px-2 tw-mt-2 tw-mb-5"
               size="small"
               @click="addImage"
@@ -526,7 +526,7 @@
             </div>
             <v-btn
               v-if="!readonly"
-              color="teal-darken-2" 
+              color="teal-darken-2"
               class="px-2 tw-mt-2 tw-mb-5"
               size="small"
               @click="addSpecificationSheet"
@@ -590,7 +590,7 @@
                   >
                   </v-autocomplete>
                 </div>
-              </div> 
+              </div>
               <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12">
@@ -1018,12 +1018,12 @@
               </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
-        </v-expansion-panels> 
-        
+        </v-expansion-panels>
+
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -1043,9 +1043,9 @@ import { Ref } from 'vue';
 import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet } from '@/types/product';
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
@@ -1090,7 +1090,7 @@ onMounted(() => {
 const title = computed(() => {
   if (props.new) return 'Create Product';
   if (props.edit) return 'Edit Product';
-  if (props.readonly) return 'View Product'; 
+  if (props.readonly) return 'View Product';
   return 'Product Form';
 });
 
@@ -1137,7 +1137,7 @@ const loadItemsList = async (itemType: keyof ItemsList) => {
       text: e?.message || `An error occurred trying to load ${itemType} list. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     itemsLoading.value[`${itemType}Loading`] = false;
   }
@@ -1155,7 +1155,7 @@ const generateYearList = (currentYear: number): number[] => {
 
   return yearArray;
 }
-  
+
 const yearToShowList = (priceType: keyof PriceData) => {
   const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
   return yearList.value.filter((year: number) => !yearsToExclude.has(year));
@@ -1240,9 +1240,9 @@ const removeSpecSheetFromList = (item: SpecificationSheet) => {
 }
 
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit, resetForm } = useForm({
@@ -1314,9 +1314,10 @@ const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
     baseMaterialId.value.value = props.product?.base_material_id ?? null;
     materialId.value.value = props.product?.material_id ?? null;
-    
+
     if (props.product?.relation === 'PARENT' || props.product?.relation === 'PARENT_GROUP') {
       diameter.value = props.product?.product_diameter?.split(',') || [];
+      length.value = props.product?.product_length?.split(',') || [];
     } else {
       productAttrs.colors.value = props.product?.color_id || 0;
       productAttrs.baseColors.value = props.product?.base_color_id || 0;
@@ -1324,11 +1325,11 @@ const fillProductInformation = async () => {
       productAttrs.ignitionTypes.value = props.product?.ignition_id || 0;
     }
     certifications.value = props.product?.certifications || [];
-    resetForm({ 
+    resetForm({
       values: {
         ...props.product,
       }
-    }); 
+    });
   }
 }
 
@@ -1348,7 +1349,7 @@ const loadMaterialColors = async (colorType: keyof ItemsList, id: number) => {
       text: e?.message || `An error occurred trying to load color list. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     itemsLoading.value[`${colorType}Loading`] = false;
   }
@@ -1432,9 +1433,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const filterFormPayload = (form: Product) => (
@@ -1443,7 +1444,7 @@ const filterFormPayload = (form: Product) => (
   }))
 )
 
-const savePrice = async (type: string, priceForm: { 
+const savePrice = async (type: string, priceForm: {
   year: number,
   price: number,
   product_id: number
@@ -1686,7 +1687,7 @@ const handleCreate = async (values: Product) => {
       .from('product')
       .insert(form)
       .select();
-    if (error) throw error; 
+    if (error) throw error;
     return product;
   } catch (e: any) {
     console.error(e);
@@ -1781,7 +1782,7 @@ const submit = handleSubmit(async (values) => {
           if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
             await setAttributes(product[0].id, 'gasTypes');
           if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
-            await setAttributes(product[0].id, 'ignitionTypes'); 
+            await setAttributes(product[0].id, 'ignitionTypes');
         }
 
         await setImages(product[0].id);
@@ -1794,7 +1795,7 @@ const submit = handleSubmit(async (values) => {
         });
 
         router.push(`/products/${product[0].id}`);
-      } 
+      }
     } else if (props.edit) {
       // await handleUpdate(values);
     }
@@ -1802,7 +1803,7 @@ const submit = handleSubmit(async (values) => {
     console.error(e);
   } finally {
     isLoading.value = false;
-  } 
+  }
 })
 
 </script>
