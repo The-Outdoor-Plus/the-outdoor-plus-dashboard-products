@@ -11,9 +11,9 @@
     ></product-form>
     <div class="tw-w-full tw-my-16 rounded">
       <v-data-table-server
-        v-if="showChildProducts"
+        v-show="showChildProducts"
         v-model:items-per-page="itemsPerPage"
-        :key="`${route.params.id}`"
+        :key="route.params.id"
         :headers="(headers as [])"
         :items-length="totalItems"
         :items="data.serverItems"
@@ -79,7 +79,7 @@
           </div>
         </template>
       </v-data-table-server>
-    </div> 
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -121,6 +121,7 @@ const route = useRoute();
 const { notify } = useNotification();
 
 const loading = ref(false);
+const loadingData = ref(false);
 const product: Ref<Product> = ref<Product>({
   id: 0,
   name: '',
@@ -173,6 +174,7 @@ const redirectToNewProduct = computed(() => {
 const loadData = async () => {
   try {
     loading.value = true;
+    loadingData.value = true;
     const { data, error } = await supabase
       .from('product')
       .select()
@@ -189,6 +191,7 @@ const loadData = async () => {
     });
   } finally {
     loading.value = false;
+    loadingData.value = false;
   }
 }
 
@@ -207,7 +210,7 @@ const loadProductPrices = async (type: string, product_id: number) => {
       text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     loading.value = false;
   }
@@ -229,7 +232,7 @@ const loadProductAttributes = async (attr_type: string, product_id: number, colo
       text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     loading.value = false;
   }
@@ -242,9 +245,8 @@ const loadProductImages = async (product_id: number) => {
       .select(`product_id, image:image_id(id, name, url), display_order, is_primary`)
       .eq(`product_id`, product_id)
     if (error) throw error;
-    console.log(images);
     return images.map((item) => ({
-      id: item.image?.length ? 
+      id: item.image?.length ?
         item.image[0].id :
         (item.image as Image).id,
       name: item.image?.length ?
@@ -262,7 +264,7 @@ const loadProductImages = async (product_id: number) => {
       text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     loading.value = false;
   }
@@ -275,7 +277,6 @@ const loadSpecificationSheets = async (product_id: number) => {
       .select(`product_id, specification_sheet:specification_sheet_id(id, name, url)`)
       .eq(`product_id`, product_id)
     if (error) throw error;
-    console.log(specSheets);
     return specSheets.map((item) => ({
       id: item.specification_sheet?.length ?
         item.specification_sheet[0].id :
@@ -293,7 +294,7 @@ const loadSpecificationSheets = async (product_id: number) => {
       text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     loading.value = false;
   }
@@ -371,9 +372,9 @@ const itemsPerPage = ref(40);
 const totalItems = ref(40);
 
 /**
- * 
+ *
  * Dialog Delete Section
- * 
+ *
  **/
 
 const itemToDelete: Ref<Columns | null> = ref(null);
@@ -386,8 +387,10 @@ watch(dialogDelete, (value) => {
   }
 });
 watch(route, async (value) => {
-  if (route.params.id)
-    await loadData();
+  // if (route.params.id && +route.params.id !== +(product.value?.id || 0) && !loadingData.value) {
+  //   await loadData();
+  //   await loadProductInformation();
+  // }
 });
 
 const deleteItem = (item: Columns) => {
@@ -428,9 +431,9 @@ const deleteItemConfirm = async () => {
 }
 
 /**
- * 
+ *
  * Search
- * 
+ *
  */
 const search = ref('');
 const searchFilter = ref('');
@@ -454,25 +457,32 @@ onMounted(async () => {
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
     loading.value = true;
-    const { from, to } = usePagination(page -1, itemsPerPage);
-    const { data: products, error, count } = await supabase
-      .from('product')
-      .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
-      .eq(`relation`, 'CHILD')
-      .eq(`parent_id`, +route.params.id)
-      .order(sortBy?.[0]?.key || 'name', {
-        ascending: sortBy?.[0]?.order === 'desc' ? false : true
-      })
-      .range(from, to);
-    if (error) throw error;
-    const transformedProducts = products.map(product => ({
-      ...product,
-      category: (product.category as any)?.name || '', 
-      material: (product.material as any)?.name || '',
-      collection: (product.collection as any)?.name || '',
-    }));  
-    data.serverItems = transformedProducts || [];
-    totalItems.value = count || 0;
+    if (+route.params.id !== +(product.value?.id || 0) && !loadingData.value) {
+      await loadData();
+      await loadProductInformation();
+    }
+    if (showChildProducts.value) {
+      const relation = product.value.relation === 'PARENT' ? 'PARENT_GROUP' : 'CHILD';
+      const { from, to } = usePagination(page -1, itemsPerPage);
+      const { data: products, error, count } = await supabase
+        .from('product')
+        .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
+        .eq(`relation`, relation)
+        .eq(`parent_id`, +route.params.id)
+        .order(sortBy?.[0]?.key || 'name', {
+          ascending: sortBy?.[0]?.order === 'desc' ? false : true
+        })
+        .range(from, to);
+      if (error) throw error;
+      const transformedProducts = products.map(product => ({
+        ...product,
+        category: (product.category as any)?.name || '',
+        material: (product.material as any)?.name || '',
+        collection: (product.collection as any)?.name || '',
+      }));
+      data.serverItems = transformedProducts || [];
+      totalItems.value = count || 0;
+    }
   } catch (e: any) {
     console.error(e);
     notify({
