@@ -337,12 +337,12 @@ const loadProductInformation = async () => {
     prices.value.distributor = await loadProductPrices('distributor', productId) || [];
     prices.value.landscape = await loadProductPrices('landscape', productId) || [];
     prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
+    images.value = await loadProductImages(productId) || [];
     if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
       productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
       productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
       productAttrs.gasTypes.value = await loadProductAttributes('gas', productId) || [];
       productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', productId) || [];
-      images.value = await loadProductImages(productId) || [];
       specificationSheets.value = await loadSpecificationSheets(productId) || [];
     }
   }
