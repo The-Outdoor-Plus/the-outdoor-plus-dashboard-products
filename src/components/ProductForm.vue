@@ -172,6 +172,24 @@
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Website Link</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="websiteLink.value.value"
+              variant="outlined"
+              density="compact"
+              name="WebsiteLink"
+              placeholder="https://www.theoutdoorplus.com/product/..."
+              :error-messages="websiteLink.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Prices</h3>
           </div>
@@ -532,6 +550,62 @@
               @click="addSpecificationSheet"
             >
               Add Spec Sheet
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Documents</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(doc, i) in documents"
+              :key="i"
+              class="tw-mb-4"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="doc.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="doc.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeDocFromList(doc)"
+                ></v-btn>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2"
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addDocuments"
+            >
+              Add Document
               <v-icon icon="mdi-plus" class="ml-2"></v-icon>
             </v-btn>
           </div>
@@ -1040,7 +1114,7 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet } from '@/types/product';
+import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet, Documents } from '@/types/product';
 
 /**
  *
@@ -1071,7 +1145,6 @@ watch(
 
 const isParent = computed(() => {
   if (route.query.relation_type === 'parent') return true;
-  if (!route.query.parent_id) return true;
   return false;
 });
 
@@ -1239,6 +1312,23 @@ const removeSpecSheetFromList = (item: SpecificationSheet) => {
   specificationSheets.value = specificationSheets.value.filter((specSheetItem) => specSheetItem.id !== item.id);
 }
 
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
+
+const addDocuments = () => {
+  let documentsTemp: Documents[] = JSON.parse(JSON.stringify(documents.value));
+  documentsTemp = documentsTemp.sort((a: Documents, b: Documents) => (a?.id || 0) - (b?.id || 0));
+  const id = documentsTemp.length ? (documentsTemp[documentsTemp.length - 1]?.id || 0) + 1 : 0;
+  const newDocument: Documents = {
+    id,
+    url: '',
+    name: '',
+  }
+  documents.value.push(newDocument);
+}
+
+const removeDocFromList = (item: Documents) => {
+  documents.value = documents.value.filter((docItem) => docItem !== item.id);
+}
 /**
  *
  * Handle Form
@@ -1288,10 +1378,10 @@ const shapeId = useField<number>('shape_id');
 const materialId = useField<number | null>('material_id');
 const colorId = useField<number>('color_id');
 const productAttrs: {
-  colors: Ref<number[] | number>
-  baseColors: Ref<number[] | number>
-  ignitionTypes: Ref<number[] | number>
-  gasTypes: Ref<number[] | number>
+  colors: Ref<number[] | number | null>
+  baseColors: Ref<number[] | number | null>
+  ignitionTypes: Ref<number[] | number | null>
+  gasTypes: Ref<number[] | number  | null>
 } = {
   colors: ref<number[] | number>([]),
   baseColors: ref<number[] | number>([]),
@@ -1301,6 +1391,7 @@ const productAttrs: {
 const ignitionId = useField<number>('ignition_id');
 const gasId = useField<number>('gas_id');
 const productSerialBase = useField<string>('product_serial_base');
+const websiteLink = useField<string>('website_link')
 const certifications: Ref<string[]> = ref<string[]>([]);
 const baseColorId = useField<number>('base_color_id');
 const baseMaterialId = useField<number | null>('base_material_id');
@@ -1319,10 +1410,10 @@ const fillProductInformation = async () => {
       diameter.value = props.product?.product_diameter?.split(',') || [];
       length.value = props.product?.product_length?.split(',') || [];
     } else {
-      productAttrs.colors.value = props.product?.color_id || 0;
-      productAttrs.baseColors.value = props.product?.base_color_id || 0;
-      productAttrs.gasTypes.value = props.product?.gas_id || 0;
-      productAttrs.ignitionTypes.value = props.product?.ignition_id || 0;
+      productAttrs.colors.value = props.product?.color_id || null;
+      productAttrs.baseColors.value = props.product?.base_color_id || null;
+      productAttrs.gasTypes.value = props.product?.gas_id || null;
+      productAttrs.ignitionTypes.value = props.product?.ignition_id || null;
     }
     certifications.value = props.product?.certifications || [];
     resetForm({
@@ -1561,17 +1652,77 @@ const setAttributes = async (
   }
 }
 
+const saveDocument = async (documentsForm: Documents, productDocumentsForm: Documents) => {
+  try {
+    isLoading.value = true;
+    const { data: docs, error } = await supabase
+      .from('documents')
+      .upsert(documentsForm)
+      .select(`id`);
+    if (error) throw error;
+    const { data, error: e } = await supabase
+      .from('product_documents')
+      .upsert({
+        ...productDocumentsForm,
+        specification_sheet_id: docs[0].id,
+      })
+      .select();
+    if (e) throw e;
+    return data;
+  } catch (e: any) {
+    notify({
+      title: `Error saving Documents`,
+      text: e?.message || `An error ocurred trying to save Documents. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setDocuments = async (productId: number) => {
+  try {
+    const saveDocuments: Promise<any>[] = [];
+
+    documents.value.forEach((doc) => {
+      const documentsForm = {
+        id: doc.id === 0 ? undefined : doc.id,
+        url: doc.url,
+        name: doc.name,
+      }
+      const productDocumentsForm = {
+        document_id: doc.id === 0 ? undefined : doc.id,
+        product_id: productId,
+      }
+      saveDocuments.push(saveDocument(documentsForm, productDocumentsForm));
+    });
+    isLoading.value = true;
+    const promiseResult = await Promise.allSettled(saveDocuments);
+  } catch(e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving documents`,
+      text: e?.message || `An error occurred trying to save documents. Please contact TOP suppport.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const saveSpecSheet = async (specSheetForm: SpecificationSheet, productSpecSheetForm: SpecificationSheet) => {
   try {
     isLoading.value = true;
     const { data: specSheet, error } = await supabase
       .from('specification_sheet')
-      .insert(specSheetForm)
+      .upsert(specSheetForm)
       .select(`id`);
     if (error) throw error;
     const { data, error: e } = await supabase
       .from('product_specification_sheet')
-      .insert({
+      .upsert({
         ...productSpecSheetForm,
         specification_sheet_id: specSheet[0].id,
       })
@@ -1596,10 +1747,12 @@ const setSpecSheets = async (productId: number) => {
 
     specificationSheets.value.forEach((specSheet) => {
       const specSheetForm = {
+        id: specSheet.id === 0 ? undefined : specSheet.id,
         url: specSheet.url,
         name: specSheet.name,
       }
       const productSpecSheetForm = {
+        specification_sheet_id: specSheet.id === 0 ? undefined : specSheet.id,
         product_id: productId,
       }
       saveSpecSheets.push(saveSpecSheet(specSheetForm, productSpecSheetForm));
@@ -1609,8 +1762,8 @@ const setSpecSheets = async (productId: number) => {
   } catch(e: any) {
     console.error(e);
     notify({
-      title: `Error saving images`,
-      text: e?.message || `An error occurred trying to save images. Please contact TOP suppport.`,
+      title: `Error saving specification sheets`,
+      text: e?.message || `An error occurred trying to save specification sheets. Please contact TOP suppport.`,
       type: 'error',
       duration: 6000,
     });
@@ -1624,12 +1777,12 @@ const saveImage = async (imageForm: Image, productImgForm: Image) => {
     isLoading.value = true;
     const { data: image, error } = await supabase
       .from('image')
-      .insert(imageForm)
+      .upsert(imageForm)
       .select(`id`);
     if (error) throw error;
     const { data, error: e } = await supabase
       .from('product_image')
-      .insert({
+      .upsert({
         ...productImgForm,
         image_id: image[0].id,
       })
@@ -1654,10 +1807,12 @@ const setImages = async (productId: number) => {
 
     images.value.forEach((img) => {
       const imageForm = {
+        id: img.id === 0 ? undefined : img.id,
         url: img.url,
         name: img.name,
       }
       const productImageForm = {
+        image_id: img.id === 0 ? undefined : img.id,
         product_id: productId,
         display_order: img.display_order,
         is_primary: img.is_primary,
@@ -1688,6 +1843,11 @@ const handleCreate = async (values: Product) => {
       .insert(form)
       .select();
     if (error) throw error;
+    notify({
+      title: 'Product created successfully',
+      type: 'success',
+      duration: 6000,
+    });
     return product;
   } catch (e: any) {
     console.error(e);
@@ -1712,14 +1872,12 @@ const handleUpdate = async (values: Product) => {
       .eq('id', props?.product?.id || 0)
       .select();
     if (error) throw error;
-    if(product.length) {
-      name.value.value = product[0].name;
-    }
     notify({
       title: 'Product updated successfully',
       type: 'success',
       duration: 6000,
     });
+    return product;
   } catch (e: any) {
     console.error(e);
     notify({
@@ -1734,8 +1892,9 @@ const handleUpdate = async (values: Product) => {
 }
 
 const submit = handleSubmit(async (values) => {
+  console.log('Test');
   let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
-  if (!isParent.value) {
+  if (!isParent.value || !isParentGroup.value) {
     const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
     const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
     const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
@@ -1770,7 +1929,6 @@ const submit = handleSubmit(async (values) => {
     if (props.new) {
       const product = await handleCreate(form);
 
-      console.log('Product Response', product);
       if (product && product.length) {
         await setPrices(product[0].id);
 
@@ -1797,7 +1955,12 @@ const submit = handleSubmit(async (values) => {
         router.push(`/products/${product[0].id}`);
       }
     } else if (props.edit) {
-      // await handleUpdate(values);
+      const product = await handleUpdate(form);
+
+      if (product && product.length) {
+        await setImages(product[0].id);
+        await setSpecSheets(product[0].id);
+      }
     }
   } catch (e: any) {
     console.error(e);
