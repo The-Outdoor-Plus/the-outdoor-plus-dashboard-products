@@ -115,6 +115,7 @@ export const useProductStore = defineStore('product', {
         company_division: yup.string().nullable(),
         short_description: yup.string().nullable(),
         description: yup.string().nullable(),
+        website_link: yup.string().nullable(),
       }),
     );
 
@@ -155,6 +156,7 @@ export const useProductStore = defineStore('product', {
       companyDivision: '',
       shortDescription: '',
       description: '',
+      websiteLink: '',
     }
 
     const productKeys = [
@@ -219,14 +221,19 @@ export const useProductStore = defineStore('product', {
       'master_distributor_prices',
       'msrp_prices',
       'images',
+      'website_link',
     ];
 
     const pricesByRole = {
       USER: ['msrp'],
       GUEST: ['msrp'],
+      GROUP: ['group', 'map', 'msrp'],
+      LANDSCAPE: ['landscape', 'map', 'msrp'],
+      INTERNET: ['internet', 'map', 'msrp'],
+      ECOMMERCE: ['map', 'msrp'],
       DEALER: ['dealer', 'map', 'msrp'],
       DISTRIBUTOR: ['distributor', 'map', 'msrp'],
-      MASTER_DISTRIBUTOR: ['dealer', 'distributor', 'group', 'master_distributor', 'landscape', 'msrp', 'map'],
+      MASTER_DISTRIBUTOR: ['master_distributor', 'msrp', 'map'],
       MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
     }
