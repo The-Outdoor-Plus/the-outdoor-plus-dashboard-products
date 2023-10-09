@@ -16,7 +16,7 @@ import ProductForm from '@/components/ProductForm.vue';
 import { useAppStore } from '@/store/app';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
-import { Product } from '@/types/product';
+import { Documents, Product } from '@/types/product';
 import { onMounted, ref, Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { Image, SpecificationSheet, PriceData } from '@/types/product';
@@ -152,6 +152,36 @@ const loadSpecificationSheets = async (product_id: number) => {
     notify({
       title: `Error loading specification sheets`,
       text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
+const loadDocuments = async (product_id: number) => {
+  try {
+    loading.value = true;
+    const { data: docs, error } = await supabase.from(`product_documents`)
+      .select(`product_id, document:document_id(id, name, url)`)
+      .eq(`product_id`, product_id);
+      if (error) throw error;
+      return docs.map((item) => ({
+        id: item.document?.length ?
+          item.document[0].id :
+          (item.document as Documents).id,
+        name: item.document?.length ?
+          item.document[0].name :
+          (item.document as Documents).name,
+        url: item.document.length ?
+          item.document[0].url :
+          (item.document as Documents).url,
+      }));
+  } catch (e: any) {
+    notify({
+      title: `Error loading documents`,
+      text: e?.message || `An error occurred trying to load documents. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
     });
