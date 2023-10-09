@@ -13,7 +13,7 @@
       <v-data-table-server
         v-show="showChildProducts"
         v-model:items-per-page="itemsPerPage"
-        :key="route.params.id"
+        :key="`${route.params.id}`"
         :headers="(headers as [])"
         :items-length="totalItems"
         :items="data.serverItems"
