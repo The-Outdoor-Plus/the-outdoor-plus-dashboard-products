@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="router.back()"
       ></v-btn>
@@ -172,11 +172,29 @@
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Website Link</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="websiteLink.value.value"
+              variant="outlined"
+              density="compact"
+              name="WebsiteLink"
+              placeholder="https://www.theoutdoorplus.com/product/..."
+              :error-messages="websiteLink.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Prices</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
-            <template 
+            <template
               v-for="(priceType, key) in productStore.priceTypeList"
               :key="key"
             >
@@ -218,7 +236,7 @@
               </div>
               <v-btn
                 v-if="yearToShowList(priceType.key as keyof PriceData).length && !readonly"
-                color="teal-darken-2" 
+                color="teal-darken-2"
                 class="px-2 tw-mt-2 tw-mb-5"
                 size="small"
                 @click="addPrice(priceType.key as keyof PriceData)"
@@ -226,7 +244,7 @@
                 Add Price
                 <v-icon icon="mdi-plus" class="ml-2"></v-icon>
               </v-btn>
-            </template> 
+            </template>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
@@ -322,7 +340,7 @@
             >
             </v-autocomplete>
           </div>
-        </div> 
+        </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -340,8 +358,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.color"
               :error-messages="colorId.errorMessage.value"
               :loading="itemsLoading.colorLoading"
@@ -349,7 +367,7 @@
             >
             </v-autocomplete>
           </div>
-        </div> 
+        </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -366,8 +384,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.ignition"
               :error-messages="ignitionId.errorMessage.value"
               :loading="itemsLoading.ignitionLoading"
@@ -392,8 +410,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent"
-              :chips="isParent"
+              :multiple="isParent || isParentGroup"
+              :chips="isParent || isParentGroup"
               :items="itemsList.gas"
               :error-messages="gasId.errorMessage.value"
               :loading="itemsLoading.gasLoading"
@@ -470,7 +488,7 @@
             </div>
             <v-btn
               v-if="!readonly"
-              color="teal-darken-2" 
+              color="teal-darken-2"
               class="px-2 tw-mt-2 tw-mb-5"
               size="small"
               @click="addImage"
@@ -526,12 +544,68 @@
             </div>
             <v-btn
               v-if="!readonly"
-              color="teal-darken-2" 
+              color="teal-darken-2"
               class="px-2 tw-mt-2 tw-mb-5"
               size="small"
               @click="addSpecificationSheet"
             >
               Add Spec Sheet
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Documents</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(doc, i) in documents"
+              :key="i"
+              class="tw-mb-4"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="doc.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="doc.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeDocFromList(doc)"
+                ></v-btn>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2"
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addDocuments"
+            >
+              Add Document
               <v-icon icon="mdi-plus" class="ml-2"></v-icon>
             </v-btn>
           </div>
@@ -581,8 +655,8 @@
                     item-value="id"
                     :clearable="!readonly"
                     :closable-chips="!readonly"
-                    :multiple="isParent"
-                    :chips="isParent"
+                    :multiple="isParent || isParentGroup"
+                    :chips="isParent || isParentGroup"
                     :items="itemsList.baseColor"
                     :error-messages="baseColorId.errorMessage.value"
                     :loading="itemsLoading.baseColorLoading"
@@ -590,7 +664,7 @@
                   >
                   </v-autocomplete>
                 </div>
-              </div> 
+              </div>
               <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12">
@@ -1018,12 +1092,12 @@
               </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
-        </v-expansion-panels> 
-        
+        </v-expansion-panels>
+
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -1040,12 +1114,12 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet } from '@/types/product';
+import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet, Documents } from '@/types/product';
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
@@ -1060,6 +1134,7 @@ import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, Specificatio
   readonly: false,
   product: null,
   loading: false,
+
  });
 watch(
   () => props.loading,
@@ -1069,21 +1144,26 @@ watch(
 );
 
 const isParent = computed(() => {
-  if (!route.query.parent_id) return true
-  if (route.query.relation_type === 'parent') return true
+  if (route.query.relation_type === 'parent') return true;
+  return false;
+});
+
+const isParentGroup = computed(() => {
+  if (route.query.relation_type === 'parent_group') return true;
   return false;
 });
 
 onMounted(() => {
-  if (!route.query.parent_id) relation.value.value = 'PARENT'
-  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT'
+  if (route.query.relation_type === 'parent_group') relation.value.value = 'PARENT_GROUP';
+  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT';
+  else if (!route.query.parent_id) relation.value.value = 'PARENT';
   else relation.value.value = 'CHILD';
 });
 
 const title = computed(() => {
   if (props.new) return 'Create Product';
   if (props.edit) return 'Edit Product';
-  if (props.readonly) return 'View Product'; 
+  if (props.readonly) return 'View Product';
   return 'Product Form';
 });
 
@@ -1130,7 +1210,7 @@ const loadItemsList = async (itemType: keyof ItemsList) => {
       text: e?.message || `An error occurred trying to load ${itemType} list. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     itemsLoading.value[`${itemType}Loading`] = false;
   }
@@ -1148,7 +1228,7 @@ const generateYearList = (currentYear: number): number[] => {
 
   return yearArray;
 }
-  
+
 const yearToShowList = (priceType: keyof PriceData) => {
   const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
   return yearList.value.filter((year: number) => !yearsToExclude.has(year));
@@ -1206,7 +1286,7 @@ const removeImageFromList = (item: Image) => {
   images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
 }
 
-const toggleImageIsPrimary = (imageId?: number, value?: boolean) => {
+const toggleImageIsPrimary = (imageId?: number | null, value?: boolean) => {
   const valueToSet = !value;
   images.value = images.value.map((img) => ({
     ...img,
@@ -1232,10 +1312,27 @@ const removeSpecSheetFromList = (item: SpecificationSheet) => {
   specificationSheets.value = specificationSheets.value.filter((specSheetItem) => specSheetItem.id !== item.id);
 }
 
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
+
+const addDocuments = () => {
+  let documentsTemp: Documents[] = JSON.parse(JSON.stringify(documents.value));
+  documentsTemp = documentsTemp.sort((a: Documents, b: Documents) => (a?.id || 0) - (b?.id || 0));
+  const id = documentsTemp.length ? (documentsTemp[documentsTemp.length - 1]?.id || 0) + 1 : 0;
+  const newDocument: Documents = {
+    id,
+    url: '',
+    name: '',
+  }
+  documents.value.push(newDocument);
+}
+
+const removeDocFromList = (item: Documents) => {
+  documents.value = documents.value.filter((docItem) => docItem !== item.id);
+}
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit, resetForm } = useForm({
@@ -1281,10 +1378,10 @@ const shapeId = useField<number>('shape_id');
 const materialId = useField<number | null>('material_id');
 const colorId = useField<number>('color_id');
 const productAttrs: {
-  colors: Ref<number[] | number>
-  baseColors: Ref<number[] | number>
-  ignitionTypes: Ref<number[] | number>
-  gasTypes: Ref<number[] | number>
+  colors: Ref<number[] | number | null>
+  baseColors: Ref<number[] | number | null>
+  ignitionTypes: Ref<number[] | number | null>
+  gasTypes: Ref<number[] | number  | null>
 } = {
   colors: ref<number[] | number>([]),
   baseColors: ref<number[] | number>([]),
@@ -1294,6 +1391,7 @@ const productAttrs: {
 const ignitionId = useField<number>('ignition_id');
 const gasId = useField<number>('gas_id');
 const productSerialBase = useField<string>('product_serial_base');
+const websiteLink = useField<string>('website_link')
 const certifications: Ref<string[]> = ref<string[]>([]);
 const baseColorId = useField<number>('base_color_id');
 const baseMaterialId = useField<number | null>('base_material_id');
@@ -1303,149 +1401,26 @@ const companyDivision = useField<string>('company_division');
 const shortDescription = useField<string>('short_description');
 const description = useField<string>('description');
 
-const loadProductPrices = async (type: string, product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: price, error } = await supabase.from(`${type}_price`)
-      .select('price, year')
-      .eq(`product_id`, product_id);
-
-    if (error) throw error;
-    return price;
-  } catch (e: any) {
-    notify({
-      title: `Error loading prices.`,
-      text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadProductAttributes = async (attr_type: string, product_id: number, color_type?: string) => {
-  try {
-    isLoading.value = true;
-    let query = supabase.from(`product_${attr_type}`)
-      .select(`${attr_type}_id`)
-      .eq(`product_id`, product_id)
-    if (color_type) query = query.eq(`type`, color_type);
-    const { data: attribute, error } = await query;
-    if (error) throw error;
-    return attribute.map((item) => +(item?.[`${attr_type}_id` as any]) as number);
-  } catch(e: any) {
-    notify({
-      title: `Error loading ${attr_type} attribute.`,
-      text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadProductImages = async (product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: images, error } = await supabase.from(`product_image`)
-      .select(`product_id, image:image_id(id, name, url), display_order, is_primary`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    console.log(images);
-    return images.map((item) => ({
-      id: item.image?.length ? 
-        item.image[0].id :
-        (item.image as Image).id,
-      name: item.image?.length ?
-        item.image[0].name :
-        (item.image as Image).name,
-      url: item.image?.length ?
-        item.image[0].url :
-        (item.image as Image).url,
-      display_order: item.display_order,
-      is_primary: item.is_primary,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading image`,
-      text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const loadSpecificationSheets = async (product_id: number) => {
-  try {
-    isLoading.value = true;
-    const { data: specSheets, error } = await supabase.from(`product_specification_sheet`)
-      .select(`product_id, specification_sheet:specification_sheet_id(id, name, url)`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    console.log(specSheets);
-    return specSheets.map((item) => ({
-      id: item.specification_sheet?.length ?
-        item.specification_sheet[0].id :
-        (item.specification_sheet as SpecificationSheet).id,
-      name: item.specification_sheet?.length ?
-        item.specification_sheet[0].name :
-        (item.specification_sheet as SpecificationSheet).name,
-      url: item.specification_sheet?.length ?
-        item.specification_sheet[0].url :
-        (item.specification_sheet as SpecificationSheet).url,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading specification sheets`,
-      text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    }); 
-  } finally {
-    isLoading.value = false;
-  }
-}
-
 const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
     baseMaterialId.value.value = props.product?.base_material_id ?? null;
     materialId.value.value = props.product?.material_id ?? null;
-    if (props.product?.id) {
-      prices.value.msrp = await loadProductPrices('msrp', +props.product?.id) || [];
-      prices.value.internet = await loadProductPrices('internet', +props.product?.id) || [];
-      prices.value.map = await loadProductPrices('map', +props.product?.id) || [];
-      prices.value.group = await loadProductPrices('group', +props.product?.id) || [];
-      prices.value.dealer = await loadProductPrices('dealer', +props.product?.id) || [];
-      prices.value.distributor = await loadProductPrices('distributor', +props.product?.id) || [];
-      prices.value.landscape = await loadProductPrices('landscape', +props.product?.id) || [];
-      prices.value.master_distributor = await loadProductPrices('master_distributor', +props.product?.id) || [];
-    }
-    if (props.product?.relation === 'PARENT') {
+
+    if (props.product?.relation === 'PARENT' || props.product?.relation === 'PARENT_GROUP') {
       diameter.value = props.product?.product_diameter?.split(',') || [];
-      if (props.product?.id) {
-        productAttrs.colors.value = await loadProductAttributes('color', +props.product?.id, 'default') || [];
-        productAttrs.baseColors.value = await loadProductAttributes('color', +props.product?.id, 'base') || [];
-        productAttrs.gasTypes.value = await loadProductAttributes('gas', +props.product?.id) || [];
-        productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', +props.product?.id) || [];
-        images.value = await loadProductImages(+props.product?.id) || [];
-        specificationSheets.value = await loadSpecificationSheets(+props.product?.id) || [];
-      }
+      length.value = props.product?.product_length?.split(',') || [];
     } else {
-      productAttrs.colors.value = props.product?.color_id || 0;
-      productAttrs.baseColors.value = props.product?.base_color_id || 0;
-      productAttrs.gasTypes.value = props.product?.gas_id || 0;
-      productAttrs.ignitionTypes.value = props.product?.ignition_id || 0;
+      productAttrs.colors.value = props.product?.color_id || null;
+      productAttrs.baseColors.value = props.product?.base_color_id || null;
+      productAttrs.gasTypes.value = props.product?.gas_id || null;
+      productAttrs.ignitionTypes.value = props.product?.ignition_id || null;
     }
     certifications.value = props.product?.certifications || [];
-    resetForm({ 
+    resetForm({
       values: {
         ...props.product,
       }
-    }); 
+    });
   }
 }
 
@@ -1465,7 +1440,7 @@ const loadMaterialColors = async (colorType: keyof ItemsList, id: number) => {
       text: e?.message || `An error occurred trying to load color list. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   } finally {
     itemsLoading.value[`${colorType}Loading`] = false;
   }
@@ -1480,6 +1455,46 @@ watch(
     fillProductInformation();
   },
   { deep: true }
+);
+
+watch(
+  () => props.productPrices,
+  () => {
+    if (props.productPrices)
+      prices.value = props.productPrices;
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.productAttributes,
+  () => {
+    if (props.productAttributes) {
+      productAttrs.colors = props.productAttributes?.colors;
+      productAttrs.baseColors = props.productAttributes?.baseColors;
+      productAttrs.gasTypes = props.productAttributes?.gasTypes;
+      productAttrs.ignitionTypes = props.productAttributes?.ignitionTypes;
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => props.productImages,
+  () => {
+    if (props.productImages)
+      images.value = props.productImages;
+  },
+  { deep: true },
+);
+
+watch(
+  () => props.productSpectSheets,
+  () => {
+    if (props.productSpectSheets)
+      specificationSheets.value = props.productSpectSheets;
+  },
+  { deep: true },
 );
 
 watch(
@@ -1509,9 +1524,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const filterFormPayload = (form: Product) => (
@@ -1520,7 +1535,7 @@ const filterFormPayload = (form: Product) => (
   }))
 )
 
-const savePrice = async (type: string, priceForm: { 
+const savePrice = async (type: string, priceForm: {
   year: number,
   price: number,
   product_id: number
@@ -1637,17 +1652,77 @@ const setAttributes = async (
   }
 }
 
+const saveDocument = async (documentsForm: Documents, productDocumentsForm: Documents) => {
+  try {
+    isLoading.value = true;
+    const { data: docs, error } = await supabase
+      .from('documents')
+      .upsert(documentsForm)
+      .select(`id`);
+    if (error) throw error;
+    const { data, error: e } = await supabase
+      .from('product_documents')
+      .upsert({
+        ...productDocumentsForm,
+        specification_sheet_id: docs[0].id,
+      })
+      .select();
+    if (e) throw e;
+    return data;
+  } catch (e: any) {
+    notify({
+      title: `Error saving Documents`,
+      text: e?.message || `An error ocurred trying to save Documents. Please contact TOP support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setDocuments = async (productId: number) => {
+  try {
+    const saveDocuments: Promise<any>[] = [];
+
+    documents.value.forEach((doc) => {
+      const documentsForm = {
+        id: doc.id === 0 ? undefined : doc.id,
+        url: doc.url,
+        name: doc.name,
+      }
+      const productDocumentsForm = {
+        document_id: doc.id === 0 ? undefined : doc.id,
+        product_id: productId,
+      }
+      saveDocuments.push(saveDocument(documentsForm, productDocumentsForm));
+    });
+    isLoading.value = true;
+    const promiseResult = await Promise.allSettled(saveDocuments);
+  } catch(e: any) {
+    console.error(e);
+    notify({
+      title: `Error saving documents`,
+      text: e?.message || `An error occurred trying to save documents. Please contact TOP suppport.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const saveSpecSheet = async (specSheetForm: SpecificationSheet, productSpecSheetForm: SpecificationSheet) => {
   try {
     isLoading.value = true;
     const { data: specSheet, error } = await supabase
       .from('specification_sheet')
-      .insert(specSheetForm)
+      .upsert(specSheetForm)
       .select(`id`);
     if (error) throw error;
     const { data, error: e } = await supabase
       .from('product_specification_sheet')
-      .insert({
+      .upsert({
         ...productSpecSheetForm,
         specification_sheet_id: specSheet[0].id,
       })
@@ -1672,10 +1747,12 @@ const setSpecSheets = async (productId: number) => {
 
     specificationSheets.value.forEach((specSheet) => {
       const specSheetForm = {
+        id: specSheet.id === 0 ? undefined : specSheet.id,
         url: specSheet.url,
         name: specSheet.name,
       }
       const productSpecSheetForm = {
+        specification_sheet_id: specSheet.id === 0 ? undefined : specSheet.id,
         product_id: productId,
       }
       saveSpecSheets.push(saveSpecSheet(specSheetForm, productSpecSheetForm));
@@ -1685,8 +1762,8 @@ const setSpecSheets = async (productId: number) => {
   } catch(e: any) {
     console.error(e);
     notify({
-      title: `Error saving images`,
-      text: e?.message || `An error occurred trying to save images. Please contact TOP suppport.`,
+      title: `Error saving specification sheets`,
+      text: e?.message || `An error occurred trying to save specification sheets. Please contact TOP suppport.`,
       type: 'error',
       duration: 6000,
     });
@@ -1700,12 +1777,12 @@ const saveImage = async (imageForm: Image, productImgForm: Image) => {
     isLoading.value = true;
     const { data: image, error } = await supabase
       .from('image')
-      .insert(imageForm)
+      .upsert(imageForm)
       .select(`id`);
     if (error) throw error;
     const { data, error: e } = await supabase
       .from('product_image')
-      .insert({
+      .upsert({
         ...productImgForm,
         image_id: image[0].id,
       })
@@ -1730,10 +1807,12 @@ const setImages = async (productId: number) => {
 
     images.value.forEach((img) => {
       const imageForm = {
+        id: img.id === 0 ? undefined : img.id,
         url: img.url,
         name: img.name,
       }
       const productImageForm = {
+        image_id: img.id === 0 ? undefined : img.id,
         product_id: productId,
         display_order: img.display_order,
         is_primary: img.is_primary,
@@ -1763,7 +1842,12 @@ const handleCreate = async (values: Product) => {
       .from('product')
       .insert(form)
       .select();
-    if (error) throw error; 
+    if (error) throw error;
+    notify({
+      title: 'Product created successfully',
+      type: 'success',
+      duration: 6000,
+    });
     return product;
   } catch (e: any) {
     console.error(e);
@@ -1788,14 +1872,12 @@ const handleUpdate = async (values: Product) => {
       .eq('id', props?.product?.id || 0)
       .select();
     if (error) throw error;
-    if(product.length) {
-      name.value.value = product[0].name;
-    }
     notify({
       title: 'Product updated successfully',
       type: 'success',
       duration: 6000,
     });
+    return product;
   } catch (e: any) {
     console.error(e);
     notify({
@@ -1810,8 +1892,9 @@ const handleUpdate = async (values: Product) => {
 }
 
 const submit = handleSubmit(async (values) => {
+  console.log('Test');
   let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
-  if (!isParent.value) {
+  if (!isParent.value || !isParentGroup.value) {
     const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
     const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
     const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
@@ -1846,11 +1929,10 @@ const submit = handleSubmit(async (values) => {
     if (props.new) {
       const product = await handleCreate(form);
 
-      console.log('Product Response', product);
       if (product && product.length) {
         await setPrices(product[0].id);
 
-        if (isParent.value) {
+        if (isParent.value || isParentGroup.value) {
           if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
             await setAttributes(product[0].id, 'colors', 'default');
           if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
@@ -1858,7 +1940,7 @@ const submit = handleSubmit(async (values) => {
           if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
             await setAttributes(product[0].id, 'gasTypes');
           if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
-            await setAttributes(product[0].id, 'ignitionTypes'); 
+            await setAttributes(product[0].id, 'ignitionTypes');
         }
 
         await setImages(product[0].id);
@@ -1871,15 +1953,20 @@ const submit = handleSubmit(async (values) => {
         });
 
         router.push(`/products/${product[0].id}`);
-      } 
+      }
     } else if (props.edit) {
-      // await handleUpdate(values);
+      const product = await handleUpdate(form);
+
+      if (product && product.length) {
+        await setImages(product[0].id);
+        await setSpecSheets(product[0].id);
+      }
     }
   } catch (e: any) {
     console.error(e);
   } finally {
     isLoading.value = false;
-  } 
+  }
 })
 
 </script>

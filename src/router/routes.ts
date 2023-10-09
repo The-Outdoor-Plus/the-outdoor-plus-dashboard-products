@@ -10,10 +10,10 @@ export default [
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
         component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
-        meta: { 
-          requiresAuth: true, 
+        meta: {
+          requiresAuth: true,
           onlyWhenLoggedOut: false,
-          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
         }
       },
     ],
@@ -26,10 +26,10 @@ export default [
         path: '',
         name: 'Login',
         component: () => import(/* webpackChunkName: "login" */'@/views/Login.vue'),
-        meta: { 
-          requiresAuth: false, 
-          onlyWhenLoggedOut: true, 
-          roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+        meta: {
+          requiresAuth: false,
+          onlyWhenLoggedOut: true,
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
         }
       }
     ],

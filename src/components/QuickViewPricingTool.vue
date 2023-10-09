@@ -14,7 +14,7 @@
     </div>
     <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
       <div class="tw-w-full lg:tw-w-7/12">
-        <div v-if="product && product.id" class="tw-w-full tw-flex">
+        <div v-if="product && product.id && availableYears.length > 0 && userIsAdmin" class="tw-w-full tw-flex">
           <v-spacer></v-spacer>
           <v-menu>
             <template v-slot:activator="{ props }">
@@ -38,7 +38,7 @@
             </v-list>
           </v-menu>
         </div>
-        <v-card 
+        <v-card
           v-if="product && product.id"
           class="py-6 px-8 tw-text-base"
         >
@@ -55,11 +55,11 @@
                 v-if="getPriceByYear(priceType as keyof PriceData, currentYear)"
                 class="tw-min-w-[50%] tw-px-4 tw-mb-4 tw-text-2xl tw-flex-grow"
               >
-              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span> 
+              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span>
               {{ formatPrice(getPriceByYear(priceType as keyof PriceData, currentYear)) }}
             </div>
             </template>
-            
+
           </div>
           <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
             <div class="tw-w-6/12 tw-px-4">
@@ -121,6 +121,12 @@
               </div>
             </div>
           </div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
+            <div v-if="websiteLink">
+              <span class="tw-font-semibold">Website Link: </span>
+              <span>{{ websiteLink }}</span>
+            </div>
+          </div>
         </v-card>
       </div>
       <div class="tw-w-full lg:tw-w-5/12 lg:tw-pl-10">
@@ -162,7 +168,7 @@
                   <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
                     <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
                   </v-avatar>
-                  <a 
+                  <a
                     class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
                     rel="noopener noreferrer"
                     :href="specSheet.previewUrl"
@@ -260,6 +266,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
+const websiteLink = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
 const product: Ref<Product | undefined> = ref<Product | undefined>({});
@@ -278,6 +285,13 @@ const prices: Ref<PriceData> = ref<PriceData>({
   landscape: [],
   master_distributor: [],
   msrp: [],
+});
+
+const userIsAdmin = computed(() => {
+  const adminRoles = ['MANAGER', 'ADMIN'];
+  if (adminRoles.includes(userStore.currentUser?.user_metadata?.role))
+    return true
+  return false;
 });
 
 onMounted(async () => {
@@ -415,7 +429,7 @@ const loadProduct = async () => {
   try {
     const { data: product, error } = await supabase.from(`product`)
       .select(`
-        *, 
+        *,
         base_color:base_color_id(name),
         base_material:base_material_id(name),
         category:category_id(name),
@@ -487,7 +501,7 @@ const loadProductPrices = async (type: string, product_id: number) => {
       text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   }
 }
 </script>
