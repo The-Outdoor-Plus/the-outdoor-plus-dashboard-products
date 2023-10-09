@@ -59,7 +59,7 @@ const loadProductPrices = async (type: string, product_id: number) => {
   try {
     loading.value = true;
     const { data: price, error } = await supabase.from(`${type}_price`)
-      .select('price, year')
+      .select('price, year, product_id, id',)
       .eq(`product_id`, product_id);
 
     if (error) throw error;
@@ -80,7 +80,7 @@ const loadProductAttributes = async (attr_type: string, product_id: number, colo
   try {
     loading.value = true;
     let query = supabase.from(`product_${attr_type}`)
-      .select(`${attr_type}_id`)
+      .select(`${attr_type}_id, product_id`)
       .eq(`product_id`, product_id)
     if (color_type) query = query.eq(`type`, color_type);
     const { data: attribute, error } = await query;
@@ -197,12 +197,12 @@ const loadProductInformation = async () => {
     prices.value.distributor = await loadProductPrices('distributor', productId) || [];
     prices.value.landscape = await loadProductPrices('landscape', productId) || [];
     prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
+    images.value = await loadProductImages(productId) || [];
     if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
       productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
       productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
       productAttrs.gasTypes.value = await loadProductAttributes('gas', productId) || [];
       productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', productId) || [];
-      images.value = await loadProductImages(productId) || [];
       specificationSheets.value = await loadSpecificationSheets(productId) || [];
     }
   }
