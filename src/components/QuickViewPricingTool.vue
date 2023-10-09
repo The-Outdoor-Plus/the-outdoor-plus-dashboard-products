@@ -121,6 +121,12 @@
               </div>
             </div>
           </div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
+            <div v-if="websiteLink">
+              <span class="tw-font-semibold">Website Link: </span>
+              <span>{{ websiteLink }}</span>
+            </div>
+          </div>
         </v-card>
       </div>
       <div class="tw-w-full lg:tw-w-5/12 lg:tw-pl-10">
@@ -260,6 +266,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
+const websiteLink = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
 const product: Ref<Product | undefined> = ref<Product | undefined>({});
