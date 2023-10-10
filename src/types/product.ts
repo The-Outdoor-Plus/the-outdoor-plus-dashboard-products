@@ -161,6 +161,7 @@ export interface Product {
   master_distributor_prices?: Price[];
   msrp_prices?: Price[];
   images?: ProductImage[];
+  website_link?: string | null;
 }
 
 export interface Props {
@@ -173,6 +174,7 @@ export interface Props {
   productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
   productImages?: Image[];
   productSpectSheets?: SpecificationSheet[];
+  productDocuments?: Documents[];
 }
 
 export interface Attrs {

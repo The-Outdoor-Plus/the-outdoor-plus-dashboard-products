@@ -7,6 +7,7 @@
       :product-attributes="productAttrs"
       :product-images="images"
       :product-spect-sheets="specificationSheets"
+      :product-documents="documents"
       edit
     ></product-form>
   </div>
@@ -16,7 +17,7 @@ import ProductForm from '@/components/ProductForm.vue';
 import { useAppStore } from '@/store/app';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
-import { Product } from '@/types/product';
+import { Documents, Product } from '@/types/product';
 import { onMounted, ref, Ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { Image, SpecificationSheet, PriceData } from '@/types/product';
@@ -160,6 +161,36 @@ const loadSpecificationSheets = async (product_id: number) => {
   }
 }
 
+const loadDocuments = async (product_id: number) => {
+  try {
+    loading.value = true;
+    const { data: docs, error } = await supabase.from(`product_documents`)
+      .select(`product_id, document:document_id(id, name, url)`)
+      .eq(`product_id`, product_id);
+      if (error) throw error;
+      return docs.map((item) => ({
+        id: item.document?.length ?
+          item.document[0].id :
+          (item.document as Documents).id,
+        name: item.document?.length ?
+          item.document[0].name :
+          (item.document as Documents).name,
+        url: item.document.length ?
+          item.document[0].url :
+          (item.document as Documents).url,
+      }));
+  } catch (e: any) {
+    notify({
+      title: `Error loading documents`,
+      text: e?.message || `An error occurred trying to load documents. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
 const prices: Ref<PriceData> = ref<PriceData>({
   map: [],
   dealer: [],
@@ -185,6 +216,7 @@ const productAttrs: {
 
 const images: Ref<Image[]> = ref<Image[]>([]);
 const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
 
 const loadProductInformation = async () => {
   if (product.value?.id) {
@@ -198,6 +230,7 @@ const loadProductInformation = async () => {
     prices.value.landscape = await loadProductPrices('landscape', productId) || [];
     prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
     images.value = await loadProductImages(productId) || [];
+    documents.value = await loadDocuments(productId) || [];
     if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
       productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
       productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
