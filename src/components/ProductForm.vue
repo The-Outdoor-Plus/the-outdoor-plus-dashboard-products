@@ -1134,7 +1134,6 @@ import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, Specificatio
   readonly: false,
   product: null,
   loading: false,
-
  });
 watch(
   () => props.loading,
@@ -1498,6 +1497,15 @@ watch(
 );
 
 watch(
+  () => props.productDocuments,
+  () => {
+    if (props.productDocuments)
+      documents.value = props.productDocuments;
+  },
+  { deep: true },
+);
+
+watch(
   () => materialId.value.value,
   async () => {
     productAttrs.colors.value = [];
@@ -1664,7 +1672,7 @@ const saveDocument = async (documentsForm: Documents, productDocumentsForm: Docu
       .from('product_documents')
       .upsert({
         ...productDocumentsForm,
-        specification_sheet_id: docs[0].id,
+        document_id: docs[0].id,
       })
       .select();
     if (e) throw e;
@@ -1945,6 +1953,7 @@ const submit = handleSubmit(async (values) => {
 
         await setImages(product[0].id);
         await setSpecSheets(product[0].id);
+        await setDocuments(product[0].id);
 
         notify({
           title: 'Product created successfully',
@@ -1960,6 +1969,7 @@ const submit = handleSubmit(async (values) => {
       if (product && product.length) {
         await setImages(product[0].id);
         await setSpecSheets(product[0].id);
+        await setDocuments(product[0].id);
       }
     }
   } catch (e: any) {

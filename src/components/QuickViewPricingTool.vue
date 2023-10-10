@@ -12,7 +12,7 @@
         @keyup.enter="onEnterSearch"
       ></v-text-field>
     </div>
-    <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
+    <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10 tw-mb-12">
       <div class="tw-w-full lg:tw-w-7/12">
         <div v-if="product && product.id && availableYears.length > 0 && userIsAdmin" class="tw-w-full tw-flex">
           <v-spacer></v-spacer>
@@ -122,9 +122,9 @@
             </div>
           </div>
           <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
-            <div v-if="websiteLink">
-              <span class="tw-font-semibold">Website Link: </span>
-              <span>{{ websiteLink }}</span>
+            <div v-if="websiteLink && urlTitle">
+              <span class="tw-font-semibold tw-ml-4">Website Link: </span>
+              <a :href="websiteLink" target="_blank" class="tw-text-blue-600 hover:tw-underline">{{ urlTitle }}</a>
             </div>
           </div>
         </v-card>
@@ -162,7 +162,7 @@
               <v-card
                 v-for="(specSheet, i) in allSpecSheets"
                 :key="i"
-                class="px-4 py-2"
+                class="px-4 py-2 mb-3"
               >
                 <div class="tw-w-full tw-flex tw-items-center">
                   <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
@@ -189,6 +189,44 @@
                     color="gray-darken-2"
                     tag="a"
                     :href="specSheet.url"
+                  ></v-btn>
+                </div>
+              </v-card>
+            </div>
+          </template>
+          <template v-if="!!(product && product.id && allDocuments.length)">
+            <h3 class="tw-text-xl tw-font-bold tw-my-8">Manuals/Marketing:</h3>
+            <div class="tw-w-full">
+              <v-card
+                v-for="(docs, i) in allDocuments"
+                :key="i"
+                class="px-4 py-2 mb-3"
+              >
+                <div class="tw-w-full tw-flex tw-items-center">
+                  <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
+                    <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
+                  </v-avatar>
+                  <a
+                    class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
+                    rel="noopener noreferrer"
+                    :href="docs.previewUrl"
+                    target="_blank"
+                  >{{ docs.name }}</a>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-open-in-new"
+                    color="gray-darken-2"
+                    tag="a"
+                    target="_blank"
+                    :href="docs.previewUrl"
+                  ></v-btn>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-download"
+                    color="gray-darken-2"
+                    tag="a"
+                    :href="docs.url"
                   ></v-btn>
                 </div>
               </v-card>
@@ -252,6 +290,17 @@ interface SpecSheet {
   previewUrl?: string;
 }
 
+interface Doc {
+  document?: {
+    id?: number;
+    name?: string;
+    url?: string;
+  };
+  name?: string;
+  url?: string;
+  previewUrl?: string;
+}
+
 interface Img extends Image {
   image?: {
     name?: string;
@@ -266,14 +315,18 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
-const websiteLink = ref('');
+const urlTitle = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
 const product: Ref<Product | undefined> = ref<Product | undefined>({});
+const parentGroup: Ref<Product | undefined> = ref<Product | undefined>({});
+const parent: Ref<Product | undefined> = ref<Product | undefined>({});
 const images: Ref<Img[]> = ref<Img[]>([]);
 const parentImages: Ref<Img[]> = ref<Img[]>([]);
 const specSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
 const parentSpecSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
+const documents: Ref<Doc[]> = ref<Doc[]>([]);
+const parentDocuments: Ref<Doc[]> = ref<Doc[]>([]);
 const allowedPrices: Ref<string[]> = ref<string[]>([]);
 const currentYear = ref(0);
 const prices: Ref<PriceData> = ref<PriceData>({
@@ -350,6 +403,25 @@ const allSpecSheets = computed(() => {
   return allSpcSheets;
 });
 
+const allDocuments = computed(() => {
+  let allDocs: Doc[] = [
+    ...documents.value,
+    ...parentDocuments.value,
+  ]
+  allDocs = removeDuplicates<Doc>(allDocs, 'document');
+  allDocs = allDocs.map(({ document, ...docs }) => ({
+    ...docs,
+    name: document?.name,
+    url: replaceDropboxLink(document?.url, 'dl=1'),
+    previewUrl: replaceDropboxLink(document?.url, 'raw=1'),
+  }));
+  return allDocs;
+});
+
+const websiteLink = computed(() => {
+  return product.value?.website_link || parentGroup.value?.website_link || parent.value?.website_link || '';
+});
+
 const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
   const uniqueUrls = new Map<string, boolean>();
   return arr.reduce((acc: T[], current: T) => {
@@ -375,18 +447,21 @@ const loadProductInformation = async () => {
     isLoading.value = true;
     product.value = await loadProduct();
     if (product.value) {
+      parentGroup.value = await loadParent(product.value?.parent_id || 0) || undefined;
+      if (parentGroup.value) parent.value = await loadParent(parentGroup.value?.parent_id || 0) || undefined;
+
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
       allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
       const pricesResponse = await Promise.allSettled(pricesPromises);
       setPrices(pricesResponse.filter((priceResponse) => priceResponse.status === 'fulfilled'));
-      images.value = await loadImages(product.value?.id!) || [];
-      specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
+      images.value.push(...(await loadImages(product.value?.id!) || []));
+      specSheets.value.push(...(await loadSpecificationSheets(product.value?.id!) || []));
+      documents.value.push(...(await loadDocuments(product.value?.id!) || []));
       if (product.value.parent_id) {
-        if (images.value.length <= 0)
-          parentImages.value = await loadImages(product.value.parent_id) || [];
-        if (specSheets.value.length <= 0)
-          parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
+        parentImages.value.push(...(await loadImages(product.value.parent_id) || []));
+        parentSpecSheets.value.push(...(await loadSpecificationSheets(product.value.parent_id) || []));
+        parentDocuments.value.push(...(await loadDocuments(product.value.parent_id) || []));
       }
     }
   } catch (e) {
@@ -419,11 +494,35 @@ const availableYears = computed((): number[] => {
 });
 
 watch(
+  () => websiteLink.value,
+  async () => {
+    const response = await fetch(websiteLink.value);
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const title = doc.querySelectorAll('title')[0];
+    urlTitle.value = title.innerText;
+  }
+);
+
+watch(
   () => availableYears.value,
   () => {
     currentYear.value = availableYears.value[0] as number;
   },
 );
+
+const loadParent = async (id: number) => {
+  try {
+    const { data: parentGroup, error } = await supabase.from(`product`)
+      .select(`id, parent_id, website_link`)
+      .eq(`id`, id)
+      .maybeSingle();
+    if (error) throw error;
+    return parentGroup as unknown as Product;
+  } catch (e: any) {
+    console.error(e);
+  }
+}
 
 const loadProduct = async () => {
   try {
@@ -470,6 +569,18 @@ const loadSpecificationSheets = async (id: number) => {
       .eq(`product_id`, id);
     if (error) throw error;
     return specSheets as unknown as SpecSheet[];
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
+const loadDocuments = async (id: number) => {
+  try {
+    const { data: docs, error } = await supabase.from(`product_documents`)
+      .select(`document:document_id(id, name, url)`)
+      .eq(`product_id`, id);
+    if (error) throw error;
+    return docs as unknown as Doc[];
   } catch (e: any) {
     console.error(e);
   }
