@@ -455,13 +455,13 @@ const loadProductInformation = async () => {
       allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
       const pricesResponse = await Promise.allSettled(pricesPromises);
       setPrices(pricesResponse.filter((priceResponse) => priceResponse.status === 'fulfilled'));
-      images.value.push(...(await loadImages(product.value?.id!) || []));
-      specSheets.value.push(...(await loadSpecificationSheets(product.value?.id!) || []));
-      documents.value.push(...(await loadDocuments(product.value?.id!) || []));
+      images.value = await loadImages(product.value?.id!) || [];
+      specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
+      documents.value = await loadDocuments(product.value?.id!) || [];
       if (product.value.parent_id) {
-        parentImages.value.push(...(await loadImages(product.value.parent_id) || []));
-        parentSpecSheets.value.push(...(await loadSpecificationSheets(product.value.parent_id) || []));
-        parentDocuments.value.push(...(await loadDocuments(product.value.parent_id) || []));
+        parentImages.value = await loadImages(product.value.parent_id) || [];
+        parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
+        parentDocuments.value = await loadDocuments(product.value.parent_id) || [];
       }
     }
   } catch (e) {
