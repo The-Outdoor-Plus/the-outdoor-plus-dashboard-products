@@ -1285,7 +1285,7 @@ const removeImageFromList = (item: Image) => {
   images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
 }
 
-const toggleImageIsPrimary = (imageId?: number, value?: boolean) => {
+const toggleImageIsPrimary = (imageId?: number | null, value?: boolean) => {
   const valueToSet = !value;
   images.value = images.value.map((img) => ({
     ...img,
