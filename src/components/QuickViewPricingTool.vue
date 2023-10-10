@@ -42,7 +42,7 @@
           v-if="product && product.id"
           class="py-6 px-8 tw-text-base"
         >
-          <h2 class="tw-font-bold tw-text-3xl tw-text-center">{{ product.name }}</h2>
+          <h2 class="tw-font-bold tw-text-3xl tw-text-center"><a :href="websiteLink" target="_blank" class="hover:tw-text-blue-600 hover:tw-underline">{{ product.name }}</a></h2>
           <div class="tw-text-lg tw-text-center">
             <span class="tw-font-semibold">Part #: </span><span class="tw-text-blue-600">{{ product.sku }}</span>
           </div>
