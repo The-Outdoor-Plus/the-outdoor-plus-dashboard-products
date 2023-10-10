@@ -135,11 +135,12 @@
         <template v-else>
           <v-card
             v-if="product && allImages.length"
-            max-height="400"
+            max-height="435"
           >
             <v-carousel
+              v-model="imageSlider"
               hide-delimiter-background
-              class="tw-max-h-[400px]"
+              class="tw-max-h-[435px]"
             >
               <v-carousel-item
                 v-for="(img, i) in allImages"
@@ -147,9 +148,15 @@
                 :src="img.previewUrl"
                 :lazy-src="img.previewUrl"
                 max-height="400"
-              ></v-carousel-item>
+              >
+              </v-carousel-item>
             </v-carousel>
           </v-card>
+          <div v-if="imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
+            <div class="tw-flex tw-text-lg tw-font-semibold">
+              {{ allImages[imageSlider].name }}
+              </div>
+          </div>
         </template>
         <template v-if="isLoading">
           <v-skeleton-loader v-for="i in 3" :key="i" type="list-item-avatar" class="mt-4">
@@ -315,6 +322,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
+const imageSlider = ref();
 const urlTitle = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
