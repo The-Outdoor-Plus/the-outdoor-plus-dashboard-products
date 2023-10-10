@@ -7,6 +7,7 @@
       :product-attributes="productAttrs"
       :product-images="images"
       :product-spect-sheets="specificationSheets"
+      :product-documents="documents"
       edit
     ></product-form>
   </div>
@@ -215,6 +216,7 @@ const productAttrs: {
 
 const images: Ref<Image[]> = ref<Image[]>([]);
 const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
 
 const loadProductInformation = async () => {
   if (product.value?.id) {
@@ -228,6 +230,7 @@ const loadProductInformation = async () => {
     prices.value.landscape = await loadProductPrices('landscape', productId) || [];
     prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
     images.value = await loadProductImages(productId) || [];
+    documents.value = await loadDocuments(productId) || [];
     if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
       productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
       productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
