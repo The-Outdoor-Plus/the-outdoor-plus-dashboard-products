@@ -35,7 +35,7 @@
             <v-card-title class="text-h5">Are you sure you want to delelete this product?</v-card-title>
             <v-card-text>
               Product <strong>{{ itemToDelete?.name }}</strong> will be deleted.
-              You are about to delete a parent product, if you delete it, all of the 
+              You are about to delete a parent product, if you delete it, all of the
               child products associated with it (variations), will also be deleted.
               This action cannot be reversed. Are you sure you want to continue?
             </v-card-text>
@@ -93,9 +93,9 @@ import { usePagination } from '@/utils';
 import { Product } from '@/types/product';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Data {
@@ -154,9 +154,9 @@ const totalItems = ref(40);
 const loading = ref(true);
 
 /**
- * 
+ *
  * Dialog Delete Section
- * 
+ *
  **/
 
 const itemToDelete: Ref<Columns | null> = ref(null);
@@ -207,9 +207,9 @@ const deleteItemConfirm = async () => {
 }
 
 /**
- * 
+ *
  * Search
- * 
+ *
  */
 const search = ref('');
 const searchFilter = ref('');
@@ -225,9 +225,9 @@ watch(searchFilter, (searchValue) => {
 });
 
 /**
- * 
+ *
  * List Data
- * 
+ *
  */
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
@@ -248,8 +248,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
     } else {
       const { data: products, error, count } = await supabase
         .from('product')
-        .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
-        .eq(`relation`, 'PARENT')
+        .select('id, name, sku, enabled, published, product_type, collection(name), category(name), material(name)', { count: 'exact' })
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
@@ -257,10 +256,10 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
       if (error) throw error;
       const transformedProducts = products.map(product => ({
         ...product,
-        category: (product.category as any)?.name || '', 
+        category: (product.category as any)?.name || '',
         material: (product.material as any)?.name || '',
         collection: (product.collection as any)?.name || '',
-      }));  
+      }));
       data.serverItems = transformedProducts || [];
       totalItems.value = count || 0;
     }

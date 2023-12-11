@@ -5,6 +5,7 @@ import * as yup from 'yup';
 interface State<T> {
   priceTypeList: { value: string, key: string }[];
   sizes: string[];
+  productTypes: string[];
   formValidation: T;
   initialValues: any;
   productKeys: string[];
@@ -68,6 +69,7 @@ export const useProductStore = defineStore('product', {
       '48"24',
       '12"x24"',
     ];
+    const productTypes = ['VARIABLE', 'SIMPLE'];
     const formValidation = toTypedSchema(
       yup.object({
         collection_id: yup.number().nullable(),
@@ -75,7 +77,7 @@ export const useProductStore = defineStore('product', {
         sku: yup.string().min(2).required(),
         upc_codes: yup.string().nullable(),
         encoded_upc_codes: yup.string().nullable(),
-        relation: yup.string().required(),
+        proudct_type: yup.string().required(),
         product_length: yup.string().nullable(),
         product_diameter: yup.string().nullable(),
         product_width: yup.string().nullable(),
@@ -124,7 +126,7 @@ export const useProductStore = defineStore('product', {
       sku: '',
       upcCodes: '',
       encodedUpcCodes: '',
-      relation: '',
+      productType: '',
       productLength: '',
       productDiameter: '',
       productWidth: '',
@@ -164,7 +166,7 @@ export const useProductStore = defineStore('product', {
       'sku',
       'upc_codes',
       'encoded_upc_codes',
-      'relation',
+      'product_type',
       'product_length',
       'product_diameter',
       'product_width',
@@ -245,6 +247,7 @@ export const useProductStore = defineStore('product', {
       initialValues,
       productKeys,
       pricesByRole,
+      productTypes,
     }
   },
   actions: {

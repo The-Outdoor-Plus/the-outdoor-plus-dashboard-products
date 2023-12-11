@@ -104,7 +104,7 @@ export interface Product {
   sku?: string
   upc_codes?: string | null;
   encoded_upc_codes?: string | null;
-  relation?: string | null;
+  product_type?: string | null;
   product_length?: string | null;
   product_diameter?: string | null;
   product_width?: string | null;
