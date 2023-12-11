@@ -84,8 +84,8 @@
             </v-text-field>
           </div>
         </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+        <v-divider v-if="isVariation" class="border-opacity-100 tw-my-6"></v-divider>
+        <div v-if="isVariation" class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">UPC Codes</h3>
           </div>
@@ -120,16 +120,16 @@
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Type</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-text-field
-              v-model="relation.value.value"
+            </v-text-field>
+            <v-select
+              v-model="productType.value.value"
               variant="outlined"
               density="compact"
-              name="Relation"
+              name="ProudctType"
               placeholder="Product Type"
-              readonly
-              :error-messages="relation.errorMessage.value"
+              :items="productStore.productTypes"
+              :readonly="readonly"
             >
-            </v-text-field>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
@@ -1142,13 +1142,8 @@ watch(
   }
 );
 
-const isParent = computed(() => {
-  if (route.query.relation_type === 'parent') return true;
-  return false;
-});
-
-const isParentGroup = computed(() => {
-  if (route.query.relation_type === 'parent_group') return true;
+const isVariation = computed(() => {
+  if (route.query.relation === 'variation') return true;
   return false;
 });
 
@@ -1343,7 +1338,7 @@ const name = useField<string>('name');
 const sku = useField<string>('sku');
 const upcCodes = useField<string>('upc_codes');
 const encodedUpcCodes = useField<string>('encoded_upc_codes');
-const relation = useField<string>('relation');
+const productType = useField<string>('product_type');
 const productLength = useField<string>('product_length');
 const length: Ref<string[]> = ref<string[]>([]);
 const productDiameter = useField<string>('product_diameter');
