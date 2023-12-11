@@ -1,13 +1,13 @@
 <template>
   <div class="tw-w-full">
-    <v-card 
-      class="py-12 px-10" 
+    <v-card
+      class="py-12 px-10"
       :class="showColors ? 'tw-mb-10' : 'tw-mb-60'"
       :loading="isLoading"
     >
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="$router.push('/materials')"
       ></v-btn>
@@ -113,14 +113,14 @@
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
         </div>
       </form>
     </v-card>
-    <v-card 
+    <v-card
       v-if="showColors"
       class="py-12 px-10 tw-mb-32"
       :loading="isLoading"
@@ -131,7 +131,7 @@
       </div>
       <v-divider class="border-opacity-100 tw-my-6"></v-divider>
       <div class="tw-w-full tw-flex tw-flex-wrap tw-mx-auto tw-justify-center">
-        <div 
+        <div
           v-for="(color, i) in material?.color"
           :key="i"
           class="tw-w-2/12 tw-flex tw-flex-col tw-justify-center tw-items-center tw-py-6"
@@ -165,11 +165,12 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRouter } from 'vue-router';
+import { useAttributeValue } from '@/utils';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Color {
@@ -196,14 +197,15 @@ interface Props {
 }
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
  const isLoading = ref(false);
  const { notify } = useNotification();
+ const { createAttributeValue } = useAttributeValue();
 
  const props = withDefaults(defineProps<Props>(), {
   new: false,
@@ -238,9 +240,9 @@ const showColors = computed(() => {
 })
 
 /**
- * 
+ *
  * Slug definitions
- * 
+ *
  */
 
 
@@ -261,9 +263,9 @@ const slugify = (str: string) => (
 const slugPlaceholder = computed(() => slugify(name.value.value))
 
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit } = useForm({
@@ -300,9 +302,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const handleCreate = async (form: Material) => {
@@ -313,7 +315,10 @@ const handleCreate = async (form: Material) => {
       .insert(form)
       .select();
     if (error) throw error;
-    if (material.length) router.push(`/materials/${material[0].id}`);
+    if (material.length) {
+      await createAttributeValue('Material', undefined, 'material', material[0].id);
+      router.push(`/materials/${material[0].id}`);
+    }
     notify({
       title: 'Material created successfully',
       type: 'success',
@@ -353,7 +358,7 @@ const handleUpdate = async (form: Material) => {
     });
   } catch (e: any) {
     console.error(e);
-    
+
     notify({
       title: 'Error updating material.',
       text: e?.message || 'An error ocurred trying to update the material. Please contact TOP support.',
