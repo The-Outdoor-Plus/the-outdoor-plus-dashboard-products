@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="$router.back()"
       ></v-btn>
@@ -80,7 +80,7 @@
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -96,13 +96,13 @@ import { useField, useForm } from 'vee-validate';
 import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Ref } from 'vue';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Category {
@@ -121,12 +121,13 @@ interface Props {
 }
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
+ const route = useRoute();
  const isLoading = ref(false);
  const { notify } = useNotification();
 
@@ -147,7 +148,7 @@ watch(
 const title = computed(() => {
   if (props.new) return 'Create Category';
   if (props.edit) return 'Edit Category';
-  if (props.readonly) return 'View Category'; 
+  if (props.readonly) return 'View Category';
   return 'Category Form';
 });
 
@@ -159,9 +160,9 @@ const subtitle = computed(() => {
 });
 
 /**
- * 
+ *
  * Slug definitions
- * 
+ *
  */
 
 
@@ -184,7 +185,7 @@ const slugPlaceholder = computed(() => slugify(name.value.value))
 /**
  * Parent Category Definitions
  */
-const parentCategories: Ref<Category[]> = ref<Category[]>([]) 
+const parentCategories: Ref<Category[]> = ref<Category[]>([])
 const listParentCategories = async () => {
   try {
     isLoading.value = true;
@@ -211,9 +212,9 @@ const listParentCategories = async () => {
 }
 
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit } = useForm({
@@ -236,6 +237,9 @@ const fillCategoryInformation = () => {
     slug.value.value = props.category?.slug || '';
     parent.value.value = Number(props.category?.parent_id) || 0
   }
+  if (props.new) {
+    parent.value.value = Number(route.query?.parent_id) || 0
+  }
 }
 
 onMounted(async () => {
@@ -251,9 +255,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const handleCreate = async (form: Category) => {
@@ -304,7 +308,7 @@ const handleUpdate = async (form: Category) => {
     });
   } catch (e: any) {
     console.error(e);
-    
+
     notify({
       title: 'Error updating category',
       text: e?.message || 'An error ocurred trying to update the category. Please contact TOP support.',
