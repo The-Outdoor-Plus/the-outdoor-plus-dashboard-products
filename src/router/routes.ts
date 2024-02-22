@@ -447,5 +447,51 @@ export default [
         },
       }
     ],
-  }
+  },
+  {
+    path: '/attributes',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'AttributesList',
+        component: () => import(/* webpackChunkName: "attributes-list" */'@/views/attributes/AttributesList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewAttribute',
+        component: () => import(/* webpackChunkName: "new-attribute" */'@/views/attributes/CreateAttribute.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditAttribute',
+        component: () => import(/* webpackChunkName: "edit-attribute" */'@/views/attributes/EditAttribute.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewAttribute',
+        component: () => import(/* webpackChunkName: "view-attribute" */'@/views/attributes/ViewAttribute.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
+  },
 ];
