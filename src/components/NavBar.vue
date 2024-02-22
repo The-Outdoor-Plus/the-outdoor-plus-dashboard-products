@@ -237,6 +237,23 @@ const navItems = reactive([
     ]
   },
   {
+    label: 'Attributes',
+    icon: 'mdi-format-list-bulleted-square',
+    roles: ['MANAGER', 'ADMIN'],
+    children: [
+      {
+        label: 'View attributes',
+        link: '/attributes',
+        roles: ['MANAGER', 'ADMIN'],
+      },
+      {
+        label: 'Create attribute',
+        link: '/attributes/new',
+        roles: ['MANAGER', 'ADMIN']
+      }
+    ]
+  },
+  {
     label: 'Settings',
     icon: 'mdi-cog',
     roles: ['MANAGER', 'ADMIN'],
