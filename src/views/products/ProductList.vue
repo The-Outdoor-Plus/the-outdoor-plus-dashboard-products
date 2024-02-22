@@ -248,7 +248,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
     } else {
       const { data: products, error, count } = await supabase
         .from('product')
-        .select('id, name, sku, enabled, published, product_type, collection(name), category(name), material(name)', { count: 'exact' })
+        .select('id, name, sku, enabled, published, product_type, collection(name), category(name), material!product_material_id_fkey(name)', { count: 'exact' })
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
