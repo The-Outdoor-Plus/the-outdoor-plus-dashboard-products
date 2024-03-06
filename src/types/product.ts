@@ -3,6 +3,33 @@
  * Defining Interfaces
  *
  */
+export interface Attribute {
+  id?: number;
+  name?: string;
+  table_name?: string;
+  slug?: string;
+  attribute_value?: AttributeValue[];
+  fill_values?: boolean;
+}
+
+export interface AttributeValues {
+  [key: number]: AttributeValue[];
+}
+export interface AttributeValue {
+  id?: number;
+  attribute_id?: number;
+  value?: string;
+  material_id?: number;
+  color_id?: number;
+  gas_id?: number;
+  ignition_id?: number;
+  slug?: string;
+  material?: Material;
+  color?: Color;
+  gas?: GasType;
+  ignition?: IgnitionType;
+}
+
 export interface Shape {
   id?: number;
   name: string;
@@ -41,12 +68,12 @@ export interface Category {
 export interface ItemsList {
   category: Category[];
   collection: Collection[];
-  color: Color[];
-  gas: GasType[];
-  ignition: IgnitionType[];
-  material: Material[];
+  // color: Color[];
+  gas?: GasType[];
+  ignition?: IgnitionType[];
+  // material: Material[];
   shape: Shape[];
-  baseColor: Color[];
+  // baseColor: Color[];
 }
 
 export interface Image {
@@ -171,7 +198,9 @@ export interface Props {
   product?: Product | null;
   loading?: boolean;
   productPrices?: PriceData;
-  productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  // productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  attributeValues?: number[];
+  productAttributes?: Attribute[];
   productImages?: Image[];
   productSpectSheets?: SpecificationSheet[];
   productDocuments?: Documents[];
