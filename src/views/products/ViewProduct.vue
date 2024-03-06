@@ -3,11 +3,13 @@
     <product-form
       :loading="loading"
       :product="product"
-      readonly
       :product-prices="prices"
-      :product-attributes="productAttrs"
+      :product-attributes="productAttributes"
       :product-images="images"
       :product-spect-sheets="specificationSheets"
+      :product-documents="documents"
+      :attribute-values="attrValues"
+      readonly
     ></product-form>
     <div class="tw-w-full tw-my-16 rounded">
       <v-data-table-server
@@ -90,7 +92,7 @@ import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { onMounted, reactive, ref, Ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { Product } from '@/types/product';
+import { Attribute, Documents, Product } from '@/types/product';
 import { usePagination } from '@/utils';
 import { Image, SpecificationSheet, PriceData } from '@/types/product';
 
@@ -128,20 +130,14 @@ const product: Ref<Product> = ref<Product>({
 });
 
 const showChildProducts = computed(() => {
-  return product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP';
+  return product.value.product_type === 'VARIABLE';
 });
 
 const childTableTitle = computed(() => {
-  if (product.value.relation === 'PARENT') {
-    return 'Parent Groups';
-  }
   return 'Child products (Variants)';
 });
 
 const newText = computed(() => {
-  if (product.value.relation === 'PARENT') {
-    return 'New Parent Group';
-  }
   return 'New Variant';
 });
 
@@ -165,10 +161,7 @@ const queryParams = computed(() => {
 });
 
 const redirectToNewProduct = computed(() => {
-  if (product.value.relation === 'PARENT_GROUP') {
-    return `/products/new?parent_id=${route.params.id}&relation_type=child&${queryParams.value}`;
-  }
-  return `/products/new?parent_id=${route.params.id}&relation_type=parent_group&${queryParams.value}`;
+  return `/products/${product.value.id}/variant/new?${queryParams.value}`;
 });
 
 const loadData = async () => {
@@ -216,23 +209,72 @@ const loadProductPrices = async (type: string, product_id: number) => {
   }
 }
 
-const loadProductAttributes = async (attr_type: string, product_id: number, color_type?: string) => {
+// const loadProductAttributes = async (attr_type: string, product_id: number, color_type?: string) => {
+//   try {
+//     loading.value = true;
+//     let query = supabase.from(`product_${attr_type}`)
+//       .select(`${attr_type}_id`)
+//       .eq(`product_id`, product_id)
+//     if (color_type) query = query.eq(`type`, color_type);
+//     const { data: attribute, error } = await query;
+//     if (error) throw error;
+//     return attribute.map((item) => +(item?.[`${attr_type}_id` as any]) as number);
+//   } catch(e: any) {
+//     notify({
+//       title: `Error loading ${attr_type} attribute.`,
+//       text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
+//       type: 'error',
+//       duration: 6000,
+//     });
+//   } finally {
+//     loading.value = false;
+//   }
+// }
+
+const loadProductAttributes = async (product_id: number) => {
   try {
     loading.value = true;
-    let query = supabase.from(`product_${attr_type}`)
-      .select(`${attr_type}_id`)
-      .eq(`product_id`, product_id)
-    if (color_type) query = query.eq(`type`, color_type);
-    const { data: attribute, error } = await query;
+    const { data, error } = await supabase
+      .from('product_attribute')
+      .select('id, product_id, attribute:attribute_id(id, name, table_name), fill_values')
+      .eq(`product_id`, product_id);
     if (error) throw error;
-    return attribute.map((item) => +(item?.[`${attr_type}_id` as any]) as number);
-  } catch(e: any) {
-    notify({
-      title: `Error loading ${attr_type} attribute.`,
-      text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
+    const attributeValue = await loadProductConfiguration(product_id);
+    const attributes = data.map((attr: any) => ({
+      id: attr.attribute?.id,
+      name: attr.attribute?.name,
+      table_name: attr.attribute?.table_name,
+      fill_values: attr.fill_values,
+      attribute_value: attributeValue?.[attr.attribute?.id],
+    }));
+    return attributes as Attribute[];
+  } catch (e) {
+    console.error(e);
+  } finally {
+    loading.value = false;
+  }
+}
+
+const loadProductConfiguration = async (product_id: number) => {
+  try {
+    loading.value = true;
+    const { data: attribute_values, error } = await supabase
+      .from('product_configuration')
+      .select('value:value_id(id, attribute_id)')
+      .eq('product_id', product_id);
+    if (error) throw error;
+    let attributeValues: { [key: number]: any } = {};
+    attribute_values.forEach((attrVal: any) => {
+      const attrId = attrVal.value.attribute_id as number;
+      if (!attributeValues[attrId]) {
+        attributeValues[attrId] = [];
+      }
+      attributeValues[attrId].push(attrVal.value.id);
+      attrValues.value.push(attrVal.value.id);
     });
+    return attributeValues;
+  } catch (e) {
+    console.error(e);
   } finally {
     loading.value = false;
   }
@@ -262,6 +304,36 @@ const loadProductImages = async (product_id: number) => {
     notify({
       title: `Error loading image`,
       text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
+const loadDocuments = async (product_id: number) => {
+  try {
+    loading.value = true;
+    const { data: docs, error } = await supabase.from(`product_documents`)
+      .select(`product_id, document:document_id(id, name, url)`)
+      .eq(`product_id`, product_id);
+      if (error) throw error;
+      return docs.map((item) => ({
+        id: item.document?.length ?
+          item.document[0].id :
+          (item.document as Documents).id,
+        name: item.document?.length ?
+          item.document[0].name :
+          (item.document as Documents).name,
+        url: item.document.length ?
+          item.document[0].url :
+          (item.document as Documents).url,
+      }));
+  } catch (e: any) {
+    notify({
+      title: `Error loading documents`,
+      text: e?.message || `An error occurred trying to load documents. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
     });
@@ -323,8 +395,11 @@ const productAttrs: {
   gasTypes: ref<number[] | number>([]),
 }
 
+const attrValues: Ref<number[]> = ref<number[]>([]);
+const productAttributes: Ref<Attribute[]> = ref<Attribute[]>([]);
 const images: Ref<Image[]> = ref<Image[]>([]);
 const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
 
 const loadProductInformation = async () => {
   if (product.value?.id) {
@@ -338,13 +413,15 @@ const loadProductInformation = async () => {
     prices.value.landscape = await loadProductPrices('landscape', productId) || [];
     prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
     images.value = await loadProductImages(productId) || [];
-    if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
-      productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
-      productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
-      productAttrs.gasTypes.value = await loadProductAttributes('gas', productId) || [];
-      productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', productId) || [];
-      specificationSheets.value = await loadSpecificationSheets(productId) || [];
-    }
+    documents.value = await loadDocuments(productId) || [];
+    specificationSheets.value = await loadSpecificationSheets(productId) || [];
+    productAttributes.value = await loadProductAttributes(productId) || [];
+    // if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
+      // productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
+      // productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
+      // productAttrs.gasTypes.value = await loadProductAttributes('gas', productId) || [];
+      // productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', productId) || [];
+    // }
   }
 }
 
@@ -462,26 +539,28 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
       await loadProductInformation();
     }
     if (showChildProducts.value) {
-      const relation = product.value.relation === 'PARENT' ? 'PARENT_GROUP' : 'CHILD';
-      const { from, to } = usePagination(page -1, itemsPerPage);
-      const { data: products, error, count } = await supabase
-        .from('product')
-        .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
-        .eq(`relation`, relation)
-        .eq(`parent_id`, +route.params.id)
-        .order(sortBy?.[0]?.key || 'name', {
-          ascending: sortBy?.[0]?.order === 'desc' ? false : true
-        })
-        .range(from, to);
-      if (error) throw error;
-      const transformedProducts = products.map(product => ({
-        ...product,
-        category: (product.category as any)?.name || '',
-        material: (product.material as any)?.name || '',
-        collection: (product.collection as any)?.name || '',
-      }));
-      data.serverItems = transformedProducts || [];
-      totalItems.value = count || 0;
+      // const relation = product.value.relation === 'PARENT' ? 'PARENT_GROUP' : 'CHILD';
+      // const { from, to } = usePagination(page -1, itemsPerPage);
+      // const { data: products, error, count } = await supabase
+      //   .from('product')
+      //   .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
+      //   .eq(`relation`, relation)
+      //   .eq(`parent_id`, +route.params.id)
+      //   .order(sortBy?.[0]?.key || 'name', {
+      //     ascending: sortBy?.[0]?.order === 'desc' ? false : true
+      //   })
+      //   .range(from, to);
+      // if (error) throw error;
+      // const transformedProducts = products.map(product => ({
+      //   ...product,
+      //   category: (product.category as any)?.name || '',
+      //   material: (product.material as any)?.name || '',
+      //   collection: (product.collection as any)?.name || '',
+      // }));
+      // data.serverItems = transformedProducts || [];
+      // totalItems.value = count || 0;
+      data.serverItems = [];
+      totalItems.value = 0;
     }
   } catch (e: any) {
     console.error(e);
