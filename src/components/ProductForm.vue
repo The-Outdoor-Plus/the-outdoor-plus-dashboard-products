@@ -84,8 +84,8 @@
             </v-text-field>
           </div>
         </div>
-        <v-divider v-if="isVariation" class="border-opacity-100 tw-my-6"></v-divider>
-        <div v-if="isVariation" class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+        <!-- <v-divider v-if="isVariation" class="border-opacity-100 tw-my-6"></v-divider> -->
+        <!-- <div v-if="isVariation" class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">UPC Codes</h3>
           </div>
@@ -113,23 +113,24 @@
             >
             </v-text-field>
           </div>
-        </div>
+        </div> -->
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Type</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            </v-text-field>
             <v-select
               v-model="productType.value.value"
               variant="outlined"
               density="compact"
-              name="ProudctType"
+              name="ProductType"
               placeholder="Product Type"
               :items="productStore.productTypes"
               :readonly="readonly"
+              :error-messages="productType.errorMessage.value"
             >
+            </v-select>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
@@ -316,7 +317,7 @@
             </v-autocomplete>
           </div>
         </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Material</h3>
@@ -367,8 +368,8 @@
             >
             </v-autocomplete>
           </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        </div> -->
+        <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Ignition Types</h3>
@@ -384,8 +385,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent || isParentGroup"
-              :chips="isParent || isParentGroup"
+              multiple
+              chips
               :items="itemsList.ignition"
               :error-messages="ignitionId.errorMessage.value"
               :loading="itemsLoading.ignitionLoading"
@@ -410,8 +411,8 @@
               item-value="id"
               :clearable="!readonly"
               :closable-chips="!readonly"
-              :multiple="isParent || isParentGroup"
-              :chips="isParent || isParentGroup"
+              multiple
+              chips
               :items="itemsList.gas"
               :error-messages="gasId.errorMessage.value"
               :loading="itemsLoading.gasLoading"
@@ -419,7 +420,7 @@
             >
             </v-autocomplete>
           </div>
-        </div>
+        </div> -->
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -507,7 +508,7 @@
             <h3 class="tw-text-base tw-font-semibold"></h3>
             <div
               v-for="(specSheet, i) in specificationSheets"
-              :key="i"
+              :key="`spec-${i}`"
               class="tw-mb-4"
             >
               <div
@@ -563,7 +564,7 @@
             <h3 class="tw-text-base tw-font-semibold"></h3>
             <div
               v-for="(doc, i) in documents"
-              :key="i"
+              :key="`doc-${i}`"
               class="tw-mb-4"
             >
               <div
@@ -611,11 +612,119 @@
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Attributes</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-8/12">
+            <div class="tw-flex lg:tw-w-7/12">
+              <h3 class="tw-text-base tw-font-semibold"></h3>
+              <div class="md:tw-w-8/12">
+                <v-autocomplete
+                  v-if="!readonly"
+                  v-model="attributeId"
+                  variant="outlined"
+                  density="compact"
+                  name="Attribute"
+                  placeholder="Attribute"
+                  item-title="name"
+                  item-value="id"
+                  :clearable="!readonly"
+                  :items="availableAttributesList"
+                  :loading="attributesLoading"
+                  :readonly="readonly"
+                ></v-autocomplete>
+              </div>
+              <div class="md:tw-w-4/12 md:tw-ml-6">
+                <v-btn
+                  v-if="!readonly"
+                  color="teal-darken-2"
+                  class="px-2 tw-mt-2 tw-mb-5"
+                  size="small"
+                  :disabled="!attributeId"
+                  @click="addAttribute"
+                >
+                  Add Attribute
+                  <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+                </v-btn>
+              </div>
+            </div>
+            <v-expansion-panels v-if="attributes.length" variant="accordion" class="tw-mb-6 tw-mt-4 tw-w-full">
+              <v-expansion-panel v-for="(attribute, i) in attributes" :key="`attribute-${i}`" elevation="0">
+                <v-expansion-panel-title color="grey-lighten-4">{{ attribute.name }}</v-expansion-panel-title>
+                <v-expansion-panel-text>
+                  <div class="tw-flex">
+                    <div class="tw-w-4/12">
+                      <div class="tw-ml-3">
+                        Name: <br>
+                        <span class="tw-font-bold">{{ attribute.name }}</span>
+                      </div>
+                      <v-checkbox
+                        v-model="attribute.fill_values"
+                        color="blue-darken-1"
+                        label="Fill with all values"
+                        :readonly="readonly"
+                        hide-details
+                        @update:model-value="onFillValueChange($event, attribute.id as number)"
+                      ></v-checkbox>
+                      <!-- <div v-if="attribute.table_name === 'color'" class="tw-ml-3 tw-text-sm">
+                        By selecting fill with all values, it will only include all color values associated with the selected material.
+                      </div> -->
+                    </div>
+                    <div class="tw-w-7/12">
+                      <v-autocomplete
+                        v-if="!attribute.fill_values"
+                        v-model="attributes[i].attribute_value"
+                        variant="outlined"
+                        :name="`Attribute${attribute.name}`"
+                        multiple
+                        chips
+                        :clearable="!readonly"
+                        :closable-chips="!readonly"
+                        :item-title="getAttributeItemValue(attribute.table_name)"
+                        item-value="id"
+                        :loading="isAttributeValuesLoading"
+                        :items="attributeValuesList[attribute.id as number]"
+                        :readonly="readonly"
+                        @update:model-value="onAttributeValueChange($event, attribute.id as number)"
+                      ></v-autocomplete>
+                      <div
+                        v-else
+                        class=""
+                      >
+                        By selecting fill with all values the product will automatically populate with all values created for the attribute. This means adding a value
+                        to the attribute in the future will also be a part of the product.
+                        <template v-if="attribute.table_name === 'color'">For color attributes, it will only include all color values associated with the selected material(s).</template>
+                        <template v-else>
+                          This is hepfull mostly for color attributes, for when we add a a new color,
+                          we don't have to update every product by adding the new color value.
+                        </template>
+                      </div>
+                    </div>
+                    <div v-if="!readonly" class="tw-w-1/12 tw-flex tw-justify-center tw-items-center">
+                      <v-btn
+                        size="small"
+                        icon="mdi-delete"
+                        variant="text"
+                        color="red"
+                        @click="removeAttribute(attribute.id as number)"
+                      >
+                      </v-btn>
+                    </div>
+                  </div>
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+            <div v-else>
+              No attributes set for this product.
+            </div>
+          </div>
+        </div>
         <v-expansion-panels variant="accordion" class="tw-mb-6 tw-mt-4 tw-w-full">
           <v-expansion-panel elevation="0">
             <v-expansion-panel-title color="grey-lighten-4">More Information</v-expansion-panel-title>
             <v-expansion-panel-text>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-4">
+              <!-- <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-4">
                 <div class="tw-w-full lg:tw-w-3/12">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
                   <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
@@ -665,7 +774,7 @@
                   </v-autocomplete>
                 </div>
               </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider> -->
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Certifications</h3>
@@ -731,7 +840,7 @@
                 </div>
               </div>
               <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+              <!-- <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Dimensions</h3>
                 </div>
@@ -950,13 +1059,13 @@
                   </v-text-field>
                 </div>
               </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider> -->
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Burner Dimensions</h3>
                 </div>
                 <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-text-field
+                  <!-- <v-text-field
                     v-model="burnerLength.value.value"
                     class="tw-w-full lg:tw-w-5/12"
                     variant="outlined"
@@ -979,7 +1088,7 @@
                     :error-messages="burnerDiameter.errorMessage.value"
                     :readonly="readonly"
                   >
-                  </v-text-field>
+                  </v-text-field> -->
                   <v-text-field
                     v-model="burnerShape.value.value"
                     class="tw-w-full lg:tw-w-5/12"
@@ -1046,7 +1155,7 @@
                   ></v-checkbox>
                 </div>
               </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Extra Attributes</h3>
@@ -1089,7 +1198,7 @@
                   >
                   </v-text-field>
                 </div>
-              </div>
+              </div> -->
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -1114,7 +1223,19 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
-import { Attrs, Image, ItemsList, Price, PriceData, Product, Props, SpecificationSheet, Documents } from '@/types/product';
+import {
+  Image,
+  ItemsList,
+  Price,
+  PriceData,
+  Product,
+  Props,
+  SpecificationSheet,
+  Documents,
+  Attribute,
+  AttributeValue,
+  AttributeValues
+} from '@/types/product';
 
 /**
  *
@@ -1142,18 +1263,6 @@ watch(
   }
 );
 
-const isVariation = computed(() => {
-  if (route.query.relation === 'variation') return true;
-  return false;
-});
-
-onMounted(() => {
-  if (route.query.relation_type === 'parent_group') relation.value.value = 'PARENT_GROUP';
-  else if (route.query.relation_type === 'parent') relation.value.value = 'PARENT';
-  else if (!route.query.parent_id) relation.value.value = 'PARENT';
-  else relation.value.value = 'CHILD';
-});
-
 const title = computed(() => {
   if (props.new) return 'Create Product';
   if (props.edit) return 'Edit Product';
@@ -1171,24 +1280,25 @@ const subtitle = computed(() => {
 const itemsLoading = ref({
   categoryLoading: false,
   collectionLoading: false,
-  colorLoading: false,
-  gasLoading: false,
-  ignitionLoading: false,
-  materialLoading: false,
   shapeLoading: false,
-  baseColorLoading: false,
+  // colorLoading: false,
+  // materialLoading: false,
+  // baseColorLoading: false,
+  // -------------------------------
+  // TODO: Change to attribute
+  gasLoading: false,
+  // TODO: Change to attribute
+  ignitionLoading: false,
 });
 
 const itemsList: Ref<ItemsList> = ref<ItemsList>({
   category: [],
   collection: [],
-  color: [],
-  gas: [],
-  ignition: [],
-  material: [],
   shape: [],
-  baseColor: [],
+  // gas: [],
+  // ignition: [],
 });
+
 const loadItemsList = async (itemType: keyof ItemsList) => {
   try {
     itemsLoading.value[`${itemType}Loading`] = true;
@@ -1212,7 +1322,7 @@ const loadItemsList = async (itemType: keyof ItemsList) => {
 
 const yearList: Ref<number[]> = ref<number[]>([]);
 const generateYearList = (currentYear: number): number[] => {
-  const startYear = 2015;
+  const startYear = currentYear - 2;
   const endYear = currentYear + 1;
   const yearArray: number[] = [];
 
@@ -1235,13 +1345,334 @@ const removeYearFromList = (priceType: keyof PriceData, item: Price) => {
 onMounted(async () => {
   await loadItemsList('category');
   await loadItemsList('collection');
-  await loadItemsList('gas');
-  await loadItemsList('ignition');
-  await loadItemsList('material');
   await loadItemsList('shape');
+  await loadAttributesList();
+  // await loadItemsList('gas');
+  // await loadItemsList('ignition');
+  // await loadItemsList('material');
 
   yearList.value = generateYearList(new Date().getFullYear());
 });
+
+const loadAttributesList = async () => {
+  try {
+    attributesLoading.value = true;
+    const { data, error } = await supabase
+      .from('attributes')
+      .select('id, name');
+    if (error) throw error;
+    attributesList.value = data;
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: `Error loading attributes list`,
+      text: e?.message || `An error occurred trying to load attributes list. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    attributesLoading.value = false;
+  }
+}
+
+const attributesLoading = ref(false);
+const attributeId: Ref<number | null> = ref<number | null>(null);
+const attributesList: Ref<Attribute[]> = ref<Attribute[]>([]);
+const attributeValuesList: Ref<AttributeValues> = ref<AttributeValues>({});
+const attributesIds: Ref<number[]> = ref<number[]>([0]);
+const attributes: Ref<Attribute[]> = ref<Attribute[]>([]);
+const attributesToRemove: Ref<number[]> = ref<number[]>([]);
+const attributesToAdd: Ref<number[]> = ref<number[]>([]);
+const attributeValuesToRemove: Ref<number[]> = ref<number[]>([]);
+const currentAttributes: Ref<number[]> = ref<number[]>([]);
+const attributeValuesToAdd: Ref<{ [key: number]: number[]}> = ref<{ [key: number]: number[]}>({});
+const attributeValuesToDelete: Ref<{ [key: number]: number[]}> = ref<{ [key: number]: number[]}>({});
+
+const availableAttributesList = computed(() => {
+  return attributesList.value.filter((attr) => !attributesIds.value.some((id) => attr.id === id));
+})
+
+const loadAttribute = async (attrId: number) => {
+  try {
+    isLoading.value = true;
+    const { data, error } = await supabase
+      .from('attributes')
+      .select('id, name, table_name')
+      .eq('id', attrId);
+    if (error) throw error;
+    if (data) return {
+      ...data[0],
+      fill_values: true,
+    }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const isAttributeValuesLoading = ref(false);
+
+const isAttributeTable = (tableName: string) => {
+  return tableName
+    && (tableName === 'gas'
+    || tableName === 'color'
+    || tableName === 'material'
+    || tableName === 'ignition'
+    );
+}
+
+const getAttributeItemValue = (tableName: string | undefined) => {
+  if (tableName) {
+    if (isAttributeTable(tableName)) return `${tableName}.name`;
+    return 'value';
+  }
+  return 'value';
+}
+
+const loadAttributeValues = async (attrId: number) => {
+  try {
+    isAttributeValuesLoading.value = true;
+    const { data, error } = await supabase
+      .from('attribute_value')
+      .select('id, attribute_id, value, material(id, name), color(id, name), gas(id, name), ignition(id, name)')
+      .eq('attribute_id', attrId);
+    if (error) throw error;
+    if (data)
+      attributeValuesList.value[attrId] = (data as unknown as AttributeValue[]);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isAttributeValuesLoading.value = false;
+  }
+}
+
+const addAttribute = async () => {
+  try {
+    isLoading.value = true;
+    if (attributeId.value) {
+      const attribute = await loadAttribute(attributeId.value);
+      if (attribute) {
+        attributes.value.push(attribute as unknown as Attribute);
+        attributesIds.value.push(attributeId.value);
+        await loadAttributeValues(attributeId.value);
+      }
+      attributeId.value = null;
+    }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const onFillValueChange = (e: any, attributeId: number) => {
+  const attribute = props.productAttributes?.find((attr) => attr.id === attributeId);
+  const currAttribute = attributes.value.find((attr) => attr.id === attributeId);
+  if (attribute) {
+    if (!e && attribute.fill_values) {
+      if (currAttribute)
+        onAttributeValueChange(currAttribute?.attribute_value || [], attributeId);
+    }
+    if (e && attribute.fill_values) {
+      attributeValuesToAdd.value[attributeId] = [];
+      attributeValuesToDelete.value[attributeId] = [];
+    }
+    if (e && !attribute.fill_values) {
+      attributeValuesToDelete.value[attributeId] = attribute.attribute_value as number[];
+      if (currAttribute) {
+        currAttribute?.attribute_value?.forEach((attr) => {
+          if (attributeValuesToAdd.value[attributeId] && attributeValuesToAdd.value[attributeId].length)
+            attributeValuesToAdd.value[attributeId] = attributeValuesToAdd.value[attributeId].filter((id) => id !== attr);
+        });
+      }
+    }
+    if (!e && !attribute.fill_values) {
+      if (attributeValuesToAdd.value[attributeId] && attributeValuesToAdd.value[attributeId].length) {
+        attributeValuesToAdd.value[attributeId] = attributeValuesToAdd.value[attributeId].filter((attr) => {
+          return (attribute.attribute_value as number[])?.includes(attr);
+        });
+      }
+      if (attributeValuesToDelete.value[attributeId] && attributeValuesToDelete.value[attributeId].length) {
+        attributeValuesToDelete.value[attributeId] = attributeValuesToDelete.value[attributeId].filter((attr) => {
+          return !(attribute.attribute_value as number[])?.includes(attr);
+        });
+      }
+      if (currAttribute) {
+        onAttributeValueChange(currAttribute?.attribute_value || [], attributeId);
+      }
+    }
+  } else {
+    if (e)
+        attributeValuesToAdd.value[attributeId] = [];
+      if (!e)
+        if (currAttribute)
+          onAttributeValueChange(currAttribute?.attribute_value || [], attributeId);
+  }
+
+}
+
+const onAttributeValueChange = (e: any, attributeId: number) => {
+  const attrValues = props.productAttributes?.find((attr) => attr.id === attributeId)?.attribute_value as number[] || [];
+  const { addedIds, deletedIds } = compareAttributes(attrValues, e);
+  attributeValuesToAdd.value[attributeId] = addedIds;
+  attributeValuesToDelete.value[attributeId] = deletedIds;
+  console.log('Added', addedIds);
+  console.log('Deleted', deletedIds);
+  // attributesToRemove.value.filter((attr))
+}
+
+const compareAttributes = (currentIds: number[], newIds: number[]) => {
+  const addedIds = [];
+  const deletedIds = [];
+
+  addedIds.push(...newIds.filter(id => !currentIds.includes(id)));
+  deletedIds.push(...currentIds.filter((id) => !newIds.includes(id)));
+
+  return { addedIds, deletedIds };
+}
+
+const setAttributes = async (productId: number) => {
+  try {
+    isLoading.value = true;
+    const saveProductAttributes: Promise<any>[] = [];
+    const saveProductConfigurations: Promise<any>[] = [];
+    const deleteProductAttributes: Promise<any>[] = [];
+    const deleteProductConfigurations: Promise<any>[] = [];
+    let attributeValues: number[] = [];
+    // let attributeValuesToAdd: number[] = [];
+    // let attributeValuesToDelete: number[] = [];
+
+    if (props.edit) {
+      const attrs = JSON.parse(JSON.stringify(attributes.value.map((attr) => attr?.id)));
+
+      // attributesToAdd.value = JSON.parse(JSON.stringify(attributes.value.map((attr) => attr?.id || 0)));
+      attributesToAdd.value = attrs.filter((attrToAdd: number) => !currentAttributes.value?.includes(attrToAdd));
+      // attributesToRemove.value = attributesToRemove.value.filter((attrToRemove) => !attributesToAdd.value.includes(attrToRemove));
+      attributesToRemove.value = JSON.parse(JSON.stringify((currentAttributes.value)));
+      attributesToRemove.value = attributesToRemove.value.filter((attrToRemove: number) => !attrs.includes(attrToRemove));
+      attributesToRemove.value.forEach((attr) => {
+        deleteProductAttributes.push(deleteProductAttribute(productId, attr));
+      });
+      attributes.value.forEach((attribute: Attribute) => {
+        if (attributesToAdd.value.includes(attribute?.id || 0)) {
+          saveProductAttributes.push(saveProductAttribute(productId, attribute));
+        }
+      });
+      const valuesToDelete = Object.values(attributeValuesToDelete.value).flatMap(value => value);
+      const valuesToAdd = Object.values(attributeValuesToAdd.value).flatMap(value => value);
+
+      valuesToAdd.forEach((valueId) => saveProductConfigurations.push(saveProductConfiguration(productId, valueId)));
+      valuesToDelete.forEach((valueId) => deleteProductConfigurations.push(deleteProductConfiguration(productId, valueId)));
+    } else {
+      attributes.value.forEach((attribute: Attribute) => {
+        saveProductAttributes.push(saveProductAttribute(productId, attribute));
+        if (!attribute.fill_values) {
+          attributeValues.push(...(attribute.attribute_value as number[]));
+        }
+      });
+      attributeValues.forEach((attributeValue) => {
+        saveProductConfigurations.push(saveProductConfiguration(productId, attributeValue));
+      });
+    }
+
+    const deleteAttributePromiseResult = await Promise.allSettled(deleteProductAttributes);
+    const deleteConfigurationPromiseResult = await Promise.allSettled(deleteProductConfigurations);
+    const attributePromiseResult = await Promise.allSettled(saveProductAttributes);
+    const configurationPromiseResult = await Promise.allSettled(saveProductConfigurations);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const saveProductAttribute = async (productId: number, payload: Attribute) => {
+  try {
+    isLoading.value = true;
+    const form = {
+      product_id: productId,
+      attribute_id: payload.id,
+      fill_values: payload.fill_values,
+    };
+    const { error } = await supabase
+      .from('product_attribute')
+      .insert(form);
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const saveProductConfiguration = async (productId: number, valueId: number) => {
+  try {
+    isLoading.value = true;
+    const form = {
+      product_id: productId,
+      value_id: valueId
+    };
+    const { error } = await supabase
+      .from('product_configuration')
+      .insert(form);
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const deleteProductAttribute = async (productId: number, valueId: number) => {
+  try {
+    isLoading.value = true;
+    const { error } = await supabase
+      .from('product_attribute')
+      .delete()
+      .match({ product_id: productId, attribute_id: valueId });
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const deleteProductConfiguration = async (productId: number, valueId: number) => {
+  try {
+    isLoading.value = true;
+    const { error } = await supabase
+      .from('product_configuration')
+      .delete()
+      .match({ product_id: productId, value_id: valueId });
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const removeAttribute = async (attributeId: number) => {
+  attributesToRemove.value.push(attributeId);
+  attributesToRemove.value = [...new Set(attributesToRemove.value)];
+  const attrToRemove = attributes.value.find((attr) => attr.id === attributeId);
+  if (attrToRemove?.attribute_value?.length) {
+    const attribute = props.productAttributes?.find((attr) => attr.id === attributeId);
+    attributeValuesToAdd.value[attributeId] = [];
+    if (attribute) {
+      if (!attributeValuesToDelete.value[attributeId])
+        attributeValuesToDelete.value[attributeId] = [];
+      attributeValuesToDelete.value[attributeId].push(...(attribute.attribute_value as number[]));
+      attributeValuesToDelete.value[attributeId] = [...new Set(attributeValuesToDelete.value[attributeId])];
+    }
+    attributeValuesToRemove.value.push(...(attrToRemove.attribute_value as number[]));
+    attributeValuesToRemove.value = [...new Set(attributeValuesToRemove.value)];
+  }
+  attributes.value = attributes.value.filter((attr) => attr.id !== attributeId);
+  attributesIds.value = attributesIds.value.filter((attrIds) => attributeId !== attrIds);
+}
 
 const prices: Ref<PriceData> = ref<PriceData>({
   map: [],
@@ -1321,7 +1752,7 @@ const addDocuments = () => {
 }
 
 const removeDocFromList = (item: Documents) => {
-  documents.value = documents.value.filter((docItem) => docItem !== item.id);
+  documents.value = documents.value.filter((docItem) => docItem.id !== item.id);
 }
 /**
  *
@@ -1336,32 +1767,8 @@ const { handleSubmit, resetForm } = useForm({
 
 const name = useField<string>('name');
 const sku = useField<string>('sku');
-const upcCodes = useField<string>('upc_codes');
-const encodedUpcCodes = useField<string>('encoded_upc_codes');
 const productType = useField<string>('product_type');
-const productLength = useField<string>('product_length');
-const length: Ref<string[]> = ref<string[]>([]);
-const productDiameter = useField<string>('product_diameter');
-const diameter: Ref<string[]> = ref<string[]>([]);
-const productWidth = useField<string>('product_width');
-const productHeight = useField<string>('product_height');
-const baseLength = useField<string>('base_length');
-const baseDiameter = useField<string>('base_diameter');
-const baseWidth = useField<string>('base_width');
-const baseOpening = useField<string>('base_opening');
-const toeKick = useField<string>('toe_kick');
-const soilUsage = useField<string>('soil_usage');
-const scupperWidth = useField<string>('scupper_width');
-const scupperInletOpening = useField<string>('scupper_inlet_opening');
-const gpm = useField<string>('gpm');
-const fireGlass = useField<string>('fire_glass');
-const baLength = useField<string>('ba_length');
-const baDiameter = useField<string>('ba_diameter');
-const baWidth = useField<string>('ba_width');
-const baDepth = useField<string>('ba_depth');
 const burnerShape = useField<string>('burner_shape');
-const burnerLength = useField<string>('burner_length');
-const burnerDiameter = useField<string>('burner_diameter');
 const compatibleCanvasCover = useField<string>('compatible_canvas_cover');
 const compatibleBulletBurner = useField<string>('compatible_bullet_burner');
 const compatibleGlassWindGuard = useField<string>('compatible_glass_wind_guard');
@@ -1369,46 +1776,72 @@ const accessDoor = useField<boolean>('access_door');
 const collectionId = useField<number>('collection_id');
 const categoryId = useField<number>('category_id');
 const shapeId = useField<number>('shape_id');
-const materialId = useField<number | null>('material_id');
-const colorId = useField<number>('color_id');
-const productAttrs: {
-  colors: Ref<number[] | number | null>
-  baseColors: Ref<number[] | number | null>
-  ignitionTypes: Ref<number[] | number | null>
-  gasTypes: Ref<number[] | number  | null>
-} = {
-  colors: ref<number[] | number>([]),
-  baseColors: ref<number[] | number>([]),
-  ignitionTypes: ref<number[] | number>([]),
-  gasTypes: ref<number[] | number>([]),
-}
-const ignitionId = useField<number>('ignition_id');
-const gasId = useField<number>('gas_id');
+// const productAttrs: {
+//   colors: Ref<number[] | number | null>
+//   baseColors: Ref<number[] | number | null>
+//   ignitionTypes: Ref<number[] | null>
+//   gasTypes: Ref<number[] | null>
+// } = {
+//   colors: ref<number[] | number>([]),
+//   baseColors: ref<number[] | number>([]),
+//   ignitionTypes: ref<number[]>([]),
+//   gasTypes: ref<number[]>([]),
+// }
 const productSerialBase = useField<string>('product_serial_base');
 const websiteLink = useField<string>('website_link')
 const certifications: Ref<string[]> = ref<string[]>([]);
-const baseColorId = useField<number>('base_color_id');
-const baseMaterialId = useField<number | null>('base_material_id');
 const published = useField<boolean>('published');
 const enabled = useField<boolean>('enabled');
 const companyDivision = useField<string>('company_division');
 const shortDescription = useField<string>('short_description');
 const description = useField<string>('description');
+// -----------------------------------------------------------------------------
+// const materialId = useField<number | null>('material_id');
+// const colorId = useField<number>('color_id');
+// const length: Ref<string[]> = ref<string[]>([]);
+// const diameter: Ref<string[]> = ref<string[]>([]);
+// const ignitionId = useField<number>('ignition_id');
+// const gasId = useField<number>('gas_id');
+// const baseColorId = useField<number>('base_color_id');
+// const baseMaterialId = useField<number | null>('base_material_id');
+// -----------------------------------------------------------------------------
+// const upcCodes = useField<string>('upc_codes');
+// const encodedUpcCodes = useField<string>('encoded_upc_codes');
+// const productLength = useField<string>('product_length');
+// const productDiameter = useField<string>('product_diameter');
+// const productWidth = useField<string>('product_width');
+// const productHeight = useField<string>('product_height');
+// const baseLength = useField<string>('base_length');
+// const baseDiameter = useField<string>('base_diameter');
+// const baseWidth = useField<string>('base_width');
+// const baseOpening = useField<string>('base_opening');
+// const toeKick = useField<string>('toe_kick');
+// const soilUsage = useField<string>('soil_usage');
+// const scupperWidth = useField<string>('scupper_width');
+// const scupperInletOpening = useField<string>('scupper_inlet_opening');
+// const gpm = useField<string>('gpm');
+// const fireGlass = useField<string>('fire_glass');
+// const baLength = useField<string>('ba_length');
+// const baDiameter = useField<string>('ba_diameter');
+// const baWidth = useField<string>('ba_width');
+// const baDepth = useField<string>('ba_depth');
+// const burnerLength = useField<string>('burner_length');
+// const burnerDiameter = useField<string>('burner_diameter');
 
 const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
-    baseMaterialId.value.value = props.product?.base_material_id ?? null;
-    materialId.value.value = props.product?.material_id ?? null;
+    // baseMaterialId.value.value = props.product?.base_material_id ?? null;
+    // materialId.value.value = props.product?.material_id ?? null;
 
-    if (props.product?.relation === 'PARENT' || props.product?.relation === 'PARENT_GROUP') {
-      diameter.value = props.product?.product_diameter?.split(',') || [];
-      length.value = props.product?.product_length?.split(',') || [];
-    } else {
-      productAttrs.colors.value = props.product?.color_id || null;
-      productAttrs.baseColors.value = props.product?.base_color_id || null;
-      productAttrs.gasTypes.value = props.product?.gas_id || null;
-      productAttrs.ignitionTypes.value = props.product?.ignition_id || null;
-    }
+    // if (props.product?.relation === 'PARENT' || props.product?.relation === 'PARENT_GROUP') {
+      // diameter.value = props.product?.product_diameter?.split(',') || [];
+      // length.value = props.product?.product_length?.split(',') || [];
+    // } else {
+      // productAttrs.colors.value = props.product?.color_id || null;
+      // productAttrs.baseColors.value = props.product?.base_color_id || null;
+      // productAttrs.gasTypes.value = props.product?.gas_id || null;
+      // productAttrs.ignitionTypes.value = props.product?.ignition_id || null;
+    // }
     certifications.value = props.product?.certifications || [];
     resetForm({
       values: {
@@ -1418,27 +1851,27 @@ const fillProductInformation = async () => {
   }
 }
 
-const loadMaterialColors = async (colorType: keyof ItemsList, id: number) => {
-  try {
-    itemsLoading.value[`${colorType}Loading`] = true;
-    const { data, error } = await supabase
-      .from('color')
-      .select('id, name')
-      .eq(`material_id`, id);
-    if (error) throw error;
-    itemsList.value[colorType] = data;
-  } catch (e: any) {
-    console.error(e);
-    notify({
-      title: `Error loading color list`,
-      text: e?.message || `An error occurred trying to load color list. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    itemsLoading.value[`${colorType}Loading`] = false;
-  }
-}
+// const loadMaterialColors = async (colorType: keyof ItemsList, id: number) => {
+//   try {
+//     itemsLoading.value[`${colorType}Loading`] = true;
+//     const { data, error } = await supabase
+//       .from('color')
+//       .select('id, name')
+//       .eq(`material_id`, id);
+//     if (error) throw error;
+//     itemsList.value[colorType] = data;
+//   } catch (e: any) {
+//     console.error(e);
+//     notify({
+//       title: `Error loading color list`,
+//       text: e?.message || `An error occurred trying to load color list. Please contact TOP Support.`,
+//       type: 'error',
+//       duration: 6000,
+//     });
+//   } finally {
+//     itemsLoading.value[`${colorType}Loading`] = false;
+//   }
+// }
 
 onMounted(() => {
   fillProductInformation();
@@ -1462,16 +1895,33 @@ watch(
 
 watch(
   () => props.productAttributes,
-  () => {
+  async () => {
     if (props.productAttributes) {
-      productAttrs.colors = props.productAttributes?.colors;
-      productAttrs.baseColors = props.productAttributes?.baseColors;
-      productAttrs.gasTypes = props.productAttributes?.gasTypes;
-      productAttrs.ignitionTypes = props.productAttributes?.ignitionTypes;
+      const attributeValuesPromise: Promise<void>[] = [];
+      props.productAttributes.forEach((attr) => {
+        attributeValuesPromise.push(loadAttributeValues(attr.id || 0));
+      });
+      await Promise.allSettled(attributeValuesPromise);
+      attributes.value = JSON.parse(JSON.stringify(props.productAttributes));
+      currentAttributes.value = props.productAttributes.map((attr) => attr?.id || 0);
+      attributesIds.value.push(...currentAttributes.value);
     }
   },
   { deep: true }
-);
+)
+
+// watch(
+//   () => props.productAttributes,
+//   () => {
+//     if (props.productAttributes) {
+//       productAttrs.colors = props.productAttributes?.colors;
+//       productAttrs.baseColors = props.productAttributes?.baseColors;
+//       productAttrs.gasTypes = props.productAttributes?.gasTypes;
+//       productAttrs.ignitionTypes = props.productAttributes?.ignitionTypes;
+//     }
+//   },
+//   { deep: true }
+// );
 
 watch(
   () => props.productImages,
@@ -1500,31 +1950,31 @@ watch(
   { deep: true },
 );
 
-watch(
-  () => materialId.value.value,
-  async () => {
-    productAttrs.colors.value = [];
-    if (materialId.value.value)
-      await loadMaterialColors('color', materialId.value.value);
-    else {
-      itemsList.value.color = [];
-      colorId.value.value = 0;
-    }
-  },
-);
+// watch(
+//   () => materialId.value.value,
+//   async () => {
+//     productAttrs.colors.value = [];
+//     if (materialId.value.value)
+//       await loadMaterialColors('color', materialId.value.value);
+//     else {
+//       itemsList.value.color = [];
+//       colorId.value.value = 0;
+//     }
+//   },
+// );
 
-watch(
-  () => baseMaterialId.value.value,
-  async () => {
-    productAttrs.baseColors.value = [];
-    if (baseMaterialId.value.value)
-      await loadMaterialColors('baseColor', baseMaterialId.value.value);
-    else {
-      itemsList.value.baseColor = [];
-      baseColorId.value.value = 0;
-    }
-  },
-);
+// watch(
+//   () => baseMaterialId.value.value,
+//   async () => {
+//     productAttrs.baseColors.value = [];
+//     if (baseMaterialId.value.value)
+//       await loadMaterialColors('baseColor', baseMaterialId.value.value);
+//     else {
+//       itemsList.value.baseColor = [];
+//       baseColorId.value.value = 0;
+//     }
+//   },
+// );
 
 /**
  *
@@ -1594,66 +2044,66 @@ const setPrices = async (productId: number) => {
   }
 }
 
-const saveAttribute = async (form: Attrs, attrType: string) => {
-  try {
-    isLoading.value = true;
-    const { data, error } = await supabase
-      .from(`product_${attrType}`)
-      .insert(form)
-      .select();
-    if (error) throw error;
-    return data;
-  } catch (e: any) {
-    console.error(e);
-    notify({
-      title: `Error saving ${attrType}`,
-      text: e?.message || `An error ocurred trying to save ${attrType}. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
+// const saveAttribute = async (form: Attrs, attrType: string) => {
+//   try {
+//     isLoading.value = true;
+//     const { data, error } = await supabase
+//       .from(`product_${attrType}`)
+//       .insert(form)
+//       .select();
+//     if (error) throw error;
+//     return data;
+//   } catch (e: any) {
+//     console.error(e);
+//     notify({
+//       title: `Error saving ${attrType}`,
+//       text: e?.message || `An error ocurred trying to save ${attrType}. Please contact TOP support.`,
+//       type: 'error',
+//       duration: 6000,
+//     });
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
 
-const setAttributes = async (
-  productId: number,
-  attrType: keyof (typeof productAttrs),
-  type?: 'default' | 'base'
-) => {
-  try {
-    const saveAttributes: Promise<any>[] = [];
-    const keys = {
-      colors: 'color',
-      baseColors: 'color',
-      ignitionTypes: 'ignition',
-      gasTypes: 'gas',
-    };
+// const setAttributes = async (
+//   productId: number,
+//   attrType: keyof (typeof productAttrs),
+//   type?: 'default' | 'base'
+// ) => {
+//   try {
+//     const saveAttributes: Promise<any>[] = [];
+//     const keys = {
+//       colors: 'color',
+//       baseColors: 'color',
+//       ignitionTypes: 'ignition',
+//       gasTypes: 'gas',
+//     };
 
-    (productAttrs[attrType].value as number[]).forEach((id) => {
-      const form = {
-        product_id: +productId,
-        [`${keys[attrType]}_id`]: +id,
-        type,
-      }
-      if (!form.type) delete form.type;
-      saveAttributes.push(saveAttribute(form, keys[attrType]));
-    });
+//     (productAttrs[attrType].value as number[]).forEach((id) => {
+//       const form = {
+//         product_id: +productId,
+//         [`${keys[attrType]}_id`]: +id,
+//         type,
+//       }
+//       if (!form.type) delete form.type;
+//       saveAttributes.push(saveAttribute(form, keys[attrType]));
+//     });
 
-    isLoading.value = true;
-    const promiseResult = await Promise.allSettled(saveAttributes);
-  } catch (e: any)  {
-    notify({
-      title: `Error saving ${attrType}`,
-      text: e?.message || `An error occurred trying to save ${attrType}. Please contact TOP suppport.`,
-      type: 'error',
-      duration: 6000,
-    });
-    console.error(e);
-  } finally {
-    isLoading.value = false;
-  }
-}
+//     isLoading.value = true;
+//     const promiseResult = await Promise.allSettled(saveAttributes);
+//   } catch (e: any)  {
+//     notify({
+//       title: `Error saving ${attrType}`,
+//       text: e?.message || `An error occurred trying to save ${attrType}. Please contact TOP suppport.`,
+//       type: 'error',
+//       duration: 6000,
+//     });
+//     console.error(e);
+//   } finally {
+//     isLoading.value = false;
+//   }
+// }
 
 const saveDocument = async (documentsForm: Documents, productDocumentsForm: Documents) => {
   try {
@@ -1854,15 +2304,32 @@ const handleCreate = async (values: Product) => {
     return product;
   } catch (e: any) {
     console.error(e);
+    const errorMsg = displayErrorMessage(e?.message || '');
     notify({
       title: 'Error creating product',
-      text: e?.message || 'An error occurred trying to create a product. Please contact TOP Support.',
+      text: errorMsg || 'An error occurred trying to create a product. Please contact TOP Support.',
       type: 'error',
       duration: 6000,
     });
   } finally {
     isLoading.value = false;
   }
+}
+
+const displayErrorMessage = (errorMessage: string) => {
+  const substring = 'violates foreign key constraint';
+  const bulletBurnerSubstr = 'compatible_bullet_burner';
+  const canvasCoverSubstr = 'compatible_canvas_cover';
+  const windGuardSubstr = 'compatible_glass_wind_guard';
+
+  if (errorMessage.includes(substring) && errorMessage.includes(bulletBurnerSubstr))
+    errorMessage = 'Bullet Burner SKU Not Found. Please ensure that the SKU is from a valid product';
+  if (errorMessage.includes(substring) && errorMessage.includes(canvasCoverSubstr))
+    errorMessage = 'Canvas Cover SKU Not Found. Please ensure that the SKU is from a valid product';
+  if (errorMessage.includes(substring) && errorMessage.includes(windGuardSubstr))
+    errorMessage = 'Glass Wind Guard SKU Not Found. Please ensure that the SKU is from a valid product';
+
+  return errorMessage;
 }
 
 const handleUpdate = async (values: Product) => {
@@ -1883,9 +2350,10 @@ const handleUpdate = async (values: Product) => {
     return product;
   } catch (e: any) {
     console.error(e);
+    const errorMsg = displayErrorMessage(e?.message || '');
     notify({
       title: 'Error updating product',
-      text: e?.message || 'An error ocurred trying to update the product. Please contact TOP support.',
+      text: errorMsg || 'An error ocurred trying to update the product. Please contact TOP support.',
       type: 'error',
       duration: 6000,
     });
@@ -1895,38 +2363,39 @@ const handleUpdate = async (values: Product) => {
 }
 
 const submit = handleSubmit(async (values) => {
-  console.log('Test');
   let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
-  if (!isParent.value || !isParentGroup.value) {
-    const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
-    const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
-    const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
-    const gas_id = typeof productAttrs.gasTypes.value === 'number' ? productAttrs.gasTypes.value : null;
-    form = {
-      ...form,
-      color_id,
-      base_color_id,
-      ignition_id,
-      gas_id,
-      product_length: (length.value as unknown as string) ?? null,
-      product_diameter: (diameter.value as unknown as string) ?? null,
-    };
-  } else {
-    form = {
-      ...form,
-      product_length: length.value.join(', ') ?? null,
-      product_diameter: diameter.value.join(', ') ?? null,
-    }
-  }
+  // if (!isParent.value || !isParentGroup.value) {
+    // const color_id = typeof productAttrs.colors.value === 'number' ? productAttrs.colors.value : null;
+    // const base_color_id = typeof productAttrs.baseColors.value === 'number' ? productAttrs.baseColors.value : null;
+    // const ignition_id = typeof productAttrs.ignitionTypes.value === 'number' ? productAttrs.ignitionTypes.value : null;
+    // const gas_id = typeof productAttrs.gasTypes.value === 'number' ? productAttrs.gasTypes.value : null;
+    // form = {
+    //   ...form,
+    //   color_id,
+    //   base_color_id,
+    //   ignition_id,
+    //   gas_id,
+    //   product_length: (length.value as unknown as string) ?? null,
+    //   product_diameter: (diameter.value as unknown as string) ?? null,
+    // };
+  // } else {
+    // form = {
+    //   ...form,
+    //   product_length: length.value.join(', ') ?? null,
+    //   product_diameter: diameter.value.join(', ') ?? null,
+    // }
+  // }
 
   form = {
     ...form,
     certifications: certifications.value,
-    parent_id: route?.query?.parent_id ? +route.query.parent_id : undefined,
+    compatible_bullet_burner: compatibleBulletBurner.value.value ? compatibleBulletBurner.value.value : null,
+    compatible_canvas_cover: compatibleCanvasCover.value.value ? compatibleCanvasCover.value.value : null,
+    compatible_glass_wind_guard: compatibleGlassWindGuard.value.value ? compatibleGlassWindGuard.value.value : null,
+    access_door: accessDoor.value.value ? accessDoor.value.value : false,
   }
 
   form = filterFormPayload(form);
-  console.log('Payload', form);
   try {
     isLoading.value = true;
     if (props.new) {
@@ -1935,26 +2404,21 @@ const submit = handleSubmit(async (values) => {
       if (product && product.length) {
         await setPrices(product[0].id);
 
-        if (isParent.value || isParentGroup.value) {
-          if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
-            await setAttributes(product[0].id, 'colors', 'default');
-          if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
-            await setAttributes(product[0].id, 'baseColors', 'base');
-          if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
-            await setAttributes(product[0].id, 'gasTypes');
-          if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
-            await setAttributes(product[0].id, 'ignitionTypes');
-        }
+        // if (isParent.value || isParentGroup.value) {
+        //   if (Array.isArray(productAttrs.colors.value) && productAttrs.colors.value.length)
+        //     await setAttributes(product[0].id, 'colors', 'default');
+        //   if (Array.isArray(productAttrs.baseColors.value) && productAttrs.baseColors.value.length)
+        //     await setAttributes(product[0].id, 'baseColors', 'base');
+        //   if (Array.isArray(productAttrs.gasTypes.value) && productAttrs.gasTypes.value.length)
+        //     await setAttributes(product[0].id, 'gasTypes');
+        //   if (Array.isArray(productAttrs.ignitionTypes.value) && productAttrs.ignitionTypes.value.length)
+        //     await setAttributes(product[0].id, 'ignitionTypes');
+        // }
 
         await setImages(product[0].id);
         await setSpecSheets(product[0].id);
         await setDocuments(product[0].id);
-
-        notify({
-          title: 'Product created successfully',
-          type: 'success',
-          duration: 6000,
-        });
+        await setAttributes(product[0].id);
 
         router.push(`/products/${product[0].id}`);
       }
@@ -1965,6 +2429,7 @@ const submit = handleSubmit(async (values) => {
         await setImages(product[0].id);
         await setSpecSheets(product[0].id);
         await setDocuments(product[0].id);
+        await setAttributes(product[0].id);
       }
     }
   } catch (e: any) {
