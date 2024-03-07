@@ -438,13 +438,54 @@ export default [
       },
       {
         path: ':id',
-        name: 'ViewProduct',
-        component: () => import(/* webpackChunkName: "view-product" */'@/views/products/ViewProduct.vue'),
-        meta: {
-          requiresAuth: true,
-          onlyWhenLoggedOut: false,
-          roles: ['MANAGER', 'ADMIN'],
-        },
+        children: [
+          {
+            path: '',
+            name: 'ViewProduct',
+            component: () => import(/* webpackChunkName: "view-product" */'@/views/products/ViewProduct.vue'),
+            meta: {
+              requiresAuth: true,
+              onlyWhenLoggedOut: false,
+              roles: ['MANAGER', 'ADMIN'],
+            },
+          },
+          {
+            path: 'variant',
+            children: [
+              {
+                path: 'new',
+                name: 'NewVariant',
+                component: () => import(/* webpackChunkName: "new-variation" */'@/views/variations/CreateVariation.vue'),
+
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                }
+              },
+              {
+                path: 'edit/:variantid',
+                name: 'EditVariant',
+                // component: () => import(/* webpackChunkName: "edit-variation" */'@/views/variations/CrateVariation.vue'),
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                },
+              },
+              {
+                path: ':variantid',
+                name: 'ViewVariant',
+                // component: () => import(/* webpackChunkName: "view-variation" */'@/views/variations/CrateVariation.vue'),
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                },
+              }
+            ]
+          }
+        ]
       }
     ],
   },
