@@ -1,8 +1,10 @@
 <template>
   <div>
+    <variation-form new></variation-form>
   </div>
 </template>
 <script lang="ts" setup>
+import VariationForm from '@/components/VariationForm.vue';
 import { useAppStore } from '@/store/app';
 import { onMounted } from 'vue';
 
