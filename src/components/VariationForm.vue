@@ -246,21 +246,17 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRoute, useRouter } from 'vue-router';
-import { useProductStore } from '@/store/product';
+import { useVariationStore } from '@/store/variation';
 import { Ref } from 'vue';
 import {
-  Attrs,
   Image,
-  ItemsList,
   Price,
   PriceData,
-  Product,
-  Props,
-  SpecificationSheet,
-  Documents
 } from '@/types/product';
+import {
+  Props, Variation
+} from '@/types/variation';
 import { readonly } from 'vue';
-import { read } from 'fs';
 
 /**
  *
@@ -270,9 +266,192 @@ import { read } from 'fs';
 
 const router = useRouter();
 const route = useRoute();
-const productStore = useProductStore();
+const variationStore = useVariationStore();
 const isLoading = ref(false);
 const { notify } = useNotification();
 
+const props = withDefaults(defineProps<Props>(), {
+  new: false,
+  edit: false,
+  readonly: false,
+  variation: null,
+  loading: false,
+});
+
+watch(
+  () => props.loading,
+  (value) => {
+    isLoading.value = value;
+  }
+)
+
+const title = computed(() => {
+  if (props.new) return 'Create Variation';
+  if (props.edit) return 'Edit Variation';
+  if (props.readonly) return 'View Variation';
+  return 'Variation Form';
+});
+
+const subtitle = computed(() => {
+  if (props.new) return 'Fill out the information below to create a variation';
+  if (props.edit) return 'Use the form below to edit the variation';
+  if (props.readonly) return 'View Variation Information';
+  return '';
+});
+
+onMounted(async () => {
+  yearList.value = generateYearList(new Date().getFullYear());
+});
+
+/**
+ *
+ * Prices Definitions and Methods
+ *
+ */
+
+const prices: Ref<PriceData> = ref<PriceData>({
+  map: [],
+  dealer: [],
+  distributor: [],
+  group: [],
+  internet: [],
+  landscape: [],
+  master_distributor: [],
+  msrp: [],
+});
+
+const addPrice = (priceType: keyof PriceData) => {
+  const lastElement = yearToShowList(priceType)?.slice(-1)?.[0] || new Date().getFullYear();
+  const newPrice = { year: lastElement, price: 0 };
+  prices.value[priceType].push(newPrice);
+}
+
+/**
+ *
+ * Year Definitions and Methods
+ *
+ */
+
+const yearList: Ref<number[]> = ref<number[]>([]);
+const generateYearList = (currentYear: number): number[] => {
+  const startYear = currentYear - 2;
+  const endYear = currentYear + 1;
+  const yearArray: number[] = [];
+
+  for (let year = startYear; year <= endYear; year++) {
+    yearArray.push(year);
+  }
+
+  return yearArray;
+}
+
+const yearToShowList = (priceType: keyof PriceData) => {
+  const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
+  return yearList.value.filter((year: number) => !yearsToExclude.has(year));
+}
+
+const removeYearFromList = (priceType: keyof PriceData, item: Price) => {
+  prices.value[priceType] = prices.value[priceType].filter((priceItem) => priceItem.year !== item.year);
+}
+
+/**
+ *
+ * Images Definitions and Methods
+ *
+ */
+
+const images: Ref<Image[]> = ref<Image[]>([]);
+
+const addImage = () => {
+  let imagesTemp: Image[] = JSON.parse(JSON.stringify(images.value));
+  imagesTemp = imagesTemp.sort((a: Image, b: Image) => (a?.id || 0) - (b?.id || 0));
+  const id = imagesTemp.length ? (imagesTemp[imagesTemp.length - 1]?.id || 0) + 1 : 0;
+  const newImage: Image = {
+    id,
+    url: '',
+    name: '',
+    display_order: (images.value.length - 1) + 1,
+  }
+  images.value.push(newImage);
+}
+
+const removeImageFromList = (item: Image) => {
+  images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
+}
+
+/**
+ *
+ * Handle Form
+ *
+ */
+
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: variationStore.formValidation,
+  initialValues: variationStore.initialValues,
+});
+
+/**
+ *
+ * Declaring Form Fields
+ *
+ */
+
+const enabled = useField<string>('enabled');
+const name = useField<string>('name');
+const sku = useField<string>('sku');
+const upcCodes = useField<string>('upc_codes');
+const encodedUpcCodes = useField<string>('encoded_upc_codes');
+const shortDescription = useField<string>('short_description');
+const description = useField<string>('description');
+const productLength = useField<string>('product_length');
+const productDiameter = useField<string>('product_diameter');
+const productWidth = useField<string>('product_width');
+const productHeight = useField<string>('product_height');
+const baseLength = useField<string>('base_length');
+const baseDiameter = useField<string>('base_diameter');
+const baseWidth = useField<string>('base_width');
+const baseOpening = useField<string>('base_opening');
+const toeKick = useField<string>('toe_kick');
+const soilUsage = useField<string>('soil_usage');
+const scupperWidth = useField<string>('scupper_width');
+const scupperInletOpening = useField<string>('scupper_inlet_opening');
+const gpm = useField<string>('gpm');
+const fireGlass = useField<string>('fire_glass');
+const baLength = useField<string>('ba_length');
+const baDiameter = useField<string>('ba_diameter');
+const baWidth = useField<string>('ba_width');
+const baDepth = useField<string>('ba_depth');
+const burnerShape = useField<string>('burner_shape');
+const burnerLength = useField<string>('burner_length');
+const burnerDiameter = useField<string>('burner_diameter');
+const compatibleCanvasCover = useField<string>('compatible_canvas_cover');
+const compatibleBulletBurner = useField<string>('compatible_bullet_burner');
+const compatibleGlassWindGuard = useField<string>('compatible_glass_wind_guard');
+const productSerialBase = useField<string>('product_serial_base');
+const websiteLink = useField<string>('website_link');
+
+const certifications: Ref<string[]> = ref<string[]>([]);
+
+/**
+ *
+ * Filter form for submission
+ *
+ */
+
+const filterFormPayload = (form: Variation) => (
+  Object.fromEntries(Object.entries(form).filter(([key, value]) => {
+    return variationStore.variationKeys.includes(key);
+  }))
+);
+
+/**
+ *
+ * Form Submission
+ *
+ */
+
+const submit = handleSubmit(async (values) => {
+
+});
 
 </script>
