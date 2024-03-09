@@ -90,6 +90,8 @@ export interface SpecificationSheet {
   url?: string;
   name?: string;
   product_id?: number;
+  variation_id?: number;
+  specification_sheet_id?: number;
 }
 
 export interface Documents {
@@ -97,6 +99,8 @@ export interface Documents {
   url?: string;
   name?: string;
   product_id?: number;
+  variation_id?: number;
+  document_id?: number;
 }
 
 export interface Price {
