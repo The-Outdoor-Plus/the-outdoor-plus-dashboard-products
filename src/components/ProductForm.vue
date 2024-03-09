@@ -1224,7 +1224,6 @@ import { useRoute, useRouter } from 'vue-router';
 import { useProductStore } from '@/store/product';
 import { Ref } from 'vue';
 import {
-  Image,
   ItemsList,
   Price,
   PriceData,
@@ -1236,6 +1235,9 @@ import {
   AttributeValue,
   AttributeValues
 } from '@/types/product';
+import { useProductImage } from '@/composables/productImage';
+import { useProductSpecificationSheet } from '@/composables/productSpecificationSheet';
+import { useProductDocument } from '@/composables/productDocuments';
 
 /**
  *
@@ -1243,25 +1245,30 @@ import {
  *
  */
 
- const router = useRouter();
- const route = useRoute();
- const productStore = useProductStore();
- const isLoading = ref(false);
- const { notify } = useNotification();
+const router = useRouter();
+const route = useRoute();
+const productStore = useProductStore();
+const isLoading = ref(false);
+const { notify } = useNotification();
 
- const props = withDefaults(defineProps<Props>(), {
-  new: false,
-  edit: false,
-  readonly: false,
-  product: null,
-  loading: false,
- });
+const props = withDefaults(defineProps<Props>(), {
+new: false,
+edit: false,
+readonly: false,
+product: null,
+loading: false,
+});
+
 watch(
   () => props.loading,
   (value) => {
     isLoading.value = value;
   }
 );
+
+const productImagesRef = computed(() => props.productImages);
+const productSpecSheetsRef = computed(() => props.productSpectSheets);
+const productDocumentsRef = computed(() => props.productDocuments);
 
 const title = computed(() => {
   if (props.new) return 'Create Product';
@@ -1691,69 +1698,28 @@ const addPrice = (priceType: keyof PriceData) => {
   prices.value[priceType].push(newPrice);
 }
 
-const images: Ref<Image[]> = ref<Image[]>([]);
+const {
+  images,
+  addImage,
+  removeImageFromList,
+  toggleImageIsPrimary,
+  setImages,
+} = useProductImage(productImagesRef);
 
-const addImage = () => {
-  let imagesTemp: Image[] = JSON.parse(JSON.stringify(images.value));
-  imagesTemp = imagesTemp.sort((a: Image, b: Image) => (a?.id || 0) - (b?.id || 0))
-  const id = imagesTemp.length ? (imagesTemp[imagesTemp.length - 1]?.id || 0) + 1 : 0
-  const newImage: Image = {
-    id,
-    url: '',
-    name: '',
-    display_order: (images.value.length - 1) + 1,
-    is_primary: false,
-  }
-  images.value.push(newImage);
-}
+const {
+  specificationSheets,
+  addSpecificationSheet,
+  removeSpecSheetFromList,
+  setSpecSheets,
+} = useProductSpecificationSheet(productSpecSheetsRef);
 
-const removeImageFromList = (item: Image) => {
-  images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
-}
+const {
+  documents,
+  addDocuments,
+  removeDocFromList,
+  setDocuments,
+} = useProductDocument(productDocumentsRef);
 
-const toggleImageIsPrimary = (imageId?: number | null, value?: boolean) => {
-  const valueToSet = !value;
-  images.value = images.value.map((img) => ({
-    ...img,
-    is_primary: img.id === imageId ? valueToSet : false
-  }))
-}
-
-const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
-
-const addSpecificationSheet = () => {
-  let specSheetTemp: SpecificationSheet[] = JSON.parse(JSON.stringify(specificationSheets.value));
-  specSheetTemp = specSheetTemp.sort((a: SpecificationSheet, b: SpecificationSheet) => (a?.id || 0) - (b?.id || 0));
-  const id = specSheetTemp.length ? (specSheetTemp[specSheetTemp.length - 1]?.id || 0) + 1 : 0;
-  const newSpecSheet: SpecificationSheet = {
-    id,
-    url: '',
-    name: '',
-  }
-  specificationSheets.value.push(newSpecSheet);
-}
-
-const removeSpecSheetFromList = (item: SpecificationSheet) => {
-  specificationSheets.value = specificationSheets.value.filter((specSheetItem) => specSheetItem.id !== item.id);
-}
-
-const documents: Ref<Documents[]> = ref<Documents[]>([]);
-
-const addDocuments = () => {
-  let documentsTemp: Documents[] = JSON.parse(JSON.stringify(documents.value));
-  documentsTemp = documentsTemp.sort((a: Documents, b: Documents) => (a?.id || 0) - (b?.id || 0));
-  const id = documentsTemp.length ? (documentsTemp[documentsTemp.length - 1]?.id || 0) + 1 : 0;
-  const newDocument: Documents = {
-    id,
-    url: '',
-    name: '',
-  }
-  documents.value.push(newDocument);
-}
-
-const removeDocFromList = (item: Documents) => {
-  documents.value = documents.value.filter((docItem) => docItem.id !== item.id);
-}
 /**
  *
  * Handle Form
@@ -1923,33 +1889,6 @@ watch(
 //   { deep: true }
 // );
 
-watch(
-  () => props.productImages,
-  () => {
-    if (props.productImages)
-      images.value = props.productImages;
-  },
-  { deep: true },
-);
-
-watch(
-  () => props.productSpectSheets,
-  () => {
-    if (props.productSpectSheets)
-      specificationSheets.value = props.productSpectSheets;
-  },
-  { deep: true },
-);
-
-watch(
-  () => props.productDocuments,
-  () => {
-    if (props.productDocuments)
-      documents.value = props.productDocuments;
-  },
-  { deep: true },
-);
-
 // watch(
 //   () => materialId.value.value,
 //   async () => {
@@ -2104,188 +2043,6 @@ const setPrices = async (productId: number) => {
 //     isLoading.value = false;
 //   }
 // }
-
-const saveDocument = async (documentsForm: Documents, productDocumentsForm: Documents) => {
-  try {
-    isLoading.value = true;
-    const { data: docs, error } = await supabase
-      .from('documents')
-      .upsert(documentsForm)
-      .select(`id`);
-    if (error) throw error;
-    const { data, error: e } = await supabase
-      .from('product_documents')
-      .upsert({
-        ...productDocumentsForm,
-        document_id: docs[0].id,
-      })
-      .select();
-    if (e) throw e;
-    return data;
-  } catch (e: any) {
-    notify({
-      title: `Error saving Documents`,
-      text: e?.message || `An error ocurred trying to save Documents. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const setDocuments = async (productId: number) => {
-  try {
-    const saveDocuments: Promise<any>[] = [];
-
-    documents.value.forEach((doc) => {
-      const documentsForm = {
-        id: doc.id === 0 ? undefined : doc.id,
-        url: doc.url,
-        name: doc.name,
-      }
-      const productDocumentsForm = {
-        document_id: doc.id === 0 ? undefined : doc.id,
-        product_id: productId,
-      }
-      saveDocuments.push(saveDocument(documentsForm, productDocumentsForm));
-    });
-    isLoading.value = true;
-    const promiseResult = await Promise.allSettled(saveDocuments);
-  } catch(e: any) {
-    console.error(e);
-    notify({
-      title: `Error saving documents`,
-      text: e?.message || `An error occurred trying to save documents. Please contact TOP suppport.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const saveSpecSheet = async (specSheetForm: SpecificationSheet, productSpecSheetForm: SpecificationSheet) => {
-  try {
-    isLoading.value = true;
-    const { data: specSheet, error } = await supabase
-      .from('specification_sheet')
-      .upsert(specSheetForm)
-      .select(`id`);
-    if (error) throw error;
-    const { data, error: e } = await supabase
-      .from('product_specification_sheet')
-      .upsert({
-        ...productSpecSheetForm,
-        specification_sheet_id: specSheet[0].id,
-      })
-      .select();
-    if (e) throw e;
-    return data;
-  } catch (e: any) {
-    notify({
-      title: `Error saving Specification Sheets`,
-      text: e?.message || `An error ocurred trying to save Specification Sheets. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const setSpecSheets = async (productId: number) => {
-  try {
-    const saveSpecSheets: Promise<any>[] = [];
-
-    specificationSheets.value.forEach((specSheet) => {
-      const specSheetForm = {
-        id: specSheet.id === 0 ? undefined : specSheet.id,
-        url: specSheet.url,
-        name: specSheet.name,
-      }
-      const productSpecSheetForm = {
-        specification_sheet_id: specSheet.id === 0 ? undefined : specSheet.id,
-        product_id: productId,
-      }
-      saveSpecSheets.push(saveSpecSheet(specSheetForm, productSpecSheetForm));
-    });
-    isLoading.value = true;
-    const promiseResult = await Promise.allSettled(saveSpecSheets);
-  } catch(e: any) {
-    console.error(e);
-    notify({
-      title: `Error saving specification sheets`,
-      text: e?.message || `An error occurred trying to save specification sheets. Please contact TOP suppport.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const saveImage = async (imageForm: Image, productImgForm: Image) => {
-  try {
-    isLoading.value = true;
-    const { data: image, error } = await supabase
-      .from('image')
-      .upsert(imageForm)
-      .select(`id`);
-    if (error) throw error;
-    const { data, error: e } = await supabase
-      .from('product_image')
-      .upsert({
-        ...productImgForm,
-        image_id: image[0].id,
-      })
-      .select();
-    if (e) throw e;
-    return data;
-  } catch (e: any) {
-    notify({
-      title: `Error saving images`,
-      text: e?.message || `An error ocurred trying to save image. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const setImages = async (productId: number) => {
-  try {
-    const saveImages: Promise<any>[] = [];
-
-    images.value.forEach((img) => {
-      const imageForm = {
-        id: img.id === 0 ? undefined : img.id,
-        url: img.url,
-        name: img.name,
-      }
-      const productImageForm = {
-        image_id: img.id === 0 ? undefined : img.id,
-        product_id: productId,
-        display_order: img.display_order,
-        is_primary: img.is_primary,
-      }
-      saveImages.push(saveImage(imageForm, productImageForm));
-    });
-    isLoading.value = true;
-    const promiseResult = await Promise.allSettled(saveImages);
-  } catch(e: any) {
-    console.error(e);
-    notify({
-      title: `Error saving images`,
-      text: e?.message || `An error occurred trying to save images. Please contact TOP suppport.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
 
 const handleCreate = async (values: Product) => {
   try {
