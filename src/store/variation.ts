@@ -53,13 +53,13 @@ export const useVariationStore = defineStore('variation', {
     const initialValues = {
       name: '',
       sku: '',
-      enabled: false,
+      enabled: true,
       upc_codes: '',
       encoded_upc_codes: '',
       short_description: '',
       description: '',
-      product_length: '',
-      product_diameter: '',
+      product_length: null,
+      product_diameter: null,
       product_width: '',
       product_height: '',
       base_length: '',
@@ -109,6 +109,7 @@ export const useVariationStore = defineStore('variation', {
       MASTER_DISTRIBUTOR: ['master_distributor', 'msrp', 'map'],
       MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
+      SALES: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
     }
 
     const variationKeys = [
@@ -145,6 +146,7 @@ export const useVariationStore = defineStore('variation', {
       'compatible_glass_wind_guard',
       'product_serial_base',
       'website_link',
+      'certifications',
     ]
 
     return {
