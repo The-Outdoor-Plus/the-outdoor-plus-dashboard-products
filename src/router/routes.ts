@@ -13,7 +13,7 @@ export default [
         meta: {
           requiresAuth: true,
           onlyWhenLoggedOut: false,
-          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
         }
       },
     ],
@@ -29,7 +29,7 @@ export default [
         meta: {
           requiresAuth: false,
           onlyWhenLoggedOut: true,
-          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
         }
       }
     ],

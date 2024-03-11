@@ -80,7 +80,7 @@ const navItems = reactive([
     label: 'Quick View Pricing Tool',
     icon: 'mdi-tag-search',
     link: '/',
-    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
   {

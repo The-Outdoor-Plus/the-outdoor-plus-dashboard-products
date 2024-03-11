@@ -317,6 +317,7 @@ export const useProductStore = defineStore('product', {
       MASTER_DISTRIBUTOR: ['master_distributor', 'msrp', 'map'],
       MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
+      SALES: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
     }
 
     return {
