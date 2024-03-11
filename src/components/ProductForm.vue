@@ -84,36 +84,6 @@
             </v-text-field>
           </div>
         </div>
-        <!-- <v-divider v-if="isVariation" class="border-opacity-100 tw-my-6"></v-divider> -->
-        <!-- <div v-if="isVariation" class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">UPC Codes</h3>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-text-field
-              v-model="upcCodes.value.value"
-              variant="outlined"
-              density="compact"
-              name="UpcCode"
-              placeholder="UPC Code"
-              label="UPC Code"
-              :error-messages="upcCodes.errorMessage.value"
-              :readonly="readonly"
-            >
-            </v-text-field>
-            <v-text-field
-              v-model="encodedUpcCodes.value.value"
-              variant="outlined"
-              density="compact"
-              name="EncodedUpcCode"
-              placeholder="Encoded UPC Code"
-              label="Encoded UPC Code"
-              :error-messages="encodedUpcCodes.errorMessage.value"
-              :readonly="readonly"
-            >
-            </v-text-field>
-          </div>
-        </div> -->
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -317,110 +287,6 @@
             </v-autocomplete>
           </div>
         </div>
-        <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Material</h3>
-            <span class="tw-text-sm tw-text-gray-500">If Base Material is selected, this becomes the material of the top.</span>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="materialId.value.value"
-              variant="outlined"
-              density="compact"
-              name="Material"
-              placeholder="Material"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :items="itemsList.material"
-              :error-messages="materialId.errorMessage.value"
-              :loading="itemsLoading.materialLoading"
-              :readonly="readonly"
-              @click:clear="materialId.value.value = 0"
-            >
-            </v-autocomplete>
-          </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Colors</h3>
-            <span class="tw-text-sm tw-text-gray-500"></span>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="productAttrs.colors.value"
-              variant="outlined"
-              density="compact"
-              name="Colors"
-              placeholder="Colors"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :closable-chips="!readonly"
-              :multiple="isParent || isParentGroup"
-              :chips="isParent || isParentGroup"
-              :items="itemsList.color"
-              :error-messages="colorId.errorMessage.value"
-              :loading="itemsLoading.colorLoading"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
-        </div> -->
-        <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Ignition Types</h3>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="productAttrs.ignitionTypes.value"
-              variant="outlined"
-              density="compact"
-              name="Ignition"
-              placeholder="Ignition Type"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :closable-chips="!readonly"
-              multiple
-              chips
-              :items="itemsList.ignition"
-              :error-messages="ignitionId.errorMessage.value"
-              :loading="itemsLoading.ignitionLoading"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
-        </div>
-        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-          <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Gas Types</h3>
-          </div>
-          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-autocomplete
-              v-model="productAttrs.gasTypes.value"
-              variant="outlined"
-              density="compact"
-              name="Gas"
-              placeholder="Gas Type"
-              item-title="name"
-              item-value="id"
-              :clearable="!readonly"
-              :closable-chips="!readonly"
-              multiple
-              chips
-              :items="itemsList.gas"
-              :error-messages="gasId.errorMessage.value"
-              :loading="itemsLoading.gasLoading"
-              :readonly="readonly"
-            >
-            </v-autocomplete>
-          </div>
-        </div> -->
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
@@ -667,9 +533,6 @@
                         hide-details
                         @update:model-value="onFillValueChange($event, attribute.id as number)"
                       ></v-checkbox>
-                      <!-- <div v-if="attribute.table_name === 'color'" class="tw-ml-3 tw-text-sm">
-                        By selecting fill with all values, it will only include all color values associated with the selected material.
-                      </div> -->
                     </div>
                     <div class="tw-w-7/12">
                       <v-autocomplete
@@ -724,57 +587,6 @@
           <v-expansion-panel elevation="0">
             <v-expansion-panel-title color="grey-lighten-4">More Information</v-expansion-panel-title>
             <v-expansion-panel-text>
-              <!-- <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-4">
-                <div class="tw-w-full lg:tw-w-3/12">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Material</h3>
-                  <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-                  <v-autocomplete
-                    v-model="baseMaterialId.value.value"
-                    variant="outlined"
-                    density="compact"
-                    name="Material"
-                    placeholder="Material"
-                    item-title="name"
-                    item-value="id"
-                    :clearable="!readonly"
-                    :items="itemsList.material"
-                    :error-messages="baseMaterialId.errorMessage.value"
-                    :loading="itemsLoading.materialLoading"
-                    :readonly="readonly"
-                  >
-                  </v-autocomplete>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Colors</h3>
-                  <span class="tw-text-sm tw-text-gray-500">If applicable.</span>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-                  <v-autocomplete
-                    v-model="productAttrs.baseColors.value"
-                    variant="outlined"
-                    density="compact"
-                    name="Colors"
-                    placeholder="Colors"
-                    item-title="name"
-                    item-value="id"
-                    :clearable="!readonly"
-                    :closable-chips="!readonly"
-                    :multiple="isParent || isParentGroup"
-                    :chips="isParent || isParentGroup"
-                    :items="itemsList.baseColor"
-                    :error-messages="baseColorId.errorMessage.value"
-                    :loading="itemsLoading.baseColorLoading"
-                    :readonly="readonly"
-                  >
-                  </v-autocomplete>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider> -->
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Certifications</h3>
@@ -840,255 +652,11 @@
                 </div>
               </div>
               <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <!-- <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Dimensions</h3>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-combobox
-                    v-model="length"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="PLength"
-                    placeholder="Product Length"
-                    :clearable="!readonly"
-                    :closable-chips="!readonly"
-                    :multiple="isParent"
-                    :chips="isParent"
-                    :items="productStore.sizes"
-                    :error-messages="productLength.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-combobox>
-                  <v-combobox
-                    v-model="diameter"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="PDiameter"
-                    placeholder="Product Diameter"
-                    :clearable="!readonly"
-                    :closable-chips="!readonly"
-                    :multiple="isParent"
-                    :chips="isParent"
-                    :items="productStore.sizes"
-                    :error-messages="productDiameter.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-combobox>
-                  <v-text-field
-                    v-model="productWidth.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="PWidth"
-                    placeholder="Product Width"
-                    label="Product Width"
-                    :error-messages="productWidth.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="productHeight.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="PHeight"
-                    placeholder="Product Height"
-                    label="Prodcut Height"
-                    :error-messages="productHeight.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Dimensions</h3>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-text-field
-                    v-model="baseLength.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BLength"
-                    placeholder="Base Length"
-                    label="Base Length"
-                    :error-messages="baseLength.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baseDiameter.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BDiameter"
-                    placeholder="Base Diameter"
-                    label="Base Diamater"
-                    :error-messages="baseDiameter.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baseWidth.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BWidth"
-                    placeholder="Base Width"
-                    label="Base Width"
-                    :error-messages="baseWidth.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baseOpening.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BOpening"
-                    placeholder="Base Opening"
-                    label="Base Opening"
-                    :error-messages="baseOpening.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Scupper Attributes</h3>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-text-field
-                    v-model="scupperWidth.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="SWidth"
-                    placeholder="Scupper Width"
-                    label="Scupper Width"
-                    :error-messages="scupperWidth.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="scupperInletOpening.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="SInlet"
-                    placeholder="Scupper Inlet Opening"
-                    label="Scupper Inlet Opening"
-                    :error-messages="scupperInletOpening.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="gpm.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="SGpm"
-                    placeholder="GPM"
-                    label="GPM"
-                    :error-messages="gpm.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">BA Dimensions</h3>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-text-field
-                    v-model="baLength.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BALength"
-                    placeholder="BA Length"
-                    label="BA Length"
-                    :error-messages="baLength.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baDiameter.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BADiameter"
-                    placeholder="BA Diameter"
-                    label="BA Diamater"
-                    :error-messages="baDiameter.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baWidth.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BAWidth"
-                    placeholder="BA Width"
-                    label="BA Width"
-                    :error-messages="baWidth.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="baDepth.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BADepth"
-                    placeholder="BA Depth"
-                    label="BA Depth"
-                    :error-messages="baDepth.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                </div>
-              </div>
-              <v-divider class="border-opacity-100 tw-my-6"></v-divider> -->
               <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
                 <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
                   <h3 class="tw-text-base tw-font-semibold tw-mt-1">Burner Dimensions</h3>
                 </div>
                 <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <!-- <v-text-field
-                    v-model="burnerLength.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BurnerLength"
-                    placeholder="Burner Length"
-                    label="Burner Length"
-                    :error-messages="burnerLength.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="burnerDiameter.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="BurnerDiameter"
-                    placeholder="Burner Diameter"
-                    label="Burner Diameter"
-                    :error-messages="burnerDiameter.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field> -->
                   <v-text-field
                     v-model="burnerShape.value.value"
                     class="tw-w-full lg:tw-w-5/12"
@@ -1155,50 +723,6 @@
                   ></v-checkbox>
                 </div>
               </div>
-              <!-- <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
-                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Extra Attributes</h3>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
-                  <v-text-field
-                    v-model="toeKick.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="ToeKick"
-                    placeholder="Toe Kick"
-                    label="Toe Kick"
-                    :error-messages="toeKick.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="fireGlass.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="FireGlass"
-                    placeholder="Fire Glass"
-                    label="Fire Glass"
-                    :error-messages="fireGlass.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                  <v-text-field
-                    v-model="soilUsage.value.value"
-                    class="tw-w-full lg:tw-w-5/12"
-                    variant="outlined"
-                    density="compact"
-                    name="SoilUsage"
-                    placeholder="Soil Usage"
-                    label="Soil Usage"
-                    :error-messages="soilUsage.errorMessage.value"
-                    :readonly="readonly"
-                  >
-                  </v-text-field>
-                </div>
-              </div> -->
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -1238,6 +762,7 @@ import {
 import { useProductImage } from '@/composables/productImage';
 import { useProductSpecificationSheet } from '@/composables/productSpecificationSheet';
 import { useProductDocument } from '@/composables/productDocuments';
+import { useProductPrice } from '@/composables/productPrices';
 
 /**
  *
@@ -1269,6 +794,7 @@ watch(
 const productImagesRef = computed(() => props.productImages);
 const productSpecSheetsRef = computed(() => props.productSpectSheets);
 const productDocumentsRef = computed(() => props.productDocuments);
+const productPricesRef = computed(() => props.productPrices);
 
 const title = computed(() => {
   if (props.new) return 'Create Product';
@@ -1327,29 +853,8 @@ const loadItemsList = async (itemType: keyof ItemsList) => {
   }
 }
 
-const yearList: Ref<number[]> = ref<number[]>([]);
-const generateYearList = (currentYear: number): number[] => {
-  const startYear = currentYear - 2;
-  const endYear = currentYear + 1;
-  const yearArray: number[] = [];
-
-  for (let year = startYear; year <= endYear; year++) {
-    yearArray.push(year);
-  }
-
-  return yearArray;
-}
-
-const yearToShowList = (priceType: keyof PriceData) => {
-  const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
-  return yearList.value.filter((year: number) => !yearsToExclude.has(year));
-};
-
-const removeYearFromList = (priceType: keyof PriceData, item: Price) => {
-  prices.value[priceType] = prices.value[priceType].filter((priceItem) => priceItem.year !== item.year);
-}
-
 onMounted(async () => {
+  fillProductInformation();
   await loadItemsList('category');
   await loadItemsList('collection');
   await loadItemsList('shape');
@@ -1681,22 +1186,15 @@ const removeAttribute = async (attributeId: number) => {
   attributesIds.value = attributesIds.value.filter((attrIds) => attributeId !== attrIds);
 }
 
-const prices: Ref<PriceData> = ref<PriceData>({
-  map: [],
-  dealer: [],
-  distributor: [],
-  group: [],
-  internet: [],
-  landscape: [],
-  master_distributor: [],
-  msrp: [],
-});
-
-const addPrice = (priceType: keyof PriceData) => {
-  const lastElement = yearToShowList(priceType)?.slice(-1)?.[0] || new Date().getFullYear();
-  const newPrice = { year: lastElement, price: 0 };
-  prices.value[priceType].push(newPrice);
-}
+const {
+  yearList,
+  prices,
+  generateYearList,
+  yearToShowList,
+  removeYearFromList,
+  addPrice,
+  setPrices
+} = useProductPrice(productPricesRef);
 
 const {
   images,
@@ -1742,17 +1240,6 @@ const accessDoor = useField<boolean>('access_door');
 const collectionId = useField<number>('collection_id');
 const categoryId = useField<number>('category_id');
 const shapeId = useField<number>('shape_id');
-// const productAttrs: {
-//   colors: Ref<number[] | number | null>
-//   baseColors: Ref<number[] | number | null>
-//   ignitionTypes: Ref<number[] | null>
-//   gasTypes: Ref<number[] | null>
-// } = {
-//   colors: ref<number[] | number>([]),
-//   baseColors: ref<number[] | number>([]),
-//   ignitionTypes: ref<number[]>([]),
-//   gasTypes: ref<number[]>([]),
-// }
 const productSerialBase = useField<string>('product_serial_base');
 const websiteLink = useField<string>('website_link')
 const certifications: Ref<string[]> = ref<string[]>([]);
@@ -1761,38 +1248,6 @@ const enabled = useField<boolean>('enabled');
 const companyDivision = useField<string>('company_division');
 const shortDescription = useField<string>('short_description');
 const description = useField<string>('description');
-// -----------------------------------------------------------------------------
-// const materialId = useField<number | null>('material_id');
-// const colorId = useField<number>('color_id');
-// const length: Ref<string[]> = ref<string[]>([]);
-// const diameter: Ref<string[]> = ref<string[]>([]);
-// const ignitionId = useField<number>('ignition_id');
-// const gasId = useField<number>('gas_id');
-// const baseColorId = useField<number>('base_color_id');
-// const baseMaterialId = useField<number | null>('base_material_id');
-// -----------------------------------------------------------------------------
-// const upcCodes = useField<string>('upc_codes');
-// const encodedUpcCodes = useField<string>('encoded_upc_codes');
-// const productLength = useField<string>('product_length');
-// const productDiameter = useField<string>('product_diameter');
-// const productWidth = useField<string>('product_width');
-// const productHeight = useField<string>('product_height');
-// const baseLength = useField<string>('base_length');
-// const baseDiameter = useField<string>('base_diameter');
-// const baseWidth = useField<string>('base_width');
-// const baseOpening = useField<string>('base_opening');
-// const toeKick = useField<string>('toe_kick');
-// const soilUsage = useField<string>('soil_usage');
-// const scupperWidth = useField<string>('scupper_width');
-// const scupperInletOpening = useField<string>('scupper_inlet_opening');
-// const gpm = useField<string>('gpm');
-// const fireGlass = useField<string>('fire_glass');
-// const baLength = useField<string>('ba_length');
-// const baDiameter = useField<string>('ba_diameter');
-// const baWidth = useField<string>('ba_width');
-// const baDepth = useField<string>('ba_depth');
-// const burnerLength = useField<string>('burner_length');
-// const burnerDiameter = useField<string>('burner_diameter');
 
 const fillProductInformation = async () => {
   if (props.edit || props.readonly) {
@@ -1839,22 +1294,10 @@ const fillProductInformation = async () => {
 //   }
 // }
 
-onMounted(() => {
-  fillProductInformation();
-});
 watch(
   () => props.product,
   () => {
     fillProductInformation();
-  },
-  { deep: true }
-);
-
-watch(
-  () => props.productPrices,
-  () => {
-    if (props.productPrices)
-      prices.value = props.productPrices;
   },
   { deep: true }
 );
@@ -1876,45 +1319,6 @@ watch(
   { deep: true }
 )
 
-// watch(
-//   () => props.productAttributes,
-//   () => {
-//     if (props.productAttributes) {
-//       productAttrs.colors = props.productAttributes?.colors;
-//       productAttrs.baseColors = props.productAttributes?.baseColors;
-//       productAttrs.gasTypes = props.productAttributes?.gasTypes;
-//       productAttrs.ignitionTypes = props.productAttributes?.ignitionTypes;
-//     }
-//   },
-//   { deep: true }
-// );
-
-// watch(
-//   () => materialId.value.value,
-//   async () => {
-//     productAttrs.colors.value = [];
-//     if (materialId.value.value)
-//       await loadMaterialColors('color', materialId.value.value);
-//     else {
-//       itemsList.value.color = [];
-//       colorId.value.value = 0;
-//     }
-//   },
-// );
-
-// watch(
-//   () => baseMaterialId.value.value,
-//   async () => {
-//     productAttrs.baseColors.value = [];
-//     if (baseMaterialId.value.value)
-//       await loadMaterialColors('baseColor', baseMaterialId.value.value);
-//     else {
-//       itemsList.value.baseColor = [];
-//       baseColorId.value.value = 0;
-//     }
-//   },
-// );
-
 /**
  *
  * Handle Data
@@ -1926,123 +1330,6 @@ const filterFormPayload = (form: Product) => (
     return productStore.productKeys.includes(key);
   }))
 )
-
-const savePrice = async (type: string, priceForm: {
-  year: number,
-  price: number,
-  product_id: number
-}) => {
-  try {
-    isLoading.value = true;
-    const { data, error } = await supabase
-      .from(`${type}_price`)
-      .insert(priceForm)
-      .select();
-    if (error) throw error;
-    return data;
-  } catch (e: any) {
-    console.error(e);
-    notify({
-      title: `Error saving ${type} price.`,
-      text: e?.message || `An error ocurred trying to save ${type} price. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-const setPrices = async (productId: number) => {
-  try {
-    const availablePrices = Object.fromEntries(
-      Object.entries(prices.value).filter(([key, value]) => value.length > 0)
-    );
-    const savePrices: Promise<any>[] = [];
-    Object.entries(availablePrices).forEach(([key, value]) => {
-      value.forEach(({ year, price }: any) => {
-        const priceForm = {
-          year: year,
-          price: +price,
-          product_id: productId,
-        };
-      savePrices.push(savePrice(key, priceForm));
-      });
-    });
-    isLoading.value = true;
-    const promiseResult = await Promise.allSettled(savePrices);
-  } catch (e: any) {
-    notify({
-      title: `Error saving  prices.`,
-      text: e?.message || `An error ocurred trying to save prices. Please contact TOP support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    isLoading.value = false;
-  }
-}
-
-// const saveAttribute = async (form: Attrs, attrType: string) => {
-//   try {
-//     isLoading.value = true;
-//     const { data, error } = await supabase
-//       .from(`product_${attrType}`)
-//       .insert(form)
-//       .select();
-//     if (error) throw error;
-//     return data;
-//   } catch (e: any) {
-//     console.error(e);
-//     notify({
-//       title: `Error saving ${attrType}`,
-//       text: e?.message || `An error ocurred trying to save ${attrType}. Please contact TOP support.`,
-//       type: 'error',
-//       duration: 6000,
-//     });
-//   } finally {
-//     isLoading.value = false;
-//   }
-// }
-
-// const setAttributes = async (
-//   productId: number,
-//   attrType: keyof (typeof productAttrs),
-//   type?: 'default' | 'base'
-// ) => {
-//   try {
-//     const saveAttributes: Promise<any>[] = [];
-//     const keys = {
-//       colors: 'color',
-//       baseColors: 'color',
-//       ignitionTypes: 'ignition',
-//       gasTypes: 'gas',
-//     };
-
-//     (productAttrs[attrType].value as number[]).forEach((id) => {
-//       const form = {
-//         product_id: +productId,
-//         [`${keys[attrType]}_id`]: +id,
-//         type,
-//       }
-//       if (!form.type) delete form.type;
-//       saveAttributes.push(saveAttribute(form, keys[attrType]));
-//     });
-
-//     isLoading.value = true;
-//     const promiseResult = await Promise.allSettled(saveAttributes);
-//   } catch (e: any)  {
-//     notify({
-//       title: `Error saving ${attrType}`,
-//       text: e?.message || `An error occurred trying to save ${attrType}. Please contact TOP suppport.`,
-//       type: 'error',
-//       duration: 6000,
-//     });
-//     console.error(e);
-//   } finally {
-//     isLoading.value = false;
-//   }
-// }
 
 const handleCreate = async (values: Product) => {
   try {
@@ -2183,6 +1470,7 @@ const submit = handleSubmit(async (values) => {
       const product = await handleUpdate(form);
 
       if (product && product.length) {
+        await setPrices(product[0].id);
         await setImages(product[0].id);
         await setSpecSheets(product[0].id);
         await setDocuments(product[0].id);
