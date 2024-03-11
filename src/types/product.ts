@@ -108,6 +108,7 @@ export interface Price {
   product_id?: number;
   price?: number;
   year?: number;
+  variation_id?: number;
 }
 
 export interface PriceData {
@@ -126,6 +127,7 @@ export interface ProductImage {
   image_id?: number;
   display_order?: number;
   is_primary?: boolean;
+  variation_id?: number;
   url?: string;
   name?: string;
 }
@@ -133,46 +135,18 @@ export interface ProductImage {
 export interface Product {
   id?: number;
   sku?: string
-  upc_codes?: string | null;
-  encoded_upc_codes?: string | null;
   product_type?: string | null;
-  product_length?: string | null;
-  product_diameter?: string | null;
-  product_width?: string | null;
-  product_height?: string | null;
-  base_length?: string | null;
-  base_diameter?: string | null;
-  base_width?: string | null;
-  base_opening?: string | null;
-  toe_kick?: string | null;
-  soil_usage?: string | null;
-  scupper_width?: string | null;
-  scupper_inlet_opening?: string | null;
-  gpm?: string | null;
-  fire_glass?: string | null;
-  ba_length?: string | null;
-  ba_diameter?: string | null;
-  ba_width?: string | null;
-  ba_depth?: string | null;
   burner_shape?: string | null;
-  burner_length?: string | null;
-  burner_diameter?: string | null;
   compatible_canvas_cover?: string | null;
   compatible_bullet_burner?: string | null;
   compatible_glass_wind_guard?: string | null;
   access_door?: boolean | null;
-  parent_id?: number | null;
   collection_id?: number | null;
   category_id?: number | null;
   shape_id?: number | null;
   material_id?: number | null;
-  color_id?: number | null;
-  ignition_id?: number | null;
-  gas_id?: number | null;
-  product_serial_base?: string | null;
   certifications?: string[];
-  base_color_id?: number | null;
-  base_material_id?: number | null;
+  product_serial_base?: string | null;
   published?: boolean | null;
   enabled?: boolean | null;
   created_by?: string | null;
