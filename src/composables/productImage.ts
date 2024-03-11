@@ -4,7 +4,20 @@ import { Image } from '@/types/product';
 import { supabase } from '@/supabase';
 import { notify } from '@kyvg/vue3-notification';
 
-export function useProductImage(productImagesRef: ComputedRef<Image[] | undefined>) {
+export function useProductImage(
+  productImagesRef: ComputedRef<Image[] | undefined>,
+  productType: string = 'product'
+) {
+  const tableName = (prodType: string) => ({
+    'product': 'product_image',
+    'variation': 'variation_image',
+  })[prodType] || 'product_image';
+
+  const columnName = (prodType: string) => ({
+    'product': 'product_id' as keyof Image,
+    'variation': 'variation_id' as keyof Image,
+  })[prodType] || 'product_id' as keyof Image;
+
   const imageLoading = ref(false);
   const images: Ref<Image[]> = ref<Image[]>([]);
 
@@ -43,7 +56,7 @@ export function useProductImage(productImagesRef: ComputedRef<Image[] | undefine
         .select(`id`);
       if (error) throw error;
       const { data, error: e } = await supabase
-        .from('product_image')
+        .from(tableName(productType))
         .upsert({
           ...productImgForm,
           image_id: image[0].id,
@@ -77,9 +90,9 @@ export function useProductImage(productImagesRef: ComputedRef<Image[] | undefine
         }
         const productImageForm = {
           image_id: img.id === 0 ? undefined : img.id,
-          product_id: productId,
           display_order: img.display_order,
           is_primary: img.is_primary,
+          [columnName(productType)]: productId,
         }
         saveImages.push(saveImage(imageForm, productImageForm));
       });
