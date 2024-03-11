@@ -84,7 +84,6 @@ export function useProductDocument(
         saveDocuments.push(saveDocument(documentsForm, productDocumentsForm));
       });
 
-      documentLoading.value = true;
       const promiseResult = await Promise.allSettled(saveDocuments);
     } catch (e: any) {
       console.error(e);
