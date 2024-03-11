@@ -22,13 +22,13 @@
               lg="3"
               xl="2"
             >
-              <v-checbox
+              <v-checkbox
                 v-model="enabled.value.value"
                 color="green-darken-1"
                 label="Enable Product"
                 :readonly="readonly"
               >
-              </v-checbox>
+              </v-checkbox>
             </v-col>
           </v-row>
           <span class="tw-text-sm tw-text-gray-500"><b>Enable variation: </b>If checked, it means that the variation is enable for display on the dashboard and on the quick view pricing tool. This will allow dealers and sales to see the details about the product.</span>
@@ -36,7 +36,7 @@
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
-            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product/Variation Name</h3>
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Variation Name</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
             <v-text-field
@@ -138,7 +138,7 @@
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
             <template
-              v-for="(priceType, key) in productStore.priceTypeList"
+              v-for="(priceType, key) in variationStore.priceTypeList"
               :key="key"
             >
               <h3 class="tw-text-base tw-font-semibold">{{ priceType.value }} Price</h3>
@@ -154,7 +154,7 @@
                   variant="outlined"
                   density="compact"
                   hide-details
-                  :itesm="yearToShowList(priceType.key as keyof PriceData)"
+                  :items="yearToShowList(priceType.key as keyof PriceData)"
                   :readonly="readonly"
                 ></v-select>
                 <v-select
@@ -190,42 +190,614 @@
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
-        <v-expansion-panels variant="accordion" class="tw-mb-6 tw-mt-4 tw-w-full">
-          <v-expansion-panel elevation="0">
-            <v-expansion-panel-title color="grey-lighten-4">Attributes</v-expansion-panel-title>
-            <v-expansion-panel-text>
-              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-4">
-                <div class="tw-w-full lg:tw-w-3/12">
-                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Material</h3>
-                  <span class="tw-text-sm tw-text-gray-500"></span>
-                </div>
-                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-                  <v-autocomplete
-                    v-model="materialId.value.value"
-                    variant="outlined"
-                    density="compact"
-                    name="Material"
-                    placeholder="Material"
-                    item-title="name"
-                    item-value="id"
-                    :clearable="!readonly"
-                    :items="itemsList.material"
-                    :error-messages="materialId.errorMessage.value"
-                    :loading="itemsLoading.materialLoading"
-                    :readonly="readonly"
-                    @click:clear="materialId.value.value = 0"
-                  >
-                  </v-autocomplete>
-                </div>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Images</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(image, i) in images"
+              :key="i"
+              class="tw-mb-10"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="image.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="image.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeImageFromList(image)"
+                ></v-btn>
               </div>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-        </v-expansion-panels>
+              <div
+                class="tw-flex tw-items-center tw-10/12 lg:tw-w-8/12 tw-mt-4 tw-mb-2"
+              >
+                <v-select
+                  v-model="image.display_order"
+                  :items="[...Array(images.length).keys()]"
+                  class="tw-w-2/12 2xl:tw-w-1/12"
+                  label="Position"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-select>
+                <v-checkbox
+                  v-model="image.is_primary"
+                  color="blue-darken-1"
+                  label="Is Primary?"
+                  class="-tw-mb-5 tw-ml-6"
+                  :readonly="readonly"
+                  @click="toggleImageIsPrimary(image.id, image.is_primary)"
+                ></v-checkbox>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2"
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addImage"
+            >
+              Add Image
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Specification Sheets</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(specSheet, i) in specificationSheets"
+              :key="`spec-${i}`"
+              class="tw-mb-4"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="specSheet.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="specSheet.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeSpecSheetFromList(specSheet)"
+                ></v-btn>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2"
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addSpecificationSheet"
+            >
+              Add Spec Sheet
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Documents</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <h3 class="tw-text-base tw-font-semibold"></h3>
+            <div
+              v-for="(doc, i) in documents"
+              :key="`doc-${i}`"
+              class="tw-mb-4"
+            >
+              <div
+                class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+              >
+                <v-text-field
+                  v-model="doc.name"
+                  class="tw-w-4/12 tw-mr-6"
+                  label="Name"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="doc.url"
+                  class="tw-w-6/12 tw-mr-6"
+                  label="Url"
+                  variant="outlined"
+                  density="compact"
+                  hide-details
+                  :readonly="readonly"
+                ></v-text-field>
+                <v-btn
+                  v-if="!readonly"
+                  size="small"
+                  class="ml-2"
+                  icon="mdi-close"
+                  variant="text"
+                  @click="removeDocFromList(doc)"
+                ></v-btn>
+              </div>
+            </div>
+            <v-btn
+              v-if="!readonly"
+              color="teal-darken-2"
+              class="px-2 tw-mt-2 tw-mb-5"
+              size="small"
+              @click="addDocuments"
+            >
+              Add Document
+              <v-icon icon="mdi-plus" class="ml-2"></v-icon>
+            </v-btn>
+          </div>
+        </div>
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <v-expansion-panels variant="accordion" class="tw-mb-6 tw-mt-4 tw-w-full">
           <v-expansion-panel elevation="0">
             <v-expansion-panel-title color="grey-lighten-4">More Information</v-expansion-panel-title>
-            <v-expansion-panel-text></v-expansion-panel-text>
+            <v-expansion-panel-text>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Certifications</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-9/12 tw-flex">
+                  <v-checkbox
+                    v-model="certifications"
+                    color="blue-darken-1"
+                    label="CSA Certified"
+                    value="CSA"
+                    :readonly="readonly"
+                  ></v-checkbox>
+                  <v-checkbox
+                    v-model="certifications"
+                    color="green-darken-2"
+                    label="LC Certified"
+                    value="LC"
+                    :readonly="readonly"
+                  ></v-checkbox>
+                  <v-checkbox
+                    v-model="certifications"
+                    color="indigo"
+                    label="UL Certified"
+                    value="UL"
+                    :readonly="readonly"
+                  ></v-checkbox>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Short Description</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+                  <v-textarea
+                    v-model="shortDescription.value.value"
+                    variant="outlined"
+                    density="compact"
+                    name="SDescription"
+                    placeholder="Short Description"
+                    :error-messages="shortDescription.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-textarea>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Description</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-9/12 xl:tw-w-6/12">
+                  <v-textarea
+                    v-model="description.value.value"
+                    variant="outlined"
+                    density="compact"
+                    name="Description"
+                    placeholder="Description"
+                    :error-messages="description.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-textarea>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Dimensions</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-combobox
+                    v-model="productLength.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="PLength"
+                    placeholder="Product Length"
+                    chips
+                    :clearable="!readonly"
+                    :items="productStore.sizes"
+                    :error-messages="productLength.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-combobox>
+                  <v-combobox
+                    v-model="productDiameter.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="PDiameter"
+                    placeholder="Product Diameter"
+                    chips
+                    :clearable="!readonly"
+                    :items="productStore.sizes"
+                    :error-messages="productDiameter.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-combobox>
+                  <v-text-field
+                    v-model="productWidth.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="PWidth"
+                    placeholder="Product Width"
+                    label="Product Width"
+                    :error-messages="productWidth.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="productHeight.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="PHeight"
+                    placeholder="Product Height"
+                    label="Prodcut Height"
+                    :error-messages="productHeight.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Base Dimensions</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="baseLength.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BLength"
+                    placeholder="Base Length"
+                    label="Base Length"
+                    :error-messages="baseLength.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baseDiameter.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BDiameter"
+                    placeholder="Base Diameter"
+                    label="Base Diamater"
+                    :error-messages="baseDiameter.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baseWidth.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BWidth"
+                    placeholder="Base Width"
+                    label="Base Width"
+                    :error-messages="baseWidth.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baseOpening.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BOpening"
+                    placeholder="Base Opening"
+                    label="Base Opening"
+                    :error-messages="baseOpening.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Scupper Attributes</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="scupperWidth.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="SWidth"
+                    placeholder="Scupper Width"
+                    label="Scupper Width"
+                    :error-messages="scupperWidth.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="scupperInletOpening.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="SInlet"
+                    placeholder="Scupper Inlet Opening"
+                    label="Scupper Inlet Opening"
+                    :error-messages="scupperInletOpening.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="gpm.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="SGpm"
+                    placeholder="GPM"
+                    label="GPM"
+                    :error-messages="gpm.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">BA Dimensions</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="baLength.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BALength"
+                    placeholder="BA Length"
+                    label="BA Length"
+                    :error-messages="baLength.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baDiameter.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BADiameter"
+                    placeholder="BA Diameter"
+                    label="BA Diamater"
+                    :error-messages="baDiameter.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baWidth.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BAWidth"
+                    placeholder="BA Width"
+                    label="BA Width"
+                    :error-messages="baWidth.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="baDepth.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BADepth"
+                    placeholder="BA Depth"
+                    label="BA Depth"
+                    :error-messages="baDepth.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Burner Dimensions</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="burnerLength.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BurnerLength"
+                    placeholder="Burner Length"
+                    label="Burner Length"
+                    :error-messages="burnerLength.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="burnerDiameter.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BurnerDiameter"
+                    placeholder="Burner Diameter"
+                    label="Burner Diameter"
+                    :error-messages="burnerDiameter.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="burnerShape.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BurnerShape"
+                    placeholder="Burner Shape"
+                    label="Burner Shape"
+                    :error-messages="burnerShape.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Accessories</h3>
+                  <span class="tw-text-sm tw-text-gray-500">The value of a compatible accessory <i>must</i> be the SKU from that accessory.</span>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="compatibleCanvasCover.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="CanvasCover"
+                    placeholder="Compatible Canvas Cover"
+                    label="Compatible Canvas Cover"
+                    :error-messages="compatibleCanvasCover.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="compatibleBulletBurner.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="BulletBurner"
+                    placeholder="Compatible Bullet Burner"
+                    label="Compatible Bullet Burner"
+                    :error-messages="compatibleBulletBurner.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="compatibleGlassWindGuard.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="GlassWindGuard"
+                    placeholder="Compatible Glass Wind Guard"
+                    label="Compatible Glass Wind Guard"
+                    :error-messages="compatibleGlassWindGuard.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+              <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+              <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+                <div class="tw-w-full lg:tw-w-3/12 tw-pr-4">
+                  <h3 class="tw-text-base tw-font-semibold tw-mt-1">Extra Attributes</h3>
+                </div>
+                <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
+                  <v-text-field
+                    v-model="toeKick.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="ToeKick"
+                    placeholder="Toe Kick"
+                    label="Toe Kick"
+                    :error-messages="toeKick.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="fireGlass.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="FireGlass"
+                    placeholder="Fire Glass"
+                    label="Fire Glass"
+                    :error-messages="fireGlass.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                  <v-text-field
+                    v-model="soilUsage.value.value"
+                    class="tw-w-full lg:tw-w-5/12"
+                    variant="outlined"
+                    density="compact"
+                    name="SoilUsage"
+                    placeholder="Soil Usage"
+                    label="Soil Usage"
+                    :error-messages="soilUsage.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                  </v-text-field>
+                </div>
+              </div>
+            </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
         <div class="tw-w-full">
@@ -256,7 +828,11 @@ import {
 import {
   Props, Variation
 } from '@/types/variation';
-import { readonly } from 'vue';
+import { useProductImage } from '@/composables/productImage';
+import { useProductSpecificationSheet } from '@/composables/productSpecificationSheet';
+import { useProductDocument } from '@/composables/productDocuments';
+import { useProductPrice } from '@/composables/productPrices';
+import { useProductStore } from '@/store/product';
 
 /**
  *
@@ -267,6 +843,7 @@ import { readonly } from 'vue';
 const router = useRouter();
 const route = useRoute();
 const variationStore = useVariationStore();
+const productStore = useProductStore();
 const isLoading = ref(false);
 const { notify } = useNotification();
 
@@ -285,6 +862,28 @@ watch(
   }
 )
 
+watch(
+  () => props.variation,
+  () => {
+    fillVariationInformation();
+  },
+  { deep: true }
+)
+
+const fillVariationInformation = async () => {
+  certifications.value = props.variation?.certifications || [];
+  resetForm({
+    values: {
+      ...props.variation,
+    }
+  })
+}
+
+const variationImagesRef = computed(() => props.variationImages);
+const variationSpecSheetsRef = computed(() => props.variationSpecSheets);
+const variationDocumentsRef = computed(() => props.variationDocuments);
+const variationPricesRef = computed(() => props.variationPrices);
+
 const title = computed(() => {
   if (props.new) return 'Create Variation';
   if (props.edit) return 'Edit Variation';
@@ -300,84 +899,63 @@ const subtitle = computed(() => {
 });
 
 onMounted(async () => {
+  fillVariationInformation();
   yearList.value = generateYearList(new Date().getFullYear());
 });
 
 /**
  *
- * Prices Definitions and Methods
+ * Prices & Year Definitions and Methods
  *
  */
 
-const prices: Ref<PriceData> = ref<PriceData>({
-  map: [],
-  dealer: [],
-  distributor: [],
-  group: [],
-  internet: [],
-  landscape: [],
-  master_distributor: [],
-  msrp: [],
-});
-
-const addPrice = (priceType: keyof PriceData) => {
-  const lastElement = yearToShowList(priceType)?.slice(-1)?.[0] || new Date().getFullYear();
-  const newPrice = { year: lastElement, price: 0 };
-  prices.value[priceType].push(newPrice);
-}
-
-/**
- *
- * Year Definitions and Methods
- *
- */
-
-const yearList: Ref<number[]> = ref<number[]>([]);
-const generateYearList = (currentYear: number): number[] => {
-  const startYear = currentYear - 2;
-  const endYear = currentYear + 1;
-  const yearArray: number[] = [];
-
-  for (let year = startYear; year <= endYear; year++) {
-    yearArray.push(year);
-  }
-
-  return yearArray;
-}
-
-const yearToShowList = (priceType: keyof PriceData) => {
-  const yearsToExclude = new Set(prices.value[priceType].map(item => item.year));
-  return yearList.value.filter((year: number) => !yearsToExclude.has(year));
-}
-
-const removeYearFromList = (priceType: keyof PriceData, item: Price) => {
-  prices.value[priceType] = prices.value[priceType].filter((priceItem) => priceItem.year !== item.year);
-}
+const {
+  yearList,
+  prices,
+  generateYearList,
+  yearToShowList,
+  removeYearFromList,
+  addPrice,
+  setPrices,
+} = useProductPrice(variationPricesRef, 'variation');
 
 /**
  *
  * Images Definitions and Methods
  *
  */
+const {
+  images,
+  addImage,
+  removeImageFromList,
+  toggleImageIsPrimary,
+  setImages,
+} = useProductImage(variationImagesRef, 'variation');
 
-const images: Ref<Image[]> = ref<Image[]>([]);
+/**
+ *
+ * Specification Sheets Definitions and Methods
+ *
+ */
+const {
+  specificationSheets,
+  addSpecificationSheet,
+  removeSpecSheetFromList,
+  setSpecSheets,
+} = useProductSpecificationSheet(variationSpecSheetsRef, 'variation');
 
-const addImage = () => {
-  let imagesTemp: Image[] = JSON.parse(JSON.stringify(images.value));
-  imagesTemp = imagesTemp.sort((a: Image, b: Image) => (a?.id || 0) - (b?.id || 0));
-  const id = imagesTemp.length ? (imagesTemp[imagesTemp.length - 1]?.id || 0) + 1 : 0;
-  const newImage: Image = {
-    id,
-    url: '',
-    name: '',
-    display_order: (images.value.length - 1) + 1,
-  }
-  images.value.push(newImage);
-}
+/**
+ *
+ * Documents Definitions and Methods
+ *
+ */
 
-const removeImageFromList = (item: Image) => {
-  images.value = images.value.filter((imageItem) => imageItem.id !== item.id);
-}
+const {
+  documents,
+  addDocuments,
+  removeDocFromList,
+  setDocuments,
+} = useProductDocument(variationDocumentsRef, 'variation');
 
 /**
  *
