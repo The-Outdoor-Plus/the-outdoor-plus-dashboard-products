@@ -143,20 +143,19 @@ const newText = computed(() => {
 
 const queryParams = computed(() => {
   const params: any = {
-    ...(product.value.company_division ? { division: product.value.company_division } : {}),
-    ...(product.value.collection_id ? { collection: product.value.collection_id } : {}),
-    ...(product.value.category_id ? { category: product.value.category_id } : {}),
-    ...(product.value.shape_id ? { shape: product.value.shape_id } : {}),
-    ...(product.value.material_id ? { material: product.value.material_id } : {}),
-    ...(product.value.base_material_id ? { base_material: product.value.base_material_id } : {}),
-    ...(product.value.color_id ? { color: product.value.color_id } : {}),
-    ...(product.value.base_color_id ? { base_material: product.value.base_color_id } : {}),
-    ...(product.value.product_diameter ? { product_diameter: JSON.stringify(product.value.product_diameter?.split(',') || []) } : {}),
-    ...(product.value.product_length ? { product_length: JSON.stringify(product.value.product_length?.split(',') || []) } : {}),
+    ...(product.value.sku ? { sku: `${product.value.sku}-(XX)-(XX)` } : {}),
+    ...(product.value.burner_shape ? { burner_shape: product.value.burner_shape }: {}),
+    ...(product.value.compatible_bullet_burner ? { compatible_bullet_burner: product.value.compatible_bullet_burner } : {}),
+    ...(product.value.compatible_canvas_cover ? { compatible_canvas_cover: product.value.compatible_canvas_cover } : {}),
+    ...(product.value.compatible_glass_wind_guard ? { compatible_glass_wind_guard: product.value.compatible_glass_wind_guard } : {}),
+    ...(product.value.product_serial_base ? { product_serial_base: product.value.product_serial_base } : {}),
+    ...(product.value.name ? { name: product.value.name } : {}),
+    ...(product.value.short_description ? { short_description: product.value.short_description } : {}),
+    ...(product.value.description ? { description: product.value.description } : {}),
+    ...(product.value.website_link ? { website_link: product.value.website_link } : {}),
+    ...(product.value?.certifications?.length ? { certifications: JSON.stringify(product.value.certifications) }: {}),
     ...(prices.value ? { prices: JSON.stringify(prices.value) }: {}),
-    ...({ attributes: JSON.stringify(productAttrs) }),
   };
-  // return Object.keys(params).map(key => key + '=' + params[key]).join('&');
   return new URLSearchParams(params).toString();
 });
 
