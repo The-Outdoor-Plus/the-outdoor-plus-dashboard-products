@@ -6,6 +6,7 @@ import { Documents, Image, PriceData, SpecificationSheet } from "./product";
  *
  */
 export interface Variation {
+  parent_id?: number;
   id?: number;
   sku?: string;
   name?: string | null;
@@ -53,4 +54,5 @@ export interface Props {
   variationImages?: Image[];
   variationSpecSheets?: SpecificationSheet[];
   variationDocuments?: Documents[];
+  variationAttributes?: { [key: number]: number | null }
 }

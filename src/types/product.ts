@@ -3,6 +3,13 @@
  * Defining Interfaces
  *
  */
+export interface ProductAttribute {
+  id?: number;
+  product_id?: number;
+  attribute_id?: number;
+  fill_values?: boolean;
+  attribute?: Attribute;
+}
 export interface Attribute {
   id?: number;
   name?: string;
