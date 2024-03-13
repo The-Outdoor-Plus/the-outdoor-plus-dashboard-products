@@ -466,7 +466,7 @@ export default [
               {
                 path: 'edit/:variantid',
                 name: 'EditVariant',
-                // component: () => import(/* webpackChunkName: "edit-variation" */'@/views/variations/CrateVariation.vue'),
+                component: () => import(/* webpackChunkName: "edit-variation" */'@/views/variations/EditVariation.vue'),
                 meta: {
                   requiresAuth: true,
                   onlyWhenLoggedOut: false,
@@ -476,7 +476,7 @@ export default [
               {
                 path: ':variantid',
                 name: 'ViewVariant',
-                // component: () => import(/* webpackChunkName: "view-variation" */'@/views/variations/CrateVariation.vue'),
+                component: () => import(/* webpackChunkName: "view-variation" */'@/views/variations/ViewVariation.vue'),
                 meta: {
                   requiresAuth: true,
                   onlyWhenLoggedOut: false,
