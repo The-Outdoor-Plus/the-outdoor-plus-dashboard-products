@@ -22,7 +22,7 @@
         :loading="loading"
         class="elevation-1"
         rounded
-        item-value="first_name"
+        item-value="name"
         @update:options="loadItems"
       >
         <template v-slot:top>
@@ -64,13 +64,13 @@
               size="small"
               icon="mdi-eye"
               variant="text"
-              :to="`/products/${item.raw.id}`"
+              :to="`/products/${route.params.id}/variant/${item.raw.id}`"
             ></v-btn>
             <v-btn
               size="small"
               icon="mdi-pencil"
               variant="text"
-              :to="`/products/edit/${item.raw.id}`"
+              :to="`/products/${route.params.id}/variant/edit/${item.raw.id}`"
             ></v-btn>
             <v-btn
               size="small"
@@ -95,6 +95,7 @@ import { useRoute } from 'vue-router';
 import { Attribute, Documents, Product } from '@/types/product';
 import { usePagination } from '@/utils';
 import { Image, SpecificationSheet, PriceData } from '@/types/product';
+import { useProduct } from '@/composables/product';
 
 interface Data {
   serverItems: Product[];
@@ -123,6 +124,7 @@ const route = useRoute();
 const { notify } = useNotification();
 
 const loading = ref(false);
+const isLoading = computed(() => loading.value && productLoading.value);
 const loadingData = ref(false);
 const product: Ref<Product> = ref<Product>({
   id: 0,
@@ -187,189 +189,15 @@ const loadData = async () => {
   }
 }
 
-const loadProductPrices = async (type: string, product_id: number) => {
-  try {
-    loading.value = true;
-    const { data: price, error } = await supabase.from(`${type}_price`)
-      .select('price, year')
-      .eq(`product_id`, product_id);
-
-    if (error) throw error;
-    return price;
-  } catch (e: any) {
-    notify({
-      title: `Error loading prices.`,
-      text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    loading.value = false;
-  }
-}
-
-// const loadProductAttributes = async (attr_type: string, product_id: number, color_type?: string) => {
-//   try {
-//     loading.value = true;
-//     let query = supabase.from(`product_${attr_type}`)
-//       .select(`${attr_type}_id`)
-//       .eq(`product_id`, product_id)
-//     if (color_type) query = query.eq(`type`, color_type);
-//     const { data: attribute, error } = await query;
-//     if (error) throw error;
-//     return attribute.map((item) => +(item?.[`${attr_type}_id` as any]) as number);
-//   } catch(e: any) {
-//     notify({
-//       title: `Error loading ${attr_type} attribute.`,
-//       text: e?.message || `An error occurred trying to load ${attr_type} attribute. Please contact TOP Support.`,
-//       type: 'error',
-//       duration: 6000,
-//     });
-//   } finally {
-//     loading.value = false;
-//   }
-// }
-
-const loadProductAttributes = async (product_id: number) => {
-  try {
-    loading.value = true;
-    const { data, error } = await supabase
-      .from('product_attribute')
-      .select('id, product_id, attribute:attribute_id(id, name, table_name), fill_values')
-      .eq(`product_id`, product_id);
-    if (error) throw error;
-    const attributeValue = await loadProductConfiguration(product_id);
-    const attributes = data.map((attr: any) => ({
-      id: attr.attribute?.id,
-      name: attr.attribute?.name,
-      table_name: attr.attribute?.table_name,
-      fill_values: attr.fill_values,
-      attribute_value: attributeValue?.[attr.attribute?.id],
-    }));
-    return attributes as Attribute[];
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-const loadProductConfiguration = async (product_id: number) => {
-  try {
-    loading.value = true;
-    const { data: attribute_values, error } = await supabase
-      .from('product_configuration')
-      .select('value:value_id(id, attribute_id)')
-      .eq('product_id', product_id);
-    if (error) throw error;
-    let attributeValues: { [key: number]: any } = {};
-    attribute_values.forEach((attrVal: any) => {
-      const attrId = attrVal.value.attribute_id as number;
-      if (!attributeValues[attrId]) {
-        attributeValues[attrId] = [];
-      }
-      attributeValues[attrId].push(attrVal.value.id);
-      attrValues.value.push(attrVal.value.id);
-    });
-    return attributeValues;
-  } catch (e) {
-    console.error(e);
-  } finally {
-    loading.value = false;
-  }
-}
-
-const loadProductImages = async (product_id: number) => {
-  try {
-    loading.value = true;
-    const { data: images, error } = await supabase.from(`product_image`)
-      .select(`product_id, image:image_id(id, name, url), display_order, is_primary`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    return images.map((item) => ({
-      id: item.image?.length ?
-        item.image[0].id :
-        (item.image as Image).id,
-      name: item.image?.length ?
-        item.image[0].name :
-        (item.image as Image).name,
-      url: item.image?.length ?
-        item.image[0].url :
-        (item.image as Image).url,
-      display_order: item.display_order,
-      is_primary: item.is_primary,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading image`,
-      text: e?.message || `An error occurred trying to load an image. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    loading.value = false;
-  }
-}
-
-const loadDocuments = async (product_id: number) => {
-  try {
-    loading.value = true;
-    const { data: docs, error } = await supabase.from(`product_documents`)
-      .select(`product_id, document:document_id(id, name, url)`)
-      .eq(`product_id`, product_id);
-      if (error) throw error;
-      return docs.map((item) => ({
-        id: item.document?.length ?
-          item.document[0].id :
-          (item.document as Documents).id,
-        name: item.document?.length ?
-          item.document[0].name :
-          (item.document as Documents).name,
-        url: item.document.length ?
-          item.document[0].url :
-          (item.document as Documents).url,
-      }));
-  } catch (e: any) {
-    notify({
-      title: `Error loading documents`,
-      text: e?.message || `An error occurred trying to load documents. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    loading.value = false;
-  }
-}
-
-const loadSpecificationSheets = async (product_id: number) => {
-  try {
-    loading.value = true;
-    const { data: specSheets, error } = await supabase.from(`product_specification_sheet`)
-      .select(`product_id, specification_sheet:specification_sheet_id(id, name, url)`)
-      .eq(`product_id`, product_id)
-    if (error) throw error;
-    return specSheets.map((item) => ({
-      id: item.specification_sheet?.length ?
-        item.specification_sheet[0].id :
-        (item.specification_sheet as SpecificationSheet).id,
-      name: item.specification_sheet?.length ?
-        item.specification_sheet[0].name :
-        (item.specification_sheet as SpecificationSheet).name,
-      url: item.specification_sheet?.length ?
-        item.specification_sheet[0].url :
-        (item.specification_sheet as SpecificationSheet).url,
-    }));
-  } catch(e: any) {
-    notify({
-      title: `Error loading specification sheets`,
-      text: e?.message || `An error occurred trying to load specification sheets. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  } finally {
-    loading.value = false;
-  }
-}
+const {
+  attrValues,
+  productLoading,
+  loadDocuments,
+  loadProductImages,
+  loadProductAttributes,
+  loadProductPrices,
+  loadSpecificationSheets
+} = useProduct();
 
 const prices: Ref<PriceData> = ref<PriceData>({
   map: [],
@@ -382,19 +210,6 @@ const prices: Ref<PriceData> = ref<PriceData>({
   msrp: [],
 });
 
-const productAttrs: {
-  colors: Ref<number[] | number>
-  baseColors: Ref<number[] | number>
-  ignitionTypes: Ref<number[] | number>
-  gasTypes: Ref<number[] | number>
-} = {
-  colors: ref<number[] | number>([]),
-  baseColors: ref<number[] | number>([]),
-  ignitionTypes: ref<number[] | number>([]),
-  gasTypes: ref<number[] | number>([]),
-}
-
-const attrValues: Ref<number[]> = ref<number[]>([]);
 const productAttributes: Ref<Attribute[]> = ref<Attribute[]>([]);
 const images: Ref<Image[]> = ref<Image[]>([]);
 const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
@@ -415,12 +230,6 @@ const loadProductInformation = async () => {
     documents.value = await loadDocuments(productId) || [];
     specificationSheets.value = await loadSpecificationSheets(productId) || [];
     productAttributes.value = await loadProductAttributes(productId) || [];
-    // if (product.value.relation === 'PARENT' || product.value.relation === 'PARENT_GROUP') {
-      // productAttrs.colors.value = await loadProductAttributes('color', productId, 'default') || [];
-      // productAttrs.baseColors.value = await loadProductAttributes('color', productId, 'base') || [];
-      // productAttrs.gasTypes.value = await loadProductAttributes('gas', productId) || [];
-      // productAttrs.ignitionTypes.value = await loadProductAttributes('ignition', productId) || [];
-    // }
   }
 }
 
@@ -432,20 +241,16 @@ const headers = ref([
     sortable: false,
     key: 'id',
   },
-  { title: 'Name', align: 'end', key: 'name', width: '250px' },
-  { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
-  { title: 'Collection', align: 'end', key: 'collection', width: '150px' },
-  { title: 'Category', align: 'end', key: 'category', width: '220px' },
-  { title: 'Material', align: 'end', key: 'material', width: '220px' },
-  { title: 'Published', align: 'end', key: 'published' },
+  { title: 'Name', align: 'end', key: 'name', width: '450px' },
+  { title: 'SKU', align: 'end', key: 'sku', width: '400px' },
   { title: 'Enabled', align: 'end', key: 'enabled' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
 const data: Data = reactive({
   serverItems: [],
 });
-const itemsPerPage = ref(40);
-const totalItems = ref(40);
+const itemsPerPage = ref(50);
+const totalItems = ref(50);
 
 /**
  *
@@ -462,11 +267,11 @@ watch(dialogDelete, (value) => {
     itemToDelete.value = null;
   }
 });
-watch(route, async (value) => {
-  // if (route.params.id && +route.params.id !== +(product.value?.id || 0) && !loadingData.value) {
-  //   await loadData();
-  //   await loadProductInformation();
-  // }
+watch(route, async () => {
+  if (route.params.id) {
+    await loadData();
+    await loadProductInformation();
+  }
 });
 
 const deleteItem = (item: Columns) => {
@@ -482,20 +287,20 @@ const closeDialogDelete = () => {
 const deleteItemConfirm = async () => {
   try {
     deleteLoading.value = true;
-    const { error } = await supabase.from('product').delete()
+    const { error } = await supabase.from('variant').delete()
       .eq('id', itemToDelete?.value?.id);
     if (error) throw error;
     notify({
       type: 'success',
-      title: 'Product deleted successfully',
+      title: 'Variant deleted successfully',
       duration: 6000,
     });
     data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
   } catch (e: any) {
     console.error(e);
     notify({
-      title: 'Error deleting product.',
-      text: e?.message || 'An error ocurred trying to delete product. Please contact TOP Support.',
+      title: 'Error deleting variant.',
+      text: e?.message || 'An error ocurred trying to delete variant. Please contact TOP Support.',
       type: 'error',
       duration: 6000,
     });
@@ -538,28 +343,18 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
       await loadProductInformation();
     }
     if (showChildProducts.value) {
-      // const relation = product.value.relation === 'PARENT' ? 'PARENT_GROUP' : 'CHILD';
-      // const { from, to } = usePagination(page -1, itemsPerPage);
-      // const { data: products, error, count } = await supabase
-      //   .from('product')
-      //   .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
-      //   .eq(`relation`, relation)
-      //   .eq(`parent_id`, +route.params.id)
-      //   .order(sortBy?.[0]?.key || 'name', {
-      //     ascending: sortBy?.[0]?.order === 'desc' ? false : true
-      //   })
-      //   .range(from, to);
-      // if (error) throw error;
-      // const transformedProducts = products.map(product => ({
-      //   ...product,
-      //   category: (product.category as any)?.name || '',
-      //   material: (product.material as any)?.name || '',
-      //   collection: (product.collection as any)?.name || '',
-      // }));
-      // data.serverItems = transformedProducts || [];
-      // totalItems.value = count || 0;
-      data.serverItems = [];
-      totalItems.value = 0;
+      const { from, to } = usePagination(page - 1, itemsPerPage);
+      const { data: variations, error, count } = await supabase
+        .from('variation')
+        .select('id, name, sku, enabled', { count: 'exact' })
+        .eq(`parent_id`, +route.params.id)
+        .order(sortBy?.[0]?.key || 'name', {
+          ascending: sortBy?.[0]?.order === 'desc' ? false : true
+        })
+        .range(from, to);
+      if (error) throw error;
+      data.serverItems = variations || [];
+      totalItems.value = count || 0;
     }
   } catch (e: any) {
     console.error(e);
