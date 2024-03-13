@@ -90,7 +90,7 @@
                   :closable="!readonly"
                   @click:close="removeValue(i)"
                 >
-                  {{ value }}
+                  {{ value as string }}
                 </v-chip>
               </template>
               <template
@@ -104,7 +104,7 @@
                   :closable="!readonly"
                   @click:close="removeValue(i)"
                 >
-                  {{ value.value }}
+                  {{ (value as AttributeValue).value }}
                 </v-chip>
               </template>
             </div>
