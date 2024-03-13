@@ -53,6 +53,33 @@
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">Attributes</h3>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12">
+            <template
+              v-for="(prodAttr, key) in prodAttributesList"
+              :key="key"
+            >
+              <h3 class="tw-text-base tw-font-semibold">{{ prodAttr.attribute?.name }}</h3>
+              <v-autocomplete
+                v-model="attributes[prodAttr.attribute?.id || 0]"
+                variant="outlined"
+                density="compact"
+                :name="`Attribute${prodAttr.attribute?.name}`"
+                :clearable="!readonly"
+                :closable-chips="!readonly"
+                :item-title="getAttributeItemValue(prodAttr.attribute?.table_name)"
+                item-value="id"
+                :loading="isAttributeValuesLoading"
+                :items="attributeValuesList[prodAttr.attribute?.id || 0]"
+                :readonly="readonly"
+              ></v-autocomplete>
+            </template>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">SKU</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
@@ -157,7 +184,7 @@
                   :items="yearToShowList(priceType.key as keyof PriceData)"
                   :readonly="readonly"
                 ></v-select>
-                <v-select
+                <v-text-field
                   v-model="price.price"
                   class="tw-w-7/12"
                   label="Price"
@@ -166,7 +193,7 @@
                   prefix="$"
                   hide-details
                   :readonly="readonly"
-                ></v-select>
+                ></v-text-field>
                 <v-btn
                   v-if="!readonly"
                   size="small"
@@ -821,9 +848,12 @@ import { useRoute, useRouter } from 'vue-router';
 import { useVariationStore } from '@/store/variation';
 import { Ref } from 'vue';
 import {
+  AttributeValue,
+  AttributeValues,
   Image,
   Price,
   PriceData,
+  ProductAttribute,
 } from '@/types/product';
 import {
   Props, Variation
@@ -860,6 +890,15 @@ watch(
   (value) => {
     isLoading.value = value;
   }
+)
+
+watch(
+  () => props.variationAttributes,
+  (variationAttributes) => {
+    if (variationAttributes)
+      attributes.value = variationAttributes;
+  },
+  { deep: true }
 )
 
 watch(
@@ -901,7 +940,123 @@ const subtitle = computed(() => {
 onMounted(async () => {
   fillVariationInformation();
   yearList.value = generateYearList(new Date().getFullYear());
+  await loadParentAttributes();
 });
+
+const isAttributeValuesLoading = ref(false);
+const prodAttributesList: Ref<ProductAttribute[]> = ref<ProductAttribute[]>([]);
+const attributeValuesList: Ref<AttributeValues> = ref<AttributeValues>({});
+const attributes: Ref<{ [key: number]: number | null }> = ref<{ [key: number]: number | null }>({});
+
+const loadParentAttributes = async () => {
+  try {
+    isLoading.value = true;
+    const parentId = +route.params?.id || 0;
+    if (parentId) {
+      const { data, error } = await supabase
+        .from('product_attribute')
+        .select('id, attribute:attribute_id(id, name, table_name), fill_values')
+        .eq('product_id', parentId);
+      if (error) throw error;
+      prodAttributesList.value = data as ProductAttribute[];
+      if (prodAttributesList.value.length) {
+        const attributeValuesPromises: Promise<any>[] = []
+        prodAttributesList.value.forEach((prod_attr) => {
+          attributes.value[prod_attr.attribute?.id || 0] = null;
+          attributeValuesPromises.push(loadAttributeValues(prod_attr.attribute?.id || 0, parentId, prod_attr?.fill_values));
+        });
+        await Promise.allSettled(attributeValuesPromises);
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const loadAttributeValues = async (attrId: number, productId: number, fill_values: boolean = true) => {
+  try {
+    isAttributeValuesLoading.value = true;
+
+    let attribute_values: AttributeValue[] = [];
+    if (fill_values) {
+      const { data, error } = await supabase
+        .from('attribute_value')
+        .select('id, attribute_id, value, material(id, name), color(id, name), gas(id, name), ignition(id, name)')
+        .eq('attribute_id', attrId);
+      if (error) throw error;
+      attribute_values = data as unknown as AttributeValue[];
+    } else {
+      const { data, error } = await supabase
+        .from('product_configuration')
+        .select('attribute_value!inner (id, attribute_id, value, material(id, name), color(id, name), gas(id, name), ignition(id, name))')
+        .eq('attribute_value.attribute_id', attrId)
+        .eq('product_id', productId);
+      if (error) throw error;
+      attribute_values = data.map((prodConf) => {
+        return (prodConf.attribute_value as AttributeValue)
+      });
+    }
+    if (attribute_values && attribute_values.length)
+      attributeValuesList.value[attrId] = attribute_values;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isAttributeValuesLoading.value = false;
+  }
+}
+
+const isAttributeTable = (tableName: string) => {
+  return tableName
+    && (tableName === 'gas'
+    || tableName === 'color'
+    || tableName === 'material'
+    || tableName === 'ignition'
+    );
+}
+
+const getAttributeItemValue = (tableName: string | undefined) => {
+  if (tableName) {
+    if (isAttributeTable(tableName)) return `${tableName}.name`;
+    return 'value';
+  }
+  return 'value';
+}
+
+const saveAttributeValue = async (variationId: number, valueId: number) => {
+  try {
+    isLoading.value = true;
+    const form = {
+      variation_id: variationId,
+      value_id: valueId,
+    };
+    const { error } = await supabase
+      .from('variation_configuration')
+      .upsert(form);
+    if (error) throw error;
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const setAttributeValues = async (variationId: number) => {
+  try {
+    isLoading.value = true;
+    const saveVariationConfigurations: Promise<any>[] = [];
+    Object.values(attributes.value).forEach((attrValue) => {
+      if (attrValue)
+        saveVariationConfigurations.push(saveAttributeValue(variationId, attrValue));
+    });
+    const promiseResult = await Promise.allSettled(saveVariationConfigurations);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
 
 /**
  *
@@ -1022,6 +1177,85 @@ const filterFormPayload = (form: Variation) => (
   }))
 );
 
+const displayErrorMessage = (errorMessage: string) => {
+  const substring = 'violates foreign key constraint';
+  const bulletBurnerSubstr = 'compatible_bullet_burner';
+  const canvasCoverSubstr = 'compatible_canvas_cover';
+  const windGuardSubstr = 'compatible_glass_wind_guard';
+
+  if (errorMessage.includes(substring) && errorMessage.includes(bulletBurnerSubstr))
+    errorMessage = 'Bullet Burner SKU Not Found. Please ensure that the SKU is from a valid product';
+  if (errorMessage.includes(substring) && errorMessage.includes(canvasCoverSubstr))
+    errorMessage = 'Canvas Cover SKU Not Found. Please ensure that the SKU is from a valid product';
+  if (errorMessage.includes(substring) && errorMessage.includes(windGuardSubstr))
+    errorMessage = 'Glass Wind Guard SKU Not Found. Please ensure that the SKU is from a valid product';
+
+  return errorMessage;
+}
+
+const handleCreate = async (values: Variation, parentId: number) => {
+  try {
+    isLoading.value = true;
+    let form = JSON.parse(JSON.stringify(values));
+    form = {
+      ...form,
+      parent_id: parentId
+    }
+    const { data: variation, error } = await supabase
+      .from('variation')
+      .insert(form)
+      .select();
+    if (error) throw error;
+    notify({
+      title: 'Variation created successfully',
+      type: 'success',
+      duration: 6000
+    });
+    return variation;
+  } catch (e: any) {
+    console.error(e);
+    const errorMsg = displayErrorMessage(e?.message || '');
+    notify({
+      title: 'Error creating variation',
+      text: errorMsg || 'An error ocurred trying to create a variation. Please contact TOP Support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const handleUpdate = async (values: Variation) => {
+  try {
+    isLoading.value = true;
+    const form = JSON.parse(JSON.stringify(values));
+    const { data: variation, error } = await supabase
+      .from('variation')
+      .update(form)
+      .eq('id', props?.variation?.id || 0)
+      .select();
+    if (error) throw error;
+    notify({
+      title: 'Variation updated successfully',
+      type: 'success',
+      duration: 6000
+    });
+    return variation;
+  } catch (e: any) {
+    console.error(e);
+    const errorMsg = displayErrorMessage(e?.message || '');
+    notify({
+      title: 'Error updating variation',
+      text: errorMsg || 'An error ocurred trying to update the variation. Please contact TOP Support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 /**
  *
  * Form Submission
@@ -1029,7 +1263,37 @@ const filterFormPayload = (form: Variation) => (
  */
 
 const submit = handleSubmit(async (values) => {
+  let form: Variation = JSON.parse(JSON.stringify(values)) as typeof values;
+  const parentId = +route.params?.id || 0;
+  form = {
+    ...form,
+    certifications: certifications.value,
+    compatible_bullet_burner: compatibleBulletBurner.value.value ? compatibleBulletBurner.value.value : null,
+    compatible_canvas_cover: compatibleCanvasCover.value.value ? compatibleCanvasCover.value.value : null,
+    compatible_glass_wind_guard: compatibleGlassWindGuard.value.value ? compatibleGlassWindGuard.value.value : null,
+  }
+  form = filterFormPayload(form);
+  try {
+    isLoading.value = true;
+    let variation = null;
+    if (props.new)
+      variation = await handleCreate(form, parentId);
+    else if (props.edit)
+      variation = await handleUpdate(form);
 
+    if (variation && variation.length) {
+      await setPrices(variation[0].id);
+      await setImages(variation[0].id);
+      await setSpecSheets(variation[0].id);
+      await setDocuments(variation[0].id);
+      await setAttributeValues(variation[0].id);
+      if (props.new) router.push(`/products/${route.params.id}/variant/${variation[0].id}`);
+    }
+  } catch (e: any) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
 });
 
 </script>
