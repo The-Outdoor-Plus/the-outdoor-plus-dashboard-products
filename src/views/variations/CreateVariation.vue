@@ -37,7 +37,6 @@ onMounted(() => {
   variation.value = variationStore.initialValues;
   Object.keys(route.query).forEach((queryKey) => {
     if (variationStore.variationKeys.includes(queryKey)) {
-      console.log(queryKey);
       variation.value = {
         ...variation.value,
         [queryKey]: queryKey === 'certifications' ?
