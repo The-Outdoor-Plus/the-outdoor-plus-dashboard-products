@@ -1,5 +1,5 @@
 <template>
-  <div class="tw-w-full tw-mb-32">
+  <div class="tw-w-full">
     <v-text-field
       v-model="searchFilter"
       class="tw-mb-10"
@@ -19,24 +19,24 @@
       :items-length="totalItems"
       :items="data.serverItems"
       :loading="loading"
-      class="elevation-1"
-      item-value="first_name"
+      class="elevation-1 tw-mb-24"
+      item-value="name"
       @update:options="loadItems"
     >
       <template v-slot:top>
         <v-toolbar flat compact color="blue-darken-2">
-          <v-toolbar-title>Product </v-toolbar-title>
+          <v-toolbar-title>Attributes</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-spacer></v-spacer>
-          <v-btn color="white" dark to="/products/new" exact>New Product<v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
+          <v-btn color="white" dark to="/attributes/new" exact>New Attributes<v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
         </v-toolbar>
         <v-dialog v-model="dialogDelete" max-width="600px">
-          <v-card class="pt-4 pb-3" :loading="deleteLoading">
-            <v-card-title class="text-h5">Are you sure you want to delelete this product?</v-card-title>
+          <v-card>
+            <v-card-title class="text-h5">
+              Are you sure you want to delete this attribute?
+            </v-card-title>
             <v-card-text>
-              Product <strong>{{ itemToDelete?.name }}</strong> will be deleted.
-              You are about to delete a parent product, if you delete it, all of the
-              child products associated with it (variations), will also be deleted.
+              Attribute <strong>{{ itemToDelete?.name }}</strong> will be deleted.
               This action cannot be reversed. Are you sure you want to continue?
             </v-card-text>
             <v-card-actions>
@@ -47,50 +47,47 @@
           </v-card>
         </v-dialog>
       </template>
-      <!-- eslint-disable-next-line vue/valid-v-slot -->
-      <template v-slot:item.published="{ item }">
-        <v-icon v-if="item.raw.published" icon="mdi-checkbox-marked-circle-outline" color="green"></v-icon>
-        <v-icon v-else icon="mdi-close-circle-outline" color="red"></v-icon>
-      </template>
-      <!-- eslint-disable-next-line vue/valid-v-slot -->
-      <template v-slot:item.enabled="{ item }">
-        <v-icon v-if="item.raw.enabled" icon="mdi-checkbox-marked-circle-outline" color="green"></v-icon>
-        <v-icon v-else icon="mdi-close-circle-outline" color="red"></v-icon>
-      </template>
-      <!-- eslint-disable-next-line vue/valid-v-slot -->
       <template v-slot:item.actions="{ item }">
-        <div class="tw-flex tw-flex-nowrap tw-justify-end -tw-mr-1.5">
-          <v-btn
-            size="small"
-            icon="mdi-eye"
-            variant="text"
-            :to="`/products/${item.raw.id}`"
-          ></v-btn>
-          <v-btn
-            size="small"
-            icon="mdi-pencil"
-            variant="text"
-            :to="`/products/edit/${item.raw.id}`"
-          ></v-btn>
-          <v-btn
-            size="small"
-            @click="deleteItem((item.raw as Columns))"
-            icon="mdi-delete"
-            variant="text"
-          ></v-btn>
-        </div>
+        <v-btn
+          v-if="!item.raw.table_name"
+          size="small"
+          icon="mdi-eye"
+          variant="text"
+          :to="`/attributes/${item.raw.id}`"
+        ></v-btn>
+        <v-btn
+          v-if="!item.raw.table_name"
+          size="small"
+          icon="mdi-pencil"
+          variant="text"
+          :to="`/attributes/edit/${item.raw.id}`"
+        ></v-btn>
+        <v-btn
+          v-if="item.raw.table_name"
+          size="small"
+          icon="mdi-pencil"
+          variant="text"
+          :to="`/${item.raw.slug}s`"
+        ></v-btn>
+        <v-btn
+          v-if="!item.raw.table_name"
+          size="small"
+          icon="mdi-delete"
+          variant="text"
+          @click="deleteItem((item.raw as Columns))"
+        ></v-btn>
       </template>
     </v-data-table-server>
   </div>
 </template>
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch, Ref } from 'vue';
+import { useAppStore } from '@/store/app';
 import { VDataTableServer } from 'vuetify/lib/labs/components.mjs';
 import { supabase } from '@/supabase';
-import { useAppStore } from '@/store/app';
 import { useNotification } from '@kyvg/vue3-notification';
+import { Ref } from 'vue';
+import { onMounted, ref, reactive, watch } from 'vue';
 import { usePagination } from '@/utils';
-import { Product } from '@/types/product';
 
 /**
  *
@@ -98,20 +95,22 @@ import { Product } from '@/types/product';
  *
  */
 
+interface Attribute {
+  id: number;
+  name: string;
+  table_name?: string | undefined;
+  slug?: string;
+}
+
 interface Data {
-  serverItems: Product[];
+  serverItems: Attribute[];
 }
 
 interface Columns {
   actions: null | undefined;
   id: number;
   name: string;
-  sku: string;
-  collection: string;
-  category: string;
-  material: string;
-  published: boolean;
-  enabled: boolean;
+  table_name: string | undefined;
 }
 
 interface TableOptions {
@@ -121,14 +120,14 @@ interface TableOptions {
 }
 
 /**
- * General definitions
+ * General Definitions
  */
-onMounted(() => {
-  store.pageTitle = 'Product';
-});
-
 const store = useAppStore();
 const { notify } = useNotification();
+
+onMounted(() => {
+  store.pageTitle = 'Attributes';
+});
 
 const headers = ref([
   {
@@ -137,25 +136,19 @@ const headers = ref([
     sortable: false,
     key: 'id',
   },
-  { title: 'Name', align: 'end', key: 'name', width: '250px' },
-  { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
-  { title: 'Collection', align: 'end', key: 'collection', width: '150px' },
-  { title: 'Category', align: 'end', key: 'category', width: '220px' },
-  { title: 'Material', align: 'end', key: 'material', width: '220px' },
-  { title: 'Published', align: 'end', key: 'published' },
-  { title: 'Enabled', align: 'end', key: 'enabled' },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
+  { title: 'Name', align: 'end', key: 'name' },
+  { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
 ]);
 const data: Data = reactive({
   serverItems: [],
 });
-const itemsPerPage = ref(40);
-const totalItems = ref(40);
+const itemsPerPage = ref(10);
+const totalItems = ref(10);
 const loading = ref(true);
 
 /**
  *
- * Dialog Delete Section
+ * Dialog Delet Section
  *
  **/
 
@@ -182,20 +175,20 @@ const closeDialogDelete = () => {
 const deleteItemConfirm = async () => {
   try {
     deleteLoading.value = true;
-    const { error } = await supabase.from('product').delete()
+    const { error } = await supabase.from('attributes').delete()
       .eq('id', itemToDelete?.value?.id);
     if (error) throw error;
     notify({
       type: 'success',
-      title: 'Product deleted successfully',
+      title: 'Attribute deleted successfully',
       duration: 6000,
     });
     data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
   } catch (e: any) {
     console.error(e);
     notify({
-      title: 'Error deleting product.',
-      text: e?.message || 'An error ocurred trying to delete product. Please contact TOP Support.',
+      title: 'Error deleting material.',
+      text: e?.message || 'An error ocurred trying to delete the attribute. Please contact TOP Support.',
       type: 'error',
       duration: 6000,
     });
@@ -219,7 +212,7 @@ const onEnterSearch = () => {
 }
 
 watch(searchFilter, (searchValue) => {
-  if(!searchValue) {
+  if (!searchValue) {
     search.value = String(Date.now());
   }
 });
@@ -228,14 +221,15 @@ watch(searchFilter, (searchValue) => {
  *
  * List Data
  *
- */
+ **/
+
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
     loading.value = true;
     const { from, to } = usePagination(page -1, itemsPerPage);
     if (searchFilter.value) {
-      const { data: products, error } = await supabase
-        .rpc('search_parent_products', {
+      const { data: attributes, error } = await supabase
+        .rpc('search_attributes', {
           search_term: searchFilter.value,
           sort_term: sortBy?.[0]?.key || 'name',
           sort_order: sortBy?.[0]?.order === 'desc' ? 'DESC' : 'ASC',
@@ -243,31 +237,25 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
           to_limit: to,
         });
       if (error) throw error;
-      data.serverItems = products;
-      totalItems.value = products?.[0]?.count || 0;
+      data.serverItems = attributes;
+      totalItems.value = attributes?.[0]?.count || 0;
     } else {
-      const { data: products, error, count } = await supabase
-        .from('product')
-        .select('id, name, sku, enabled, published, product_type, collection(name), category(name), material!product_material_id_fkey(name)', { count: 'exact' })
+      const { data: attributes, error, count } = await supabase
+        .from('attributes')
+        .select('*', { count: 'exact' })
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
         .range(from, to);
       if (error) throw error;
-      const transformedProducts = products.map(product => ({
-        ...product,
-        category: (product.category as any)?.name || '',
-        material: (product.material as any)?.name || '',
-        collection: (product.collection as any)?.name || '',
-      }));
-      data.serverItems = transformedProducts || [];
+      data.serverItems = attributes || [];
       totalItems.value = count || 0;
     }
   } catch (e: any) {
     console.error(e);
     notify({
-      title: 'Error loading products.',
-      text: e?.message || 'An error ocurred trying to load products. Please contact TOP Support.',
+      title: 'Error loading attributes.',
+      text: e?.message || 'An error ocurred trying to load attributes. Please contact TOP Support.',
       type: 'error',
       duration: 6000,
     });
@@ -276,3 +264,4 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   }
 }
 </script>
+

@@ -80,7 +80,7 @@ const navItems = reactive([
     label: 'Quick View Pricing Tool',
     icon: 'mdi-tag-search',
     link: '/',
-    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
   {
@@ -232,6 +232,23 @@ const navItems = reactive([
       {
         label: 'Create user',
         link: '/users/new',
+        roles: ['MANAGER', 'ADMIN']
+      }
+    ]
+  },
+  {
+    label: 'Attributes',
+    icon: 'mdi-format-list-bulleted-square',
+    roles: ['MANAGER', 'ADMIN'],
+    children: [
+      {
+        label: 'View attributes',
+        link: '/attributes',
+        roles: ['MANAGER', 'ADMIN'],
+      },
+      {
+        label: 'Create attribute',
+        link: '/attributes/new',
         roles: ['MANAGER', 'ADMIN']
       }
     ]

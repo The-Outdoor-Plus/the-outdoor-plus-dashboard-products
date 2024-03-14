@@ -3,6 +3,40 @@
  * Defining Interfaces
  *
  */
+export interface ProductAttribute {
+  id?: number;
+  product_id?: number;
+  attribute_id?: number;
+  fill_values?: boolean;
+  attribute?: Attribute;
+}
+export interface Attribute {
+  id?: number;
+  name?: string;
+  table_name?: string;
+  slug?: string;
+  attribute_value?: AttributeValue[];
+  fill_values?: boolean;
+}
+
+export interface AttributeValues {
+  [key: number]: AttributeValue[];
+}
+export interface AttributeValue {
+  id?: number;
+  attribute_id?: number;
+  value?: string;
+  material_id?: number;
+  color_id?: number;
+  gas_id?: number;
+  ignition_id?: number;
+  slug?: string;
+  material?: Material;
+  color?: Color;
+  gas?: GasType;
+  ignition?: IgnitionType;
+}
+
 export interface Shape {
   id?: number;
   name: string;
@@ -41,12 +75,12 @@ export interface Category {
 export interface ItemsList {
   category: Category[];
   collection: Collection[];
-  color: Color[];
-  gas: GasType[];
-  ignition: IgnitionType[];
-  material: Material[];
+  // color: Color[];
+  gas?: GasType[];
+  ignition?: IgnitionType[];
+  // material: Material[];
   shape: Shape[];
-  baseColor: Color[];
+  // baseColor: Color[];
 }
 
 export interface Image {
@@ -63,6 +97,8 @@ export interface SpecificationSheet {
   url?: string;
   name?: string;
   product_id?: number;
+  variation_id?: number;
+  specification_sheet_id?: number;
 }
 
 export interface Documents {
@@ -70,6 +106,8 @@ export interface Documents {
   url?: string;
   name?: string;
   product_id?: number;
+  variation_id?: number;
+  document_id?: number;
 }
 
 export interface Price {
@@ -77,6 +115,7 @@ export interface Price {
   product_id?: number;
   price?: number;
   year?: number;
+  variation_id?: number;
 }
 
 export interface PriceData {
@@ -95,6 +134,7 @@ export interface ProductImage {
   image_id?: number;
   display_order?: number;
   is_primary?: boolean;
+  variation_id?: number;
   url?: string;
   name?: string;
 }
@@ -102,46 +142,18 @@ export interface ProductImage {
 export interface Product {
   id?: number;
   sku?: string
-  upc_codes?: string | null;
-  encoded_upc_codes?: string | null;
-  relation?: string | null;
-  product_length?: string | null;
-  product_diameter?: string | null;
-  product_width?: string | null;
-  product_height?: string | null;
-  base_length?: string | null;
-  base_diameter?: string | null;
-  base_width?: string | null;
-  base_opening?: string | null;
-  toe_kick?: string | null;
-  soil_usage?: string | null;
-  scupper_width?: string | null;
-  scupper_inlet_opening?: string | null;
-  gpm?: string | null;
-  fire_glass?: string | null;
-  ba_length?: string | null;
-  ba_diameter?: string | null;
-  ba_width?: string | null;
-  ba_depth?: string | null;
+  product_type?: string | null;
   burner_shape?: string | null;
-  burner_length?: string | null;
-  burner_diameter?: string | null;
   compatible_canvas_cover?: string | null;
   compatible_bullet_burner?: string | null;
   compatible_glass_wind_guard?: string | null;
   access_door?: boolean | null;
-  parent_id?: number | null;
   collection_id?: number | null;
   category_id?: number | null;
   shape_id?: number | null;
   material_id?: number | null;
-  color_id?: number | null;
-  ignition_id?: number | null;
-  gas_id?: number | null;
-  product_serial_base?: string | null;
   certifications?: string[];
-  base_color_id?: number | null;
-  base_material_id?: number | null;
+  product_serial_base?: string | null;
   published?: boolean | null;
   enabled?: boolean | null;
   created_by?: string | null;
@@ -171,7 +183,9 @@ export interface Props {
   product?: Product | null;
   loading?: boolean;
   productPrices?: PriceData;
-  productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  // productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  attributeValues?: number[];
+  productAttributes?: Attribute[];
   productImages?: Image[];
   productSpectSheets?: SpecificationSheet[];
   productDocuments?: Documents[];

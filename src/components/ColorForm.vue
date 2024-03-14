@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="$router.push('/colors')"
       ></v-btn>
@@ -131,7 +131,7 @@
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -149,11 +149,13 @@ import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRouter } from 'vue-router';
 import { Ref } from 'vue';
+import { useAttributeValue } from '@/utils';
+import { create } from 'domain';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Material {
@@ -178,14 +180,15 @@ interface Props {
 }
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
  const isLoading = ref(false);
  const { notify } = useNotification();
+ const { createAttributeValue } = useAttributeValue();
 
  const props = withDefaults(defineProps<Props>(), {
   new: false,
@@ -216,9 +219,9 @@ const subtitle = computed(() => {
 });
 
 /**
- * 
+ *
  * Slug definitions
- * 
+ *
  */
 
 
@@ -239,9 +242,9 @@ const slugify = (str: string) => (
 const slugPlaceholder = computed(() => slugify(name.value.value))
 
 /**
- * 
+ *
  * Material Definitions
- * 
+ *
  */
 
 const materials: Ref<Material[]> = ref<Material[]>([]);
@@ -267,9 +270,9 @@ const listMaterials = async () => {
 }
 
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit } = useForm({
@@ -310,9 +313,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const handleCreate = async (form: Color) => {
@@ -323,7 +326,10 @@ const handleCreate = async (form: Color) => {
       .insert(form)
       .select();
     if (error) throw error;
-    if (color.length) router.push(`/colors/${color[0].id}`);
+    if (color.length) {
+      await createAttributeValue('Color', undefined, 'color', color[0].id);
+      router.push(`/colors/${color[0].id}`);
+    }
     notify({
       title: 'Color created successfully',
       type: 'success',
@@ -364,7 +370,7 @@ const handleUpdate = async (form: Color) => {
     });
   } catch (e: any) {
     console.error(e);
-    
+
     notify({
       title: 'Error updating color.',
       text: e?.message || 'An error ocurred trying to update the color. Please contact TOP support.',

@@ -96,24 +96,24 @@
                 <span>{{ product.ignition.name }}</span>
               </div>
               <!-- Size -->
-              <div v-if="product?.product_length" class="mb-4">
+              <!-- <div v-if="product?.product_length" class="mb-4">
                 <span class="tw-font-semibold">Size (Length): </span>
                 <span>{{ product.product_length }}</span>
               </div>
               <div v-else-if="product?.product_diameter" class="mb-4">
                 <span class="tw-font-semibold">Size (Diameter): </span>
                 <span>{{ product.product_diameter }}</span>
-              </div>
+              </div> -->
               <!-- Width -->
-              <div v-if="product?.product_width" class="mb-4">
+              <!-- <div v-if="product?.product_width" class="mb-4">
                 <span class="tw-font-semibold">Width: </span>
                 <span>{{ product.product_width }}</span>
-              </div>
+              </div> -->
               <!-- Width -->
-              <div v-if="product?.product_height" class="mb-4">
+              <!-- <div v-if="product?.product_height" class="mb-4">
                 <span class="tw-font-semibold">Height: </span>
                 <span>{{ product.product_height }}</span>
-              </div>
+              </div> -->
               <!-- Company Division -->
               <div v-if="product?.company_division && (userStore.user?.user_metadata.role === 'ADMIN' || userStore.user?.user_metadata.role === 'MANAGER')" class="mb-4">
                 <span class="tw-font-semibold">Division: </span>
@@ -455,8 +455,8 @@ const loadProductInformation = async () => {
     isLoading.value = true;
     product.value = await loadProduct();
     if (product.value) {
-      parentGroup.value = await loadParent(product.value?.parent_id || 0) || undefined;
-      if (parentGroup.value) parent.value = await loadParent(parentGroup.value?.parent_id || 0) || undefined;
+      // parentGroup.value = await loadParent(product.value?.parent_id || 0) || undefined;
+      // if (parentGroup.value) parent.value = await loadParent(parentGroup.value?.parent_id || 0) || undefined;
 
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
@@ -466,11 +466,11 @@ const loadProductInformation = async () => {
       images.value = await loadImages(product.value?.id!) || [];
       specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
       documents.value = await loadDocuments(product.value?.id!) || [];
-      if (product.value.parent_id) {
-        parentImages.value = await loadImages(product.value.parent_id) || [];
-        parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
-        parentDocuments.value = await loadDocuments(product.value.parent_id) || [];
-      }
+      // if (product.value.parent_id) {
+      //   parentImages.value = await loadImages(product.value.parent_id) || [];
+      //   parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
+      //   parentDocuments.value = await loadDocuments(product.value.parent_id) || [];
+      // }
     }
   } catch (e) {
     console.error(e);

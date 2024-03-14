@@ -13,7 +13,7 @@ export default [
         meta: {
           requiresAuth: true,
           onlyWhenLoggedOut: false,
-          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
         }
       },
     ],
@@ -29,7 +29,7 @@ export default [
         meta: {
           requiresAuth: false,
           onlyWhenLoggedOut: true,
-          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
         }
       }
     ],
@@ -438,8 +438,95 @@ export default [
       },
       {
         path: ':id',
-        name: 'ViewProduct',
-        component: () => import(/* webpackChunkName: "view-product" */'@/views/products/ViewProduct.vue'),
+        children: [
+          {
+            path: '',
+            name: 'ViewProduct',
+            component: () => import(/* webpackChunkName: "view-product" */'@/views/products/ViewProduct.vue'),
+            meta: {
+              requiresAuth: true,
+              onlyWhenLoggedOut: false,
+              roles: ['MANAGER', 'ADMIN'],
+            },
+          },
+          {
+            path: 'variant',
+            children: [
+              {
+                path: 'new',
+                name: 'NewVariant',
+                component: () => import(/* webpackChunkName: "new-variation" */'@/views/variations/CreateVariation.vue'),
+
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                }
+              },
+              {
+                path: 'edit/:variantid',
+                name: 'EditVariant',
+                component: () => import(/* webpackChunkName: "edit-variation" */'@/views/variations/EditVariation.vue'),
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                },
+              },
+              {
+                path: ':variantid',
+                name: 'ViewVariant',
+                component: () => import(/* webpackChunkName: "view-variation" */'@/views/variations/ViewVariation.vue'),
+                meta: {
+                  requiresAuth: true,
+                  onlyWhenLoggedOut: false,
+                  roles: ['MANAGER', 'ADMIN'],
+                },
+              }
+            ]
+          }
+        ]
+      }
+    ],
+  },
+  {
+    path: '/attributes',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'AttributesList',
+        component: () => import(/* webpackChunkName: "attributes-list" */'@/views/attributes/AttributesList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewAttribute',
+        component: () => import(/* webpackChunkName: "new-attribute" */'@/views/attributes/CreateAttribute.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditAttribute',
+        component: () => import(/* webpackChunkName: "edit-attribute" */'@/views/attributes/EditAttribute.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewAttribute',
+        component: () => import(/* webpackChunkName: "view-attribute" */'@/views/attributes/ViewAttribute.vue'),
         meta: {
           requiresAuth: true,
           onlyWhenLoggedOut: false,
@@ -447,5 +534,5 @@ export default [
         },
       }
     ],
-  }
+  },
 ];
