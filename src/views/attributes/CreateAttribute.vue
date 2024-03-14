@@ -1,16 +1,16 @@
 <template>
   <div>
-    <product-form new></product-form>
+    <attributes-form new></attributes-form>
   </div>
 </template>
 <script lang="ts" setup>
-import ProductForm from '@/components/ProductForm.vue';
+import AttributesForm from '@/components/AttributesForm.vue';
 import { useAppStore } from '@/store/app';
 import { onMounted } from 'vue';
 
 const store = useAppStore();
 
 onMounted(() => {
-  store.pageTitle = 'Product - New';
+  store.pageTitle = 'Attributes - New';
 });
 </script>

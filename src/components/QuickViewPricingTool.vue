@@ -12,9 +12,9 @@
         @keyup.enter="onEnterSearch"
       ></v-text-field>
     </div>
-    <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10">
+    <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10 tw-mb-12">
       <div class="tw-w-full lg:tw-w-7/12">
-        <div v-if="product && product.id" class="tw-w-full tw-flex">
+        <div v-if="product && product.id && availableYears.length > 0 && userIsAdmin" class="tw-w-full tw-flex">
           <v-spacer></v-spacer>
           <v-menu>
             <template v-slot:activator="{ props }">
@@ -38,12 +38,12 @@
             </v-list>
           </v-menu>
         </div>
-        <v-card 
+        <v-card
           v-if="product && product.id"
           class="py-6 px-8 tw-text-base"
         >
-          <h2 class="tw-font-bold tw-text-3xl tw-text-center">{{ product.name }}</h2>
-          <div class="tw-text-lg tw-text-center">
+          <h2 class="tw-font-bold tw-text-3xl tw-text-center"><a :href="websiteLink" target="_blank" class="hover:tw-text-blue-600 hover:tw-underline">{{ product.name }}</a></h2>
+          <div class="tw-text-xl tw-text-center tw-mt-3 tw-pb-2.5">
             <span class="tw-font-semibold">Part #: </span><span class="tw-text-blue-600">{{ product.sku }}</span>
           </div>
           <div class="tw-w-full tw-flex tw-flex-row tw-flex-wrap tw-mt-4 tw-justify-center">
@@ -55,11 +55,11 @@
                 v-if="getPriceByYear(priceType as keyof PriceData, currentYear)"
                 class="tw-min-w-[50%] tw-px-4 tw-mb-4 tw-text-2xl tw-flex-grow"
               >
-              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span> 
+              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span>
               {{ formatPrice(getPriceByYear(priceType as keyof PriceData, currentYear)) }}
             </div>
             </template>
-            
+
           </div>
           <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
             <div class="tw-w-6/12 tw-px-4">
@@ -96,29 +96,35 @@
                 <span>{{ product.ignition.name }}</span>
               </div>
               <!-- Size -->
-              <div v-if="product?.product_length" class="mb-4">
+              <!-- <div v-if="product?.product_length" class="mb-4">
                 <span class="tw-font-semibold">Size (Length): </span>
                 <span>{{ product.product_length }}</span>
               </div>
               <div v-else-if="product?.product_diameter" class="mb-4">
                 <span class="tw-font-semibold">Size (Diameter): </span>
                 <span>{{ product.product_diameter }}</span>
-              </div>
+              </div> -->
               <!-- Width -->
-              <div v-if="product?.product_width" class="mb-4">
+              <!-- <div v-if="product?.product_width" class="mb-4">
                 <span class="tw-font-semibold">Width: </span>
                 <span>{{ product.product_width }}</span>
-              </div>
+              </div> -->
               <!-- Width -->
-              <div v-if="product?.product_height" class="mb-4">
+              <!-- <div v-if="product?.product_height" class="mb-4">
                 <span class="tw-font-semibold">Height: </span>
                 <span>{{ product.product_height }}</span>
-              </div>
+              </div> -->
               <!-- Company Division -->
               <div v-if="product?.company_division && (userStore.user?.user_metadata.role === 'ADMIN' || userStore.user?.user_metadata.role === 'MANAGER')" class="mb-4">
                 <span class="tw-font-semibold">Division: </span>
                 <span>{{ product.company_division }}</span>
               </div>
+            </div>
+          </div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
+            <div v-if="websiteLink && urlTitle">
+              <span class="tw-font-semibold tw-ml-4">Website Link: </span>
+              <a :href="websiteLink" target="_blank" class="tw-text-blue-600 hover:tw-underline">{{ urlTitle }}</a>
             </div>
           </div>
         </v-card>
@@ -129,11 +135,12 @@
         <template v-else>
           <v-card
             v-if="product && allImages.length"
-            max-height="400"
+            max-height="435"
           >
             <v-carousel
+              v-model="imageSlider"
               hide-delimiter-background
-              class="tw-max-h-[400px]"
+              class="tw-max-h-[435px]"
             >
               <v-carousel-item
                 v-for="(img, i) in allImages"
@@ -141,9 +148,15 @@
                 :src="img.previewUrl"
                 :lazy-src="img.previewUrl"
                 max-height="400"
-              ></v-carousel-item>
+              >
+              </v-carousel-item>
             </v-carousel>
           </v-card>
+          <div v-if="imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
+            <div class="tw-flex tw-text-lg tw-font-semibold">
+              {{ allImages[imageSlider].name }}
+              </div>
+          </div>
         </template>
         <template v-if="isLoading">
           <v-skeleton-loader v-for="i in 3" :key="i" type="list-item-avatar" class="mt-4">
@@ -156,13 +169,13 @@
               <v-card
                 v-for="(specSheet, i) in allSpecSheets"
                 :key="i"
-                class="px-4 py-2"
+                class="px-4 py-2 mb-3"
               >
                 <div class="tw-w-full tw-flex tw-items-center">
                   <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
                     <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
                   </v-avatar>
-                  <a 
+                  <a
                     class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
                     rel="noopener noreferrer"
                     :href="specSheet.previewUrl"
@@ -183,6 +196,44 @@
                     color="gray-darken-2"
                     tag="a"
                     :href="specSheet.url"
+                  ></v-btn>
+                </div>
+              </v-card>
+            </div>
+          </template>
+          <template v-if="!!(product && product.id && allDocuments.length)">
+            <h3 class="tw-text-xl tw-font-bold tw-my-8">Manuals/Marketing:</h3>
+            <div class="tw-w-full">
+              <v-card
+                v-for="(docs, i) in allDocuments"
+                :key="i"
+                class="px-4 py-2 mb-3"
+              >
+                <div class="tw-w-full tw-flex tw-items-center">
+                  <v-avatar color="blue-darken-2" size="36" class="tw-mr-3">
+                    <v-icon color="white" size="small" icon="mdi-file-document-multiple"></v-icon>
+                  </v-avatar>
+                  <a
+                    class="hover:tw-underline hover:tw-cursor-pointer tw-transition-all tw-font-medium"
+                    rel="noopener noreferrer"
+                    :href="docs.previewUrl"
+                    target="_blank"
+                  >{{ docs.name }}</a>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-open-in-new"
+                    color="gray-darken-2"
+                    tag="a"
+                    target="_blank"
+                    :href="docs.previewUrl"
+                  ></v-btn>
+                  <v-btn
+                    variant="text"
+                    icon="mdi-download"
+                    color="gray-darken-2"
+                    tag="a"
+                    :href="docs.url"
                   ></v-btn>
                 </div>
               </v-card>
@@ -246,6 +297,17 @@ interface SpecSheet {
   previewUrl?: string;
 }
 
+interface Doc {
+  document?: {
+    id?: number;
+    name?: string;
+    url?: string;
+  };
+  name?: string;
+  url?: string;
+  previewUrl?: string;
+}
+
 interface Img extends Image {
   image?: {
     name?: string;
@@ -260,13 +322,19 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
+const imageSlider = ref();
+const urlTitle = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
 const product: Ref<Product | undefined> = ref<Product | undefined>({});
+const parentGroup: Ref<Product | undefined> = ref<Product | undefined>({});
+const parent: Ref<Product | undefined> = ref<Product | undefined>({});
 const images: Ref<Img[]> = ref<Img[]>([]);
 const parentImages: Ref<Img[]> = ref<Img[]>([]);
 const specSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
 const parentSpecSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
+const documents: Ref<Doc[]> = ref<Doc[]>([]);
+const parentDocuments: Ref<Doc[]> = ref<Doc[]>([]);
 const allowedPrices: Ref<string[]> = ref<string[]>([]);
 const currentYear = ref(0);
 const prices: Ref<PriceData> = ref<PriceData>({
@@ -278,6 +346,13 @@ const prices: Ref<PriceData> = ref<PriceData>({
   landscape: [],
   master_distributor: [],
   msrp: [],
+});
+
+const userIsAdmin = computed(() => {
+  const adminRoles = ['MANAGER', 'ADMIN'];
+  if (adminRoles.includes(userStore.currentUser?.user_metadata?.role))
+    return true
+  return false;
 });
 
 onMounted(async () => {
@@ -336,6 +411,25 @@ const allSpecSheets = computed(() => {
   return allSpcSheets;
 });
 
+const allDocuments = computed(() => {
+  let allDocs: Doc[] = [
+    ...documents.value,
+    ...parentDocuments.value,
+  ]
+  allDocs = removeDuplicates<Doc>(allDocs, 'document');
+  allDocs = allDocs.map(({ document, ...docs }) => ({
+    ...docs,
+    name: document?.name,
+    url: replaceDropboxLink(document?.url, 'dl=1'),
+    previewUrl: replaceDropboxLink(document?.url, 'raw=1'),
+  }));
+  return allDocs;
+});
+
+const websiteLink = computed(() => {
+  return product.value?.website_link || parentGroup.value?.website_link || parent.value?.website_link || '';
+});
+
 const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
   const uniqueUrls = new Map<string, boolean>();
   return arr.reduce((acc: T[], current: T) => {
@@ -361,6 +455,9 @@ const loadProductInformation = async () => {
     isLoading.value = true;
     product.value = await loadProduct();
     if (product.value) {
+      // parentGroup.value = await loadParent(product.value?.parent_id || 0) || undefined;
+      // if (parentGroup.value) parent.value = await loadParent(parentGroup.value?.parent_id || 0) || undefined;
+
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
       allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
@@ -368,12 +465,12 @@ const loadProductInformation = async () => {
       setPrices(pricesResponse.filter((priceResponse) => priceResponse.status === 'fulfilled'));
       images.value = await loadImages(product.value?.id!) || [];
       specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
-      if (product.value.parent_id) {
-        if (images.value.length <= 0)
-          parentImages.value = await loadImages(product.value.parent_id) || [];
-        if (specSheets.value.length <= 0)
-          parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
-      }
+      documents.value = await loadDocuments(product.value?.id!) || [];
+      // if (product.value.parent_id) {
+      //   parentImages.value = await loadImages(product.value.parent_id) || [];
+      //   parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
+      //   parentDocuments.value = await loadDocuments(product.value.parent_id) || [];
+      // }
     }
   } catch (e) {
     console.error(e);
@@ -405,17 +502,41 @@ const availableYears = computed((): number[] => {
 });
 
 watch(
+  () => websiteLink.value,
+  async () => {
+    const response = await fetch(websiteLink.value);
+    const html = await response.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const title = doc.querySelectorAll('title')[0];
+    urlTitle.value = title.innerText;
+  }
+);
+
+watch(
   () => availableYears.value,
   () => {
     currentYear.value = availableYears.value[0] as number;
   },
 );
 
+const loadParent = async (id: number) => {
+  try {
+    const { data: parentGroup, error } = await supabase.from(`product`)
+      .select(`id, parent_id, website_link`)
+      .eq(`id`, id)
+      .maybeSingle();
+    if (error) throw error;
+    return parentGroup as unknown as Product;
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
 const loadProduct = async () => {
   try {
     const { data: product, error } = await supabase.from(`product`)
       .select(`
-        *, 
+        *,
         base_color:base_color_id(name),
         base_material:base_material_id(name),
         category:category_id(name),
@@ -461,6 +582,18 @@ const loadSpecificationSheets = async (id: number) => {
   }
 }
 
+const loadDocuments = async (id: number) => {
+  try {
+    const { data: docs, error } = await supabase.from(`product_documents`)
+      .select(`document:document_id(id, name, url)`)
+      .eq(`product_id`, id);
+    if (error) throw error;
+    return docs as unknown as Doc[];
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
 const replaceDropboxLink = (url: string | undefined, queryParam: string) => {
   if (url) {
     const withoutQueryParam = url.replace(/[?&](dl|raw)=\d/g, '');
@@ -487,7 +620,7 @@ const loadProductPrices = async (type: string, product_id: number) => {
       text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
       type: 'error',
       duration: 6000,
-    }); 
+    });
   }
 }
 </script>

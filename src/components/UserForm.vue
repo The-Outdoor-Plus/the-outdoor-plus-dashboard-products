@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="$router.push('/users')"
       ></v-btn>
@@ -124,7 +124,7 @@
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -181,7 +181,7 @@ const roles = [
     value: 'USER'
   },
   {
-    title: 'Guest', 
+    title: 'Guest',
     value: 'GUEST',
   },
   {
@@ -204,6 +204,10 @@ const roles = [
     title: 'Admin',
     value: 'ADMIN',
   },
+  {
+    title: 'Sales',
+    value: 'SALES',
+  }
 ];
 const passwordVisible = ref(false);
 const isLoading = ref(false);
@@ -289,14 +293,14 @@ const handleCreate = async (values: User) => {
     if (error) throw error;
     router.push(`/users/${user?.id}`)
     notify({
-      title: 'User created successfully', 
+      title: 'User created successfully',
       type: 'success',
       duration: 6000,
     });
   } catch (e: any) {
     console.error(e);
     notify({
-      title: 'Error creating user', 
+      title: 'Error creating user',
       text: e?.message || 'An error ocurred trying to create a user. Please contact TOP Support',
       type: 'error',
       duration: 6000,

@@ -34,11 +34,11 @@
               >
               </v-list-item>
             </template>
-            
+
           </v-list-group>
         </template>
         <template v-else>
-          <v-list-item 
+          <v-list-item
             v-if="isLinkAllowed(item.roles)"
             exact
             :prepend-icon="item.icon"
@@ -63,7 +63,7 @@
       >
       </v-list-item>
     </template>
-    
+
   </v-navigation-drawer>
 </template>
 
@@ -80,7 +80,7 @@ const navItems = reactive([
     label: 'Quick View Pricing Tool',
     icon: 'mdi-tag-search',
     link: '/',
-    roles: ['USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN'],
+    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
   {
@@ -90,7 +90,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View Products',
-        link: '/products',  
+        link: '/products',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -107,7 +107,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View Categories',
-        link: '/categories',  
+        link: '/categories',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -124,7 +124,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View Collections',
-        link: '/collections',  
+        link: '/collections',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -141,7 +141,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View product shapes',
-        link: '/shapes',  
+        link: '/shapes',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -158,7 +158,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View materials',
-        link: '/materials',  
+        link: '/materials',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -175,7 +175,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View colors',
-        link: '/colors',  
+        link: '/colors',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -192,7 +192,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View ignition types',
-        link: '/ignition-types',  
+        link: '/ignition-types',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -209,7 +209,7 @@ const navItems = reactive([
     children: [
       {
         label: 'View gas types',
-        link: '/gas-types',  
+        link: '/gas-types',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
@@ -226,12 +226,29 @@ const navItems = reactive([
     children: [
       {
         label: 'View users',
-        link: '/users',  
+        link: '/users',
         roles: ['MANAGER', 'ADMIN'],
       },
       {
         label: 'Create user',
         link: '/users/new',
+        roles: ['MANAGER', 'ADMIN']
+      }
+    ]
+  },
+  {
+    label: 'Attributes',
+    icon: 'mdi-format-list-bulleted-square',
+    roles: ['MANAGER', 'ADMIN'],
+    children: [
+      {
+        label: 'View attributes',
+        link: '/attributes',
+        roles: ['MANAGER', 'ADMIN'],
+      },
+      {
+        label: 'Create attribute',
+        link: '/attributes/new',
         roles: ['MANAGER', 'ADMIN']
       }
     ]

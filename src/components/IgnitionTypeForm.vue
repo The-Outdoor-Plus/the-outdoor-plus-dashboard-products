@@ -2,8 +2,8 @@
   <div class="tw-w-full">
     <v-card class="py-12 px-10" :loading="isLoading">
       <v-btn
-        class="-tw-mt-6 tw-mb-6 -tw-ml-4" 
-        icon="mdi-arrow-left" 
+        class="-tw-mt-6 tw-mb-6 -tw-ml-4"
+        icon="mdi-arrow-left"
         flat
         @click="$router.push('/ignition-types')"
       ></v-btn>
@@ -58,7 +58,7 @@
         <div class="tw-w-full">
           <v-spacer></v-spacer>
           <v-btn
-            v-if="!readonly"  
+            v-if="!readonly"
             type="submit"
             color="primary"
           >Submit</v-btn>
@@ -75,11 +75,12 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useRouter } from 'vue-router';
+import { useAttributeValue } from '@/utils';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface IgnitionType {
@@ -97,14 +98,15 @@ interface Props {
 }
 
 /**
- * 
+ *
  * General Definitions
- * 
+ *
  */
 
  const router = useRouter();
  const isLoading = ref(false);
  const { notify } = useNotification();
+ const { createAttributeValue } = useAttributeValue();
 
  const props = withDefaults(defineProps<Props>(), {
   new: false,
@@ -135,9 +137,9 @@ const subtitle = computed(() => {
 });
 
 /**
- * 
+ *
  * Slug definitions
- * 
+ *
  */
 
 
@@ -158,9 +160,9 @@ const slugify = (str: string) => (
 const slugPlaceholder = computed(() => slugify(name.value.value))
 
 /**
- * 
+ *
  * Handle Form
- * 
+ *
  */
 
 const { handleSubmit } = useForm({
@@ -194,9 +196,9 @@ watch(
 );
 
 /**
- * 
+ *
  * Handle Data
- * 
+ *
  */
 
 const handleCreate = async (values: IgnitionType) => {
@@ -210,7 +212,10 @@ const handleCreate = async (values: IgnitionType) => {
       .insert(form)
       .select();
     if (error) throw error;
-    if (ignition.length) router.push(`/ignition-types/${ignition[0].id}`);
+    if (ignition.length) {
+      await createAttributeValue('Ignition Type', undefined, 'ignition', ignition[0].id);
+      router.push(`/ignition-types/${ignition[0].id}`);
+    }
     notify({
       title: 'Ignition Type created successfully',
       type: 'success',
@@ -252,7 +257,7 @@ const handleUpdate = async (values: IgnitionType) => {
     });
   } catch (e: any) {
     console.error(e);
-    
+
     notify({
       title: 'Error updating ignition type',
       text: e?.message || 'An error ocurred trying to update the ignition type. Please contact TOP support.',

@@ -1,8 +1,42 @@
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
+export interface ProductAttribute {
+  id?: number;
+  product_id?: number;
+  attribute_id?: number;
+  fill_values?: boolean;
+  attribute?: Attribute;
+}
+export interface Attribute {
+  id?: number;
+  name?: string;
+  table_name?: string;
+  slug?: string;
+  attribute_value?: AttributeValue[];
+  fill_values?: boolean;
+}
+
+export interface AttributeValues {
+  [key: number]: AttributeValue[];
+}
+export interface AttributeValue {
+  id?: number;
+  attribute_id?: number;
+  value?: string;
+  material_id?: number;
+  color_id?: number;
+  gas_id?: number;
+  ignition_id?: number;
+  slug?: string;
+  material?: Material;
+  color?: Color;
+  gas?: GasType;
+  ignition?: IgnitionType;
+}
+
 export interface Shape {
   id?: number;
   name: string;
@@ -41,16 +75,16 @@ export interface Category {
 export interface ItemsList {
   category: Category[];
   collection: Collection[];
-  color: Color[];
-  gas: GasType[];
-  ignition: IgnitionType[];
-  material: Material[];
+  // color: Color[];
+  gas?: GasType[];
+  ignition?: IgnitionType[];
+  // material: Material[];
   shape: Shape[];
-  baseColor: Color[];
+  // baseColor: Color[];
 }
 
 export interface Image {
-  id?: number;
+  id?: number | null;
   url?: string;
   name?: string;
   display_order?: number;
@@ -63,6 +97,17 @@ export interface SpecificationSheet {
   url?: string;
   name?: string;
   product_id?: number;
+  variation_id?: number;
+  specification_sheet_id?: number;
+}
+
+export interface Documents {
+  id?: number;
+  url?: string;
+  name?: string;
+  product_id?: number;
+  variation_id?: number;
+  document_id?: number;
 }
 
 export interface Price {
@@ -70,6 +115,7 @@ export interface Price {
   product_id?: number;
   price?: number;
   year?: number;
+  variation_id?: number;
 }
 
 export interface PriceData {
@@ -88,6 +134,7 @@ export interface ProductImage {
   image_id?: number;
   display_order?: number;
   is_primary?: boolean;
+  variation_id?: number;
   url?: string;
   name?: string;
 }
@@ -95,56 +142,28 @@ export interface ProductImage {
 export interface Product {
   id?: number;
   sku?: string
-  upc_codes?: string;
-  encoded_upc_codes?: string;
-  relation?: string;
-  product_length?: string;
-  product_diameter?: string;
-  product_width?: string;
-  product_height?: string;
-  base_length?: string;
-  base_diameter?: string;
-  base_width?: string;
-  base_opening?: string;
-  toe_kick?: string;
-  soil_usage?: string;
-  scupper_width?: string;
-  scupper_inlet_opening?: string;
-  gpm?: string;
-  fire_glass?: string;
-  ba_length?: string;
-  ba_diameter?: string;
-  ba_width?: string;
-  ba_depth?: string;
-  burner_shape?: string;
-  burner_length?: string;
-  burner_diameter?: string;
-  compatible_canvas_cover?: string;
-  compatible_bullet_burner?: string;
-  compatible_glass_wind_guard?: string;
-  access_door?: boolean;
-  parent_id?: number;
+  product_type?: string | null;
+  burner_shape?: string | null;
+  compatible_canvas_cover?: string | null;
+  compatible_bullet_burner?: string | null;
+  compatible_glass_wind_guard?: string | null;
+  access_door?: boolean | null;
   collection_id?: number | null;
   category_id?: number | null;
   shape_id?: number | null;
   material_id?: number | null;
-  color_id?: number | null;
-  ignition_id?: number | null;
-  gas_id?: number | null;
-  product_serial_base?: string;
   certifications?: string[];
-  base_color_id?: number | null;
-  base_material_id?: number | null;
-  published?: boolean;
-  enabled?: boolean;
-  created_by?: string;
-  updated_by?: string;
-  company_division?: string;
-  updated_at?: string;
-  created_at?: string;
+  product_serial_base?: string | null;
+  published?: boolean | null;
+  enabled?: boolean | null;
+  created_by?: string | null;
+  updated_by?: string | null;
+  company_division?: string | null;
+  updated_at?: string | null;
+  created_at?: string | null;
   name?: string;
-  short_description?: string;
-  description?: string;
+  short_description?: string | null;
+  description?: string | null;
   dealer_prices?: Price[];
   distributor_prices?: Price[];
   group_prices?: Price[];
@@ -154,6 +173,7 @@ export interface Product {
   master_distributor_prices?: Price[];
   msrp_prices?: Price[];
   images?: ProductImage[];
+  website_link?: string | null;
 }
 
 export interface Props {
@@ -162,6 +182,13 @@ export interface Props {
   readonly?: boolean;
   product?: Product | null;
   loading?: boolean;
+  productPrices?: PriceData;
+  // productAttributes?: { colors: number[] | any, baseColors: number[] | any, ignitionTypes: number[] | any, gasTypes: number[] | any };
+  attributeValues?: number[];
+  productAttributes?: Attribute[];
+  productImages?: Image[];
+  productSpectSheets?: SpecificationSheet[];
+  productDocuments?: Documents[];
 }
 
 export interface Attrs {

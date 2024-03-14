@@ -3,10 +3,17 @@
     <product-form
       :loading="loading"
       :product="product"
+      :product-prices="prices"
+      :product-attributes="productAttributes"
+      :product-images="images"
+      :product-spect-sheets="specificationSheets"
+      :product-documents="documents"
+      :attribute-values="attrValues"
       readonly
     ></product-form>
     <div class="tw-w-full tw-my-16 rounded">
       <v-data-table-server
+        v-show="showChildProducts"
         v-model:items-per-page="itemsPerPage"
         :key="`${route.params.id}`"
         :headers="(headers as [])"
@@ -15,15 +22,15 @@
         :loading="loading"
         class="elevation-1"
         rounded
-        item-value="first_name"
+        item-value="name"
         @update:options="loadItems"
       >
         <template v-slot:top>
           <v-toolbar flat compact color="green-darken-2" class="rounded-t">
-            <v-toolbar-title>Child products (Variants) </v-toolbar-title>
+            <v-toolbar-title>{{ childTableTitle }}</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-spacer></v-spacer>
-            <v-btn color="white" dark :to="`/products/new?parent_id=${route.params.id}&relation=child`" exact>New Variant<v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
+            <v-btn color="white" dark :to="redirectToNewProduct" exact>{{ newText }}<v-icon icon="mdi-plus" class="ml-2"></v-icon></v-btn>
           </v-toolbar>
           <v-dialog v-model="dialogDelete" max-width="600px">
             <v-card class="pt-4 pb-3" :loading="deleteLoading">
@@ -57,13 +64,13 @@
               size="small"
               icon="mdi-eye"
               variant="text"
-              :to="`/products/${item.raw.id}`"
+              :to="`/products/${route.params.id}/variant/${item.raw.id}`"
             ></v-btn>
             <v-btn
               size="small"
               icon="mdi-pencil"
               variant="text"
-              :to="`/products/edit/${item.raw.id}`"
+              :to="`/products/${route.params.id}/variant/edit/${item.raw.id}`"
             ></v-btn>
             <v-btn
               size="small"
@@ -74,7 +81,7 @@
           </div>
         </template>
       </v-data-table-server>
-    </div> 
+    </div>
   </div>
 </template>
 <script lang="ts" setup>
@@ -83,10 +90,12 @@ import { VDataTableServer } from 'vuetify/lib/labs/components.mjs';
 import { useAppStore } from '@/store/app';
 import { supabase } from '@/supabase';
 import { useNotification } from '@kyvg/vue3-notification';
-import { onMounted, reactive, ref, Ref, watch } from 'vue';
+import { onMounted, reactive, ref, Ref, watch, computed } from 'vue';
 import { useRoute } from 'vue-router';
-import { Product } from '@/types/product';
+import { Attribute, Documents, Product } from '@/types/product';
 import { usePagination } from '@/utils';
+import { Image, SpecificationSheet, PriceData } from '@/types/product';
+import { useProduct } from '@/composables/product';
 
 interface Data {
   serverItems: Product[];
@@ -115,14 +124,51 @@ const route = useRoute();
 const { notify } = useNotification();
 
 const loading = ref(false);
+const isLoading = computed(() => loading.value && productLoading.value);
+const loadingData = ref(false);
 const product: Ref<Product> = ref<Product>({
   id: 0,
   name: '',
 });
 
+const showChildProducts = computed(() => {
+  return product.value.product_type === 'VARIABLE';
+});
+
+const childTableTitle = computed(() => {
+  return 'Child products (Variants)';
+});
+
+const newText = computed(() => {
+  return 'New Variant';
+});
+
+const queryParams = computed(() => {
+  const params: any = {
+    ...(product.value.sku ? { sku: `${product.value.sku}-(XX)-(XX)` } : {}),
+    ...(product.value.burner_shape ? { burner_shape: product.value.burner_shape }: {}),
+    ...(product.value.compatible_bullet_burner ? { compatible_bullet_burner: product.value.compatible_bullet_burner } : {}),
+    ...(product.value.compatible_canvas_cover ? { compatible_canvas_cover: product.value.compatible_canvas_cover } : {}),
+    ...(product.value.compatible_glass_wind_guard ? { compatible_glass_wind_guard: product.value.compatible_glass_wind_guard } : {}),
+    ...(product.value.product_serial_base ? { product_serial_base: product.value.product_serial_base } : {}),
+    ...(product.value.name ? { name: product.value.name } : {}),
+    ...(product.value.short_description ? { short_description: product.value.short_description } : {}),
+    ...(product.value.description ? { description: product.value.description } : {}),
+    ...(product.value.website_link ? { website_link: product.value.website_link } : {}),
+    ...(product.value?.certifications?.length ? { certifications: JSON.stringify(product.value.certifications) }: {}),
+    ...(prices.value ? { prices: JSON.stringify(prices.value) }: {}),
+  };
+  return new URLSearchParams(params).toString();
+});
+
+const redirectToNewProduct = computed(() => {
+  return `/products/${product.value.id}/variant/new?${queryParams.value}`;
+});
+
 const loadData = async () => {
   try {
     loading.value = true;
+    loadingData.value = true;
     const { data, error } = await supabase
       .from('product')
       .select()
@@ -139,8 +185,54 @@ const loadData = async () => {
     });
   } finally {
     loading.value = false;
+    loadingData.value = false;
   }
 }
+
+const {
+  attrValues,
+  productLoading,
+  loadDocuments,
+  loadProductImages,
+  loadProductAttributes,
+  loadProductPrices,
+  loadSpecificationSheets
+} = useProduct();
+
+const prices: Ref<PriceData> = ref<PriceData>({
+  map: [],
+  dealer: [],
+  distributor: [],
+  group: [],
+  internet: [],
+  landscape: [],
+  master_distributor: [],
+  msrp: [],
+});
+
+const productAttributes: Ref<Attribute[]> = ref<Attribute[]>([]);
+const images: Ref<Image[]> = ref<Image[]>([]);
+const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
+const documents: Ref<Documents[]> = ref<Documents[]>([]);
+
+const loadProductInformation = async () => {
+  if (product.value?.id) {
+    const productId = +product.value?.id;
+    prices.value.msrp = await loadProductPrices('msrp', productId) || [];
+    prices.value.internet = await loadProductPrices('internet', productId) || [];
+    prices.value.map = await loadProductPrices('map', productId) || [];
+    prices.value.group = await loadProductPrices('group', productId) || [];
+    prices.value.dealer = await loadProductPrices('dealer', productId) || [];
+    prices.value.distributor = await loadProductPrices('distributor', productId) || [];
+    prices.value.landscape = await loadProductPrices('landscape', productId) || [];
+    prices.value.master_distributor = await loadProductPrices('master_distributor', productId) || [];
+    images.value = await loadProductImages(productId) || [];
+    documents.value = await loadDocuments(productId) || [];
+    specificationSheets.value = await loadSpecificationSheets(productId) || [];
+    productAttributes.value = await loadProductAttributes(productId) || [];
+  }
+}
+
 
 const headers = ref([
   {
@@ -149,25 +241,21 @@ const headers = ref([
     sortable: false,
     key: 'id',
   },
-  { title: 'Name', align: 'end', key: 'name', width: '250px' },
-  { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
-  { title: 'Collection', align: 'end', key: 'collection', width: '150px' },
-  { title: 'Category', align: 'end', key: 'category', width: '220px' },
-  { title: 'Material', align: 'end', key: 'material', width: '220px' },
-  { title: 'Published', align: 'end', key: 'published' },
+  { title: 'Name', align: 'end', key: 'name', width: '450px' },
+  { title: 'SKU', align: 'end', key: 'sku', width: '400px' },
   { title: 'Enabled', align: 'end', key: 'enabled' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
 const data: Data = reactive({
   serverItems: [],
 });
-const itemsPerPage = ref(40);
-const totalItems = ref(40);
+const itemsPerPage = ref(50);
+const totalItems = ref(50);
 
 /**
- * 
+ *
  * Dialog Delete Section
- * 
+ *
  **/
 
 const itemToDelete: Ref<Columns | null> = ref(null);
@@ -179,9 +267,11 @@ watch(dialogDelete, (value) => {
     itemToDelete.value = null;
   }
 });
-watch(route, async (value) => {
-  if (route.params.id)
+watch(route, async () => {
+  if (route.params.id) {
     await loadData();
+    await loadProductInformation();
+  }
 });
 
 const deleteItem = (item: Columns) => {
@@ -197,20 +287,20 @@ const closeDialogDelete = () => {
 const deleteItemConfirm = async () => {
   try {
     deleteLoading.value = true;
-    const { error } = await supabase.from('product').delete()
+    const { error } = await supabase.from('variant').delete()
       .eq('id', itemToDelete?.value?.id);
     if (error) throw error;
     notify({
       type: 'success',
-      title: 'Product deleted successfully',
+      title: 'Variant deleted successfully',
       duration: 6000,
     });
     data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
   } catch (e: any) {
     console.error(e);
     notify({
-      title: 'Error deleting product.',
-      text: e?.message || 'An error ocurred trying to delete product. Please contact TOP Support.',
+      title: 'Error deleting variant.',
+      text: e?.message || 'An error ocurred trying to delete variant. Please contact TOP Support.',
       type: 'error',
       duration: 6000,
     });
@@ -222,9 +312,9 @@ const deleteItemConfirm = async () => {
 }
 
 /**
- * 
+ *
  * Search
- * 
+ *
  */
 const search = ref('');
 const searchFilter = ref('');
@@ -242,30 +332,30 @@ watch(searchFilter, (searchValue) => {
 onMounted(async () => {
   store.pageTitle = 'Product - View';
   await loadData();
+  await loadProductInformation();
 });
 
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
     loading.value = true;
-    const { from, to } = usePagination(page -1, itemsPerPage);
-    const { data: products, error, count } = await supabase
-      .from('product')
-      .select('id, name, sku, relation, enabled, published, collection(name), category(name), material:material_id(name)', { count: 'exact' })
-      .eq(`relation`, 'CHILD')
-      .eq(`parent_id`, +route.params.id)
-      .order(sortBy?.[0]?.key || 'name', {
-        ascending: sortBy?.[0]?.order === 'desc' ? false : true
-      })
-      .range(from, to);
-    if (error) throw error;
-    const transformedProducts = products.map(product => ({
-      ...product,
-      category: (product.category as any)?.name || '', 
-      material: (product.material as any)?.name || '',
-      collection: (product.collection as any)?.name || '',
-    }));  
-    data.serverItems = transformedProducts || [];
-    totalItems.value = count || 0;
+    if (+route.params.id !== +(product.value?.id || 0) && !loadingData.value) {
+      await loadData();
+      await loadProductInformation();
+    }
+    if (showChildProducts.value) {
+      const { from, to } = usePagination(page - 1, itemsPerPage);
+      const { data: variations, error, count } = await supabase
+        .from('variation')
+        .select('id, name, sku, enabled', { count: 'exact' })
+        .eq(`parent_id`, +route.params.id)
+        .order(sortBy?.[0]?.key || 'name', {
+          ascending: sortBy?.[0]?.order === 'desc' ? false : true
+        })
+        .range(from, to);
+      if (error) throw error;
+      data.serverItems = variations || [];
+      totalItems.value = count || 0;
+    }
   } catch (e: any) {
     console.error(e);
     notify({
