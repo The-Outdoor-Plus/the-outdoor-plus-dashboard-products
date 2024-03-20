@@ -45,6 +45,40 @@
           <h2 class="tw-font-bold tw-text-3xl tw-text-center"><a :href="websiteLink" target="_blank" class="hover:tw-text-blue-600 hover:tw-underline">{{ product.name }}</a></h2>
           <div class="tw-text-xl tw-text-center tw-mt-3 tw-pb-2.5">
             <span class="tw-font-semibold">Part #: </span><span class="tw-text-blue-600">{{ product.sku }}</span>
+            <v-btn
+              size="small"
+              @click="copyTextToClipboard(product.sku!, 'UPC')"
+              icon="mdi-content-copy"
+              variant="text"
+            >
+            </v-btn>
+            <v-btn
+                size="small"
+                @click="skuDialog = true"
+                icon="mdi-barcode"
+                variant="text"
+              >
+              </v-btn>
+            <v-dialog v-model="skuDialog" max-width="400px">
+              <v-card>
+                <v-card-title class="d-flex justify-space-between align-center tw-px-10">
+                  <div class="tw-text-xl">
+                    Part Number (SKU)
+                  </div>
+                  <v-btn
+                    icon="mdi-close"
+                    variant="text"
+                    @click="skuDialog = false"
+                  ></v-btn>
+                </v-card-title>
+                <v-card-text class="tw-flex tw-justify-center tw-items-center">
+                  <Barcode
+                    :value="product.sku"
+                    :line-color="'#000'"
+                  />
+                </v-card-text>
+              </v-card>
+            </v-dialog>
           </div>
           <div class="tw-w-full tw-flex tw-flex-row tw-flex-wrap tw-mt-4 tw-justify-center">
             <template
@@ -61,68 +95,238 @@
             </template>
 
           </div>
-          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
-            <div class="tw-w-6/12 tw-px-4">
-              <!-- Material -->
-              <div v-if="product?.material?.name" class="mb-4">
-                <span class="tw-font-semibold">Material: </span>
-                <span>{{ product.material.name }}</span>
-              </div>
-              <!-- Ignition -->
-              <div v-if="product?.gas?.name" class="mb-4">
-                <span class="tw-font-semibold">Gas Type: </span>
-                <span>{{ product.gas.name }}</span>
-              </div>
-              <!-- Collection -->
-              <div v-if="product?.color?.name" class="mb-4">
-                <span class="tw-font-semibold">Color: </span>
-                <span>{{ product.color.name }}</span>
-              </div>
-              <!-- Collection -->
-              <div v-if="product?.collection?.name" class="mb-4">
-                <span class="tw-font-semibold">Collection: </span>
-                <span>{{ product.collection.name }}</span>
-              </div>
-              <!-- Shape -->
-              <div v-if="product?.shape?.name" class="mb-4">
-                <span class="tw-font-semibold">Shape: </span>
-                <span>{{ product.shape.name }}</span>
-              </div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg tw-px-4 tw-flex-wrap">
+            <!-- Collection -->
+            <div v-if="product?.parent?.collection?.name" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Collection: </span>
+              <span>{{ product.parent.collection.name }}</span>
             </div>
-            <div class="tw-w-6/12 tw-px-4">
-              <!-- Ignition -->
-              <div v-if="product?.ignition?.name" class="mb-4">
-                <span class="tw-font-semibold">Ignition Type: </span>
-                <span>{{ product.ignition.name }}</span>
-              </div>
-              <!-- Size -->
-              <!-- <div v-if="product?.product_length" class="mb-4">
-                <span class="tw-font-semibold">Size (Length): </span>
-                <span>{{ product.product_length }}</span>
-              </div>
-              <div v-else-if="product?.product_diameter" class="mb-4">
-                <span class="tw-font-semibold">Size (Diameter): </span>
-                <span>{{ product.product_diameter }}</span>
-              </div> -->
-              <!-- Width -->
-              <!-- <div v-if="product?.product_width" class="mb-4">
-                <span class="tw-font-semibold">Width: </span>
-                <span>{{ product.product_width }}</span>
-              </div> -->
-              <!-- Width -->
-              <!-- <div v-if="product?.product_height" class="mb-4">
-                <span class="tw-font-semibold">Height: </span>
-                <span>{{ product.product_height }}</span>
-              </div> -->
-              <!-- Company Division -->
-              <div v-if="product?.company_division && (userStore.user?.user_metadata.role === 'ADMIN' || userStore.user?.user_metadata.role === 'MANAGER')" class="mb-4">
-                <span class="tw-font-semibold">Division: </span>
-                <span>{{ product.company_division }}</span>
+            <!-- Shape -->
+            <div v-if="product?.parent?.shape?.name" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Shape: </span>
+              <span>{{ product.parent.shape.name }}</span>
+            </div>
+           <!-- UPC -->
+            <div v-if="product?.upc_codes" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">UPC: </span>
+              <span>{{ product.upc_codes }}</span>
+              <v-btn
+                size="small"
+                @click="copyTextToClipboard(product.upc_codes, 'UPC')"
+                icon="mdi-content-copy"
+                color="blue"
+                variant="text"
+              >
+              </v-btn>
+              <v-btn
+                size="small"
+                @click="upcCodeDialog = true"
+                icon="mdi-barcode"
+                color="blue"
+                variant="text"
+              >
+              </v-btn>
+              <v-dialog v-model="upcCodeDialog" max-width="400px">
+                <v-card>
+                  <v-card-title class="d-flex justify-space-between align-center tw-px-10">
+                    <div class="tw-text-xl">
+                      UPC Code
+                    </div>
+                    <v-btn
+                      icon="mdi-close"
+                      variant="text"
+                      @click="upcCodeDialog = false"
+                    ></v-btn>
+                  </v-card-title>
+                  <v-card-text class="tw-flex tw-justify-center tw-items-center">
+                    <Barcode
+                      :value="product.upc_codes"
+                      :format="'UPC'"
+                      :line-color="'#000'"
+                    />
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </div>
+           <!-- Encoded UPC -->
+            <div v-if="product?.encoded_upc_codes" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Encoded UPC: </span>
+              <span>{{ product.encoded_upc_codes }}</span>
+              <v-btn
+                size="small"
+                @click="copyTextToClipboard(product.encoded_upc_codes, 'Encoded UPC')"
+                icon="mdi-content-copy"
+                color="blue"
+                variant="text"
+              >
+              </v-btn>
+              <v-btn
+                size="small"
+                @click="encodedUpcCodeDialog = true"
+                icon="mdi-barcode"
+                color="blue"
+                variant="text"
+              >
+              </v-btn>
+              <v-dialog v-model="encodedUpcCodeDialog" max-width="400px">
+                <v-card>
+                  <v-card-title class="d-flex justify-space-between align-center tw-px-10">
+                    <div class="tw-text-xl">
+                      Encoded UPC Code
+                    </div>
+                    <v-btn
+                      icon="mdi-close"
+                      variant="text"
+                      @click="encodedUpcCodeDialog = false"
+                    ></v-btn>
+                  </v-card-title>
+                  <v-card-text class="tw-flex tw-justify-center tw-items-center">
+                    <Barcode
+                      :value="product.encoded_upc_codes"
+                      :line-color="'#000'"
+                    />
+                  </v-card-text>
+                </v-card>
+              </v-dialog>
+            </div>
+            <!-- Product Length -->
+            <div v-if="product?.product_length" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Size (Length): </span>
+              <span>{{ product.product_length }}</span>
+            </div>
+            <!-- Product Diameter -->
+            <div v-else-if="product?.product_diameter" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Size (Diameter): </span>
+              <span>{{ product.product_diameter }}</span>
+            </div>
+            <!-- Width -->
+            <div v-if="product?.product_width" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Width: </span>
+              <span>{{ product.product_width }}</span>
+            </div>
+            <!-- Height -->
+            <div v-if="product?.product_height" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Height: </span>
+              <span>{{ product.product_height }}</span>
+            </div>
+            <!-- Base Length -->
+            <div v-if="product?.base_length" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Base Length: </span>
+              <span>{{ product.base_length }}</span>
+            </div>
+            <!-- Base Diameter -->
+            <div v-if="product?.base_diameter" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Base Diameter: </span>
+              <span>{{ product.base_diameter }}</span>
+            </div>
+            <!-- Base Width -->
+            <div v-if="product?.base_width" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Base Width: </span>
+              <span>{{ product.base_width }}</span>
+            </div>
+            <!-- Base Opening -->
+            <div v-if="product?.base_opening" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Base Opening: </span>
+              <span>{{ product.base_opening }}</span>
+            </div>
+            <!-- Toe Kick -->
+            <div v-if="product?.toe_kick" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Toe Kick: </span>
+              <span>{{ product.toe_kick }}</span>
+            </div>
+            <!-- Soil Usage -->
+            <div v-if="product?.soil_usage" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Soil Usage: </span>
+              <span>{{ product.soil_usage }}</span>
+            </div>
+            <!-- Scupper Width -->
+            <div v-if="product?.scupper_width" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Scupper Width: </span>
+              <span>{{ product.scupper_width }}</span>
+            </div>
+            <!-- Scupper Inlet Opening -->
+            <div v-if="product?.scupper_inlet_opening" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Scupper Inlet Opening: </span>
+              <span>{{ product.scupper_inlet_opening }}</span>
+            </div>
+            <!-- GPM -->
+            <div v-if="product?.gpm" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">GPM (Gallons Per Minute): </span>
+              <span>{{ product.gpm }}</span>
+            </div>
+            <!-- Fire Glass -->
+            <div v-if="product?.fire_glass" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Fire Glass: </span>
+              <span>{{ product.fire_glass }}</span>
+            </div>
+            <!-- BA Length -->
+            <div v-if="product?.ba_length" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">BA Length: </span>
+              <span>{{ product.fire_glass }}</span>
+            </div>
+            <!-- BA Diameter -->
+            <div v-if="product?.ba_diameter" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">BA Diameter: </span>
+              <span>{{ product.ba_diameter }}</span>
+            </div>
+            <!-- BA Width -->
+            <div v-if="product?.ba_width" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">BA Width: </span>
+              <span>{{ product.ba_width }}</span>
+            </div>
+            <!-- BA Depth -->
+            <div v-if="product?.ba_depth" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">BA Depth: </span>
+              <span>{{ product.ba_depth }}</span>
+            </div>
+            <!-- Burner Shape -->
+            <div v-if="product?.burner_shape || product?.parent?.burner_shape" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Burner Shape: </span>
+              <span>{{ product.burner_shape || product.parent?.burner_shape }}</span>
+            </div>
+            <!-- Burner Length -->
+            <div v-if="product?.burner_length" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Burner Length: </span>
+              <span>{{ product.burner_length }}</span>
+            </div>
+            <!-- Burner Diameter -->
+            <div v-if="product?.burner_diameter" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Burner Diameter: </span>
+              <span>{{ product.burner_diameter }}</span>
+            </div>
+            <!-- Company Division -->
+            <div v-if="product?.parent?.company_division && (userStore.user?.user_metadata.role === 'ADMIN' || userStore.user?.user_metadata.role === 'MANAGER')" class="tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">Division: </span>
+              <span>{{ product.parent.company_division }}</span>
+            </div>
+            <!-- Certifications -->
+            <div v-if="product?.certifications" class="tw-w-full mb-4 tw-flex tw-justify-end">
+              <template v-for="(cert, key) in product.certifications" :key="key">
+                <div class="px-3">
+                  <v-img
+                    :width="70"
+                    :lazy-src="certificationsLogo(cert)"
+                    :src="certificationsLogo(cert)"
+                  ></v-img>
+                </div>
+              </template>
+            </div>
+          </div>
+          <div><hr></div>
+          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-text-lg tw-mt-4 tw-px-4 tw-flex-wrap">
+            <div
+              v-for="(item, index) in prodAttributesList"
+              :key="index"
+              class="tw-w-6/12"
+            >
+              <div class="mb-4">
+                <span class="tw-font-semibold">{{ item.attribute?.name }}: </span>
+                <span>{{ getAttributeValue(item) }}</span>
               </div>
             </div>
           </div>
-          <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg">
-            <div v-if="websiteLink && urlTitle">
+          <div v-if="websiteLink && urlTitle" class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-4 tw-text-lg">
+            <div>
               <span class="tw-font-semibold tw-ml-4">Website Link: </span>
               <a :href="websiteLink" target="_blank" class="tw-text-blue-600 hover:tw-underline">{{ urlTitle }}</a>
             </div>
@@ -242,19 +446,103 @@
         </template>
       </div>
     </div>
+    <div v-if="product && product.id" class="tw-w-full tw-flex tw-flex-col tw-mt-10 tw-mb-12">
+      <h2 class="tw-text-xl tw-font-bold">Product Configuration</h2>
+      <v-expansion-panels class="tw-mb-6 tw-w-full" multiple>
+        <v-expansion-panel v-for="(attr, i) in prodAttributesList" :key="`attribute-${i}`" class="tw-my-2">
+          <v-expansion-panel-title>{{ attr.attribute?.name }}</v-expansion-panel-title>
+          <v-expansion-panel-text>
+            <div class="tw-flex tw-flex-row tw-flex-wrap tw-justify-center lg:tw-justify-start mx-auto">
+              <div
+                v-for="(attrVal, index) in attr.attribute_values"
+                :key="index"
+                class="tw-w-6/12 md:tw-w-4/12 lg:tw-w-2/12 3xl:tw-w-1/12 tw-mx-4 tw-my-2 tw-px-1 tw-py-5 tw-border-gray-300 tw-border tw-rounded-md tw-flex tw-flex-col tw-justify-center tw-items-center tw-text-center"
+                :class="{ 'tw-bg-green-100 tw-border-green-400': isCurrentConfiguration(attr?.attribute?.id!, attrVal.id), 'hover:tw-cursor-pointer tw-transition hover:tw-bg-blue-100': getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.exists }"
+                @click.prevent="redirectToVariation(getVariationConfiguration(attr?.attribute?.id!, attrVal.id))"
+              >
+                <div class="tw-text-lg lg:tw-px-6">
+                  {{ attrVal.name }}
+                </div>
+                <div v-if="attrVal.image_url">
+                  <v-img
+                    :width="50"
+                    :src="attrVal.image_url"
+                    class="tw-my-2"
+                  ></v-img>
+                </div>
+                <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
+                  SKU: <span class="tw-text-blue-600">{{ getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku }}</span>
+                </span>
+              </div>
+            </div>
+
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { supabase } from '@/supabase';
 import { ref, computed, watch, Ref } from 'vue';
-import { Product as BaseProduct, Image, PriceData } from '@/types/product';
+import { AttributeValues, Product as BaseProduct, Documents, Image, Price, PriceData, ProductAttribute, SpecificationSheet } from '@/types/product';
 import { VSkeletonLoader } from 'vuetify/lib/labs/components.mjs';
 import { useNotification } from '@kyvg/vue3-notification';
 import { useUserStore } from '@/store/user';
 import { useProductStore } from '@/store/product';
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { Variation as BaseVariation } from '@/types/variation';
+import Barcode from '@/components/Barcode.vue';
+import ULCertification from '@/assets/UL_certification.webp';
+import CSACertification from '@/assets/CSA_certification.png';
+import ETLCertification from '@/assets/ETL_certification.png';
+import LCCertification from '@/assets/LC_certification.png';
+
+interface Variation extends BaseVariation {
+  parent?: {
+    base_color?: {
+      name: string;
+    };
+    base_material?: {
+      name: string;
+    };
+    category?: {
+      name: string;
+    };
+    collection?: {
+      name: string;
+    };
+    color?: {
+      name: string;
+    };
+    gas?: {
+      name: string;
+    };
+    ignition?: {
+      name: string;
+    };
+    material?: {
+      name: string;
+    };
+    shape?: {
+      name: string;
+    };
+    company_division: string;
+    website_link: string;
+    burner_shape: string;
+  }
+}
+
+interface ProductVariation extends BaseVariation {
+  variation_configuration?: {
+    value_id?: {
+      attribute_id?: number;
+      id?: number;
+    }
+  }[];
+}
 
 interface Product extends BaseProduct {
   base_color?: {
@@ -316,6 +604,41 @@ interface Img extends Image {
   previewUrl?: string;
 }
 
+interface ProductConfigurationTable {
+  color?: {
+    id: number;
+    name: string;
+  };
+  material?: {
+    id: number;
+    name: string;
+  };
+  gas?: {
+    id: number;
+    name: string;
+  };
+  ignition?: {
+    id: number;
+    name: string;
+  };
+}
+
+interface ProductConfiguration extends ProductConfigurationTable {
+  attribute?: {
+    name?: string;
+    slug?: string;
+    table_name?: string;
+  };
+  value?: string;
+}
+
+interface VariationConfiguration {
+  sku: string;
+  attributeId: number;
+  valueId: number;
+  exists: boolean;
+}
+
 const { notify } = useNotification();
 const userStore = useUserStore();
 const productStore = useProductStore();
@@ -326,9 +649,7 @@ const imageSlider = ref();
 const urlTitle = ref('');
 const skuSearch = ref('');
 const isLoading = ref(false);
-const product: Ref<Product | undefined> = ref<Product | undefined>({});
-const parentGroup: Ref<Product | undefined> = ref<Product | undefined>({});
-const parent: Ref<Product | undefined> = ref<Product | undefined>({});
+const product: Ref<Variation | undefined> = ref<Variation | undefined>({});
 const images: Ref<Img[]> = ref<Img[]>([]);
 const parentImages: Ref<Img[]> = ref<Img[]>([]);
 const specSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
@@ -347,6 +668,23 @@ const prices: Ref<PriceData> = ref<PriceData>({
   master_distributor: [],
   msrp: [],
 });
+const upcCodeDialog = ref(false);
+const encodedUpcCodeDialog = ref(false);
+const skuDialog = ref(false);
+const certificationsLogo = (cert: string) => ({
+  'LC': LCCertification,
+  'CSA': CSACertification,
+  'ETL': ETLCertification,
+  'UL': ULCertification,
+})[cert];
+
+const productConfiguration: Ref<ProductConfiguration[]> = ref<ProductConfiguration[]>([]);
+const allProductVariations: Ref<ProductVariation[]> = ref<ProductVariation[]>([]);
+const currentConfiguration: Ref<{ [key: number]: number }> = ref<{ [key: number]: number }>({});
+const variationConfigurations: Ref<VariationConfiguration[]> = ref<VariationConfiguration[]>([]);
+
+const prodAttributesList: Ref<ProductAttribute[]> = ref<ProductAttribute[]>([]);
+const websiteLink: Ref<string> = ref<string>('')
 
 const userIsAdmin = computed(() => {
   const adminRoles = ['MANAGER', 'ADMIN'];
@@ -356,7 +694,6 @@ const userIsAdmin = computed(() => {
 });
 
 onMounted(async () => {
-  console.log(route.query.sku);
   if (route.query.sku) {
     skuSearch.value = String(route.query.sku);
     await loadProductInformation();
@@ -426,10 +763,6 @@ const allDocuments = computed(() => {
   return allDocs;
 });
 
-const websiteLink = computed(() => {
-  return product.value?.website_link || parentGroup.value?.website_link || parent.value?.website_link || '';
-});
-
 const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
   const uniqueUrls = new Map<string, boolean>();
   return arr.reduce((acc: T[], current: T) => {
@@ -455,9 +788,6 @@ const loadProductInformation = async () => {
     isLoading.value = true;
     product.value = await loadProduct();
     if (product.value) {
-      // parentGroup.value = await loadParent(product.value?.parent_id || 0) || undefined;
-      // if (parentGroup.value) parent.value = await loadParent(parentGroup.value?.parent_id || 0) || undefined;
-
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
       allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
@@ -466,11 +796,17 @@ const loadProductInformation = async () => {
       images.value = await loadImages(product.value?.id!) || [];
       specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
       documents.value = await loadDocuments(product.value?.id!) || [];
-      // if (product.value.parent_id) {
-      //   parentImages.value = await loadImages(product.value.parent_id) || [];
-      //   parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id) || [];
-      //   parentDocuments.value = await loadDocuments(product.value.parent_id) || [];
-      // }
+      websiteLink.value = product.value?.website_link || product.value?.parent?.website_link || '';
+      await loadAttributes(product.value?.parent_id || 0);
+      await loadProductConfiguration(product.value?.id || 0);
+      if (product.value.parent_id) {
+        parentImages.value = await loadImages(product.value.parent_id, 'parent') || [];
+        parentSpecSheets.value = await loadSpecificationSheets(product.value.parent_id, 'parent') || [];
+        parentDocuments.value = await loadDocuments(product.value.parent_id, 'parent') || [];
+      }
+      await loadOverallProductConfiguration(product.value?.parent_id || 0);
+      await loadAllProductVariations(product.value?.parent_id || 0);
+      calculateCurrentConfiguration();
     }
   } catch (e) {
     console.error(e);
@@ -504,12 +840,18 @@ const availableYears = computed((): number[] => {
 watch(
   () => websiteLink.value,
   async () => {
-    const response = await fetch(websiteLink.value);
-    const html = await response.text();
-    const doc = new DOMParser().parseFromString(html, 'text/html');
-    const title = doc.querySelectorAll('title')[0];
-    urlTitle.value = title.innerText;
-  }
+    try {
+      console.log(websiteLink.value);
+      const response = await fetch(websiteLink.value);
+      const html = await response.text();
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      const title = doc.querySelectorAll('title')[0];
+      urlTitle.value = title.innerText;
+    } catch(e) {
+      urlTitle.value = product.value?.name || '';
+    }
+  },
+  { deep: true }
 );
 
 watch(
@@ -519,50 +861,50 @@ watch(
   },
 );
 
-const loadParent = async (id: number) => {
-  try {
-    const { data: parentGroup, error } = await supabase.from(`product`)
-      .select(`id, parent_id, website_link`)
-      .eq(`id`, id)
-      .maybeSingle();
-    if (error) throw error;
-    return parentGroup as unknown as Product;
-  } catch (e: any) {
-    console.error(e);
-  }
-}
+const tableName = (table: string, prodType: string) => ({
+  'product': `product_${table}`,
+  'variation': `variation_${table}`,
+})[prodType] || `product_${table}`;
+
+const columnName = <T,>(prodType: string) => ({
+  'product': 'product_id' as keyof T,
+  'variation': 'variation_id' as keyof T,
+})[prodType] || 'product_id' as keyof T;
 
 const loadProduct = async () => {
   try {
-    const { data: product, error } = await supabase.from(`product`)
+    const { data: product, error } = await supabase.from(`variation`)
       .select(`
         *,
-        base_color:base_color_id(name),
-        base_material:base_material_id(name),
-        category:category_id(name),
-        collection:collection_id(name),
-        color:color_id(name),
-        gas:gas_id(name),
-        ignition:ignition_id(name),
-        material:material_id(name),
-        shape:shape_id(name)
+        parent:parent_id(
+          category:category_id(name),
+          collection:collection_id(name),
+          shape:shape_id(name),
+          website_link,
+          company_division,
+          burner_shape,
+          compatible_canvas_cover,
+          compatible_bullet_burner,
+          compatible_glass_wind_guard,
+          access_door
+        )
       `)
-      .eq(`sku`, skuSearch.value.toUpperCase())
+      .eq(`sku`, skuSearch.value.toUpperCase().trim())
       .eq(`enabled`, true)
       .maybeSingle();
     if (error) throw error;
-    return product as unknown as Product;
+    return product as unknown as Variation;
   } catch(e: any) {
     product.value = {};
     console.error(e);
   }
 }
 
-const loadImages = async (id: number) => {
+const loadImages = async (id: number, prodType: string = 'variation') => {
   try {
-    const { data: images, error: imgError } = await supabase.from(`product_image`)
+    const { data: images, error: imgError } = await supabase.from(tableName('image', prodType))
       .select(`image:image_id(id, name, url), display_order, is_primary`)
-      .eq(`product_id`, id);
+      .eq(`${columnName<Image>(prodType)}`, id);
     if (imgError) throw imgError;
     return images as unknown as Img[];
   } catch (e: any) {
@@ -570,11 +912,11 @@ const loadImages = async (id: number) => {
   }
 }
 
-const loadSpecificationSheets = async (id: number) => {
+const loadSpecificationSheets = async (id: number, prodType: string = 'variation') => {
   try {
-    const { data: specSheets, error } = await supabase.from(`product_specification_sheet`)
+    const { data: specSheets, error } = await supabase.from(tableName('specification_sheet', prodType))
       .select(`specification_sheet:specification_sheet_id(id, name, url)`)
-      .eq(`product_id`, id);
+      .eq(`${columnName<SpecificationSheet>(prodType)}`, id);
     if (error) throw error;
     return specSheets as unknown as SpecSheet[];
   } catch (e: any) {
@@ -582,11 +924,11 @@ const loadSpecificationSheets = async (id: number) => {
   }
 }
 
-const loadDocuments = async (id: number) => {
+const loadDocuments = async (id: number, prodType: string = 'variation') => {
   try {
-    const { data: docs, error } = await supabase.from(`product_documents`)
+    const { data: docs, error } = await supabase.from(tableName('documents', prodType))
       .select(`document:document_id(id, name, url)`)
-      .eq(`product_id`, id);
+      .eq(`${columnName<Documents>(prodType)}`, id);
     if (error) throw error;
     return docs as unknown as Doc[];
   } catch (e: any) {
@@ -604,11 +946,11 @@ const replaceDropboxLink = (url: string | undefined, queryParam: string) => {
   return url || '';
 }
 
-const loadProductPrices = async (type: string, product_id: number) => {
+const loadProductPrices = async (type: string, product_id: number, prodType: string = 'variation') => {
   try {
     const { data: price, error } = await supabase.from(`${type}_price`)
       .select('price, year')
-      .eq(`product_id`, product_id);
+      .eq(`${columnName<Price>(prodType)}`, product_id);
     if (error) throw error;
     return {
       price_type: type,
@@ -623,4 +965,299 @@ const loadProductPrices = async (type: string, product_id: number) => {
     });
   }
 }
+
+const loadProductConfiguration = async (variationId: number) => {
+  try {
+    const { data, error } = await supabase.from(`variation_configuration`)
+      .select(`attribute_value:value_id(
+        attribute:attribute_id(
+          name,
+          table_name,
+          slug
+        ),
+        value,
+        material:material_id(id, name),
+        color:color_id(id, name, image_url),
+        gas:gas_id(id, name),
+        ignition:ignition_id(id, name)
+      )`)
+      .eq(`variation_id`, variationId);
+    if (error) throw error;
+    productConfiguration.value = data.map((attr) => attr.attribute_value) as ProductConfiguration[];
+  } catch (e: any) {
+    notify({
+      title: `Error loading product configuration.`,
+      text: e?.message || `An error occurred trying to load product configuration. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  }
+}
+
+const loadAttributes = async (parentId: number) => {
+  try {
+    if (parentId) {
+      const { data, error } = await supabase
+        .from('product_attribute')
+        .select('id, attribute:attribute_id(id, name, table_name), fill_values')
+        .eq('product_id', parentId);
+      if (error) throw error;
+      prodAttributesList.value = data as ProductAttribute[];
+    }
+  } catch (e: any) {
+    notify({
+      title: `Error loading product configuration attributes.`,
+      text: e?.message || `An error occurred trying to load product configuration attributes. Please contact TOP Support.`,
+      type: 'error',
+      duration: 6000,
+    });
+  }
+}
+
+const getAttributeValue = (prodAttr: ProductAttribute) => {
+  const prodAttrTableName = prodAttr.attribute?.table_name as keyof ProductConfigurationTable;
+  const currentProdConf = productConfiguration.value.find((prodConf) =>
+    prodConf.attribute?.table_name ?
+      prodConf.attribute?.table_name === prodAttr.attribute?.table_name :
+      prodConf.attribute?.name === prodAttr.attribute?.name
+  );
+  if (prodAttrTableName && currentProdConf) {
+    return (currentProdConf as ProductConfigurationTable)[prodAttrTableName]?.name;
+  }
+  if (currentProdConf) {
+    return currentProdConf?.value || '';
+  }
+  return '';
+}
+
+const copyTextToClipboard = async (textToCopy: string, title: string) => {
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(textToCopy);
+      notify({
+        title: `${title} copied to clipboard!`,
+        duration: 6000,
+      });
+    }
+  } catch (e: any) {
+    notify({
+      title: `Can't copy to clipboard.`,
+      text: `Looks like copying to clipboard is not supported by your browser. Please update your browser or contact TOP Support.`,
+      type: 'error',
+      duration: 9000,
+    });
+  }
+}
+
+const loadOverallProductConfiguration = async (parentId: number) => {
+  try {
+    const prodConfiguValuesPromises: Promise<any>[] = [];
+    prodAttributesList.value.forEach((prodAttr) => {
+      const attributeId = prodAttr?.attribute?.id || 0;
+      if (attributeId) {
+        if (prodAttr.fill_values)
+          prodConfiguValuesPromises.push(loadAttributeValues(attributeId))
+        else
+          prodConfiguValuesPromises.push(loadProductAttributes(parentId, attributeId))
+      }
+    });
+    const promiseResult = await Promise.allSettled(prodConfiguValuesPromises);
+    const hasColor = prodAttributesList.value.find((prodAttr) => prodAttr.attribute?.table_name === 'color');
+    let material: undefined | ProductConfiguration = undefined;
+    if (hasColor) {
+       material = productConfiguration.value.find((prodConf) => prodConf?.material && prodConf.material.id);
+    }
+    prodAttributesList.value = prodAttributesList.value.map((prodAttr) => {
+      const prodAttrTableName = prodAttr.attribute?.table_name as keyof ProductConfigurationTable;
+      const attrValue = promiseResult.find((result) => result.status === 'fulfilled' && result.value.attributeId === prodAttr?.attribute?.id);
+      const attrValues = attrValue?.status === 'fulfilled' ?
+        attrValue.value.data.reduce((result: any, val: any) => {
+          let value = null;
+          if (!prodAttr.fill_values) {
+            if (val.value) {
+              if (prodAttrTableName) {
+                if (prodAttrTableName === 'color' && material) {
+                  if (val?.value?.color?.material_id === material?.material?.id) {
+                    value = {
+                      id: val.value.id,
+                      name: val.value.color.name,
+                      image_url: val.value.color.image_url
+                    }
+                    result.push(value);
+                  }
+                } else {
+                  value = {
+                    id: val.value.id,
+                    name: val.value[prodAttrTableName].name,
+                  }
+                  result.push(value);
+                }
+              } else {
+                value = {
+                  id: val.value.id,
+                  name: val.value.value,
+                }
+                result.push(value);
+              }
+
+            }
+          } else {
+            if (prodAttrTableName) {
+              if (prodAttrTableName === 'color' && material) {
+                if (val?.color?.material_id === material?.material?.id) {
+                  value = {
+                    id: val.id,
+                    name: val.color.name,
+                    image_url: val.color.image_url
+                  }
+                  result.push(value);
+                }
+              } else {
+                value = {
+                  id: val.id,
+                  name: val[prodAttrTableName].name
+                }
+                result.push(value);
+              }
+
+            } else {
+              value = {
+                id: val.id,
+                value: val.value,
+              }
+              result.push(value);
+            }
+          }
+          return result;
+        }, []) :
+        [];
+
+      return {
+        ...prodAttr,
+        attribute_values: attrValues,
+      }
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+}
+
+const loadAttributeValues = async(attributeId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('attribute_value')
+      .select('id, attribute_id, value, material:material_id(id, name), color:color_id(id, name, material_id, image_url), gas:gas_id(id, name), ignition:ignition_id(id, name)')
+      .eq('attribute_id', attributeId);
+    if (error) throw error;
+    return { attributeId, data };
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
+const loadProductAttributes = async (productId: number, attributeId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('product_configuration')
+      .select('product_id, value:value_id(id, attribute_id, value, material:material_id(id, name), color:color_id(id, name, material_id, image_url), gas:gas_id(id, name), ignition:ignition_id(id, name))')
+      .eq('product_id', productId)
+      .eq('value.attribute_id', attributeId);
+    if (error) throw error;
+    return { attributeId, data };
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const loadAllProductVariations = async (parentId: number) => {
+  try {
+    const { data, error } = await supabase
+      .from('variation')
+      .select('id, parent_id, sku, variation_configuration(value_id(id, attribute_id))')
+      .eq('parent_id', parentId);
+    if (error) throw error;
+    allProductVariations.value = data as ProductVariation[];
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+const calculateCurrentConfiguration = () => {
+  prodAttributesList.value.forEach((attr) => {
+    attr.attribute_values?.forEach((attrVal) => {
+      let isCurrent = false;
+      allProductVariations.value.forEach((variation) => {
+        if (variation.id === product?.value?.id) {
+          isCurrent = !!variation.variation_configuration?.find((varConf) => (
+            varConf?.value_id?.id === attrVal.id
+          ));
+        }
+      });
+      if (isCurrent) currentConfiguration.value[attr?.attribute?.id!] = attrVal.id;
+    });
+  });
+  prodAttributesList.value.forEach((attr) => {
+    attr.attribute_values?.forEach((attrVal) => {
+      calculateConfigurationsData(attr?.attribute?.id!, attrVal.id);
+    });
+  });
+}
+
+const isCurrentConfiguration = (attributeId: number, attributeValueId: number) => {
+  return currentConfiguration.value[attributeId] && currentConfiguration.value[attributeId] == attributeValueId;
+}
+
+const calculateConfigurationsData = (selectedAttrId: number, selectedAttrValueId: number) => {
+  if (!isCurrentConfiguration(selectedAttrId, selectedAttrValueId)) {
+    const variation = allProductVariations.value.find((prodVar) => {
+      let isVariation = false;
+      const hasConfiguration: any = [];
+      prodVar.variation_configuration?.forEach((varConf) => {
+        const varConfAttrId = varConf?.value_id?.attribute_id || 0;
+        const varConfValId = varConf.value_id?.id || 0;
+        if (varConfAttrId === selectedAttrId && varConfValId === selectedAttrValueId) {
+          hasConfiguration.push({
+            id: varConfAttrId,
+            isCurrent: true,
+          });
+          return;
+        } else {
+          const hasAlreadyBeenEvaluated = hasConfiguration.find((hasConf: any) => hasConf.id === varConfAttrId);
+          if (!hasAlreadyBeenEvaluated && varConfAttrId !== selectedAttrId && varConfAttrId in currentConfiguration.value && varConfValId === currentConfiguration.value[varConfAttrId])
+            hasConfiguration.push({
+              id: varConfAttrId,
+              isCurrent: true,
+            });
+          else
+            hasConfiguration.push({
+              id: varConfAttrId,
+              isCurrent: false,
+            });
+        }
+      });
+      isVariation = hasConfiguration.every((hasConf: any) => hasConf.isCurrent);
+      return isVariation;
+    });
+    variationConfigurations.value.push({
+      sku: variation?.sku || 'No SKU Assigned.',
+      attributeId: selectedAttrId,
+      valueId: selectedAttrValueId,
+      exists: !!(variation && variation.sku),
+    });
+  }
+}
+
+const getVariationConfiguration = (attrId: number, valueId: number) => {
+  return  variationConfigurations.value.find((varConf) => varConf.attributeId === attrId && varConf.valueId === valueId);
+}
+
+const redirectToVariation = async (variationConfiguration?: VariationConfiguration) => {
+  if (variationConfiguration && variationConfiguration.sku && variationConfiguration.exists) {
+    skuSearch.value = variationConfiguration.sku;
+    await loadProductInformation();
+    router.push(`/?sku=${variationConfiguration.sku}`);
+  }
+}
+
 </script>
