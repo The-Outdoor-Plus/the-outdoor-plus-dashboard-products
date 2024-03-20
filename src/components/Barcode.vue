@@ -2,6 +2,31 @@
 import { h } from 'vue';
 import JsBarcode from 'jsbarcode';
 
+interface Setting {
+  format?: string;
+  width?: string | number;
+  height?: string | number;
+  displayValue?: string | boolean;
+  text?: string | number;
+  fontOptions?: string;
+  font?: string;
+  textAlign?: string;
+  textPosition?: string;
+  textMargin?: string | number;
+  fontSize?: string | number;
+  background?: string;
+  lineColor?: string;
+  margin?: string | number;
+  marginTop?: string | number;
+  marginBottom?: string | number;
+  marginLeft?: string | number;
+  marginRight?: string | number;
+  flat?: boolean;
+  ean128?: string | boolean;
+  valid?: Function | null;
+  elementTag?: string | HTMLElement | null;
+}
+
 export default {
   name: 'Barcode',
   props: {
@@ -32,20 +57,20 @@ export default {
     elementTag: {
       type: String,
       default: 'svg',
-      validator: function (value) {
+      validator: function (value: string) {
         return ['canvas', 'svg', 'img'].indexOf(value) !== -1;
       },
     },
   },
 
   methods: {
-    removeUndefinedProps(obj) {
+    removeUndefinedProps(obj: any) {
       Object.keys(obj).forEach(key => obj[key] === undefined ? delete obj[key]: {});
     },
     generateBarcode() {
       const that = this;
 
-      const settings = {
+      const settings: Setting = {
         format: this.format,
         width: this.width,
         height: this.height,
@@ -66,7 +91,8 @@ export default {
         marginRight: this.marginRight,
         flat: this.flat,
         ean128: this.ean128,
-        valid: function (valid) {
+        valid: function (valid: any) {
+          // @ts-ignore
           that.valid = valid;
         },
         elementTag: this.elementTag,
@@ -74,7 +100,7 @@ export default {
 
       this.removeUndefinedProps(settings);
 
-      JsBarcode(this.$el, this.value, settings);
+      JsBarcode(this.$el, this.value as string, settings as any);
     },
   },
 
