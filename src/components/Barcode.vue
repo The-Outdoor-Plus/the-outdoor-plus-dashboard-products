@@ -1,4 +1,4 @@
-<script>
+<script lant="ts">
 import { h } from 'vue';
 import JsBarcode from 'jsbarcode';
 
