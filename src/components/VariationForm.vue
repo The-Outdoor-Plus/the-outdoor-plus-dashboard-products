@@ -863,6 +863,7 @@ import { useProductSpecificationSheet } from '@/composables/productSpecification
 import { useProductDocument } from '@/composables/productDocuments';
 import { useProductPrice } from '@/composables/productPrices';
 import { useProductStore } from '@/store/product';
+import { toRaw } from 'vue';
 
 /**
  *
@@ -895,11 +896,14 @@ watch(
 watch(
   () => props.variationAttributes,
   (variationAttributes) => {
-    if (variationAttributes)
-      attributes.value = variationAttributes;
+    if (variationAttributes) {
+      attributes.value = structuredClone(toRaw(variationAttributes));
+      oldVariationAttributes.value = structuredClone(toRaw(variationAttributes));
+    }
   },
   { deep: true }
 )
+
 
 watch(
   () => props.variation,
@@ -947,6 +951,7 @@ const isAttributeValuesLoading = ref(false);
 const prodAttributesList: Ref<ProductAttribute[]> = ref<ProductAttribute[]>([]);
 const attributeValuesList: Ref<AttributeValues> = ref<AttributeValues>({});
 const attributes: Ref<{ [key: number]: number | null }> = ref<{ [key: number]: number | null }>({});
+const oldVariationAttributes: Ref<{ [key: number]: number | null }> = ref<{ [key: number]: number | null }>({});
 
 const loadParentAttributes = async () => {
   try {
@@ -1024,16 +1029,51 @@ const getAttributeItemValue = (tableName: string | undefined) => {
   return 'value';
 }
 
-const saveAttributeValue = async (variationId: number, valueId: number) => {
+const saveAttributeValue = async (variationId: number, valueId: number, attributeId: number) => {
   try {
     isLoading.value = true;
     const form = {
       variation_id: variationId,
       value_id: valueId,
+      attribute_id: attributeId,
+    };
+    if (oldVariationAttributes.value && oldVariationAttributes.value[attributeId]) {
+      const { error } = await supabase
+        .from('variation_configuration')
+        .update(form)
+        .eq('attribute_id', attributeId)
+        .eq('variation_id', variationId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase
+        .from('variation_configuration')
+        .upsert(form)
+        .eq('attribute_id', attributeId)
+        .eq('variation_id', variationId);
+      if (error) throw error;
+      oldVariationAttributes.value[attributeId] = valueId;
+    }
+
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const updateAttributeValue = async (variationId: number, valueId: number, attributeId: number) => {
+  try {
+    isLoading.value = true;
+    const form = {
+      variation_id: variationId,
+      value_id: valueId,
+      attribute_id: attributeId,
     };
     const { error } = await supabase
       .from('variation_configuration')
-      .upsert(form);
+      .update(form)
+      .eq('attribute_id', attributeId)
+      .eq('variation_id', variationId);
     if (error) throw error;
   } catch (e) {
     console.error(e);
@@ -1046,9 +1086,13 @@ const setAttributeValues = async (variationId: number) => {
   try {
     isLoading.value = true;
     const saveVariationConfigurations: Promise<any>[] = [];
-    Object.values(attributes.value).forEach((attrValue) => {
-      if (attrValue)
-        saveVariationConfigurations.push(saveAttributeValue(variationId, attrValue));
+    Object.entries(attributes.value).forEach(([attrKey, attrValue]) => {
+      if (attrValue) {
+        // if (props.edit)
+        //   saveVariationConfigurations.push(updateAttributeValue(variationId, attrValue, +attrKey));
+        // else
+          saveVariationConfigurations.push(saveAttributeValue(variationId, attrValue, +attrKey));
+      }
     });
     const promiseResult = await Promise.allSettled(saveVariationConfigurations);
   } catch (e) {
