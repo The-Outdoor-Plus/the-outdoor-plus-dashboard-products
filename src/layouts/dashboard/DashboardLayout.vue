@@ -3,7 +3,7 @@
     <top-bar :title="store.pageTitle"></top-bar>
     <nav-bar></nav-bar>
     <v-main class="tw-bg-gray-50">
-      <div class="tw-px-20 tw-pt-14">
+      <div class="tw-px-4 lg:tw-px-20 tw-pt-14">
         <router-view />
       </div>
     </v-main>

@@ -9,8 +9,28 @@
       <v-text-field
         v-model="skuSearch"
         variant="solo"
+        label="Search by SKU/Part Number"
+        append-inner-icon="mdi-magnify"
+        placeholder="Enter SKU/Part Number (Hit Enter To Search)"
+        @click:append-inner="onEnterSearch"
         @keyup.enter="onEnterSearch"
       ></v-text-field>
+    </div>
+    <div
+      v-if="notFound"
+      class="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center tw-px-4 lg:tw-px-12"
+    >
+      <v-img
+        src="@/assets/not_found.svg"
+        inline
+        class="tw-w-10/12 sm:tw-w-5/12 lg:tw-mt-16 tw-mb-8"
+      ></v-img>
+      <h2 class="tw-text-2xl tw-text-center">
+        SKU / Part Number Not Found.
+      </h2>
+      <div class="md:tw-text-lg tw-text-center tw-mt-4">
+        We don't have information for this part number yet. Please contact TOP support and try with another Part Number.
+      </div>
     </div>
     <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10 tw-mb-12">
       <div class="tw-w-full lg:tw-w-7/12">
@@ -356,7 +376,7 @@
               </v-carousel-item>
             </v-carousel>
           </v-card>
-          <div v-if="imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
+          <div v-if="product && imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
             <div class="tw-flex tw-text-lg tw-font-semibold">
               {{ allImages[imageSlider].name }}
               </div>
@@ -450,7 +470,7 @@
       <h2 class="tw-text-xl tw-font-bold">Product Configuration</h2>
       <v-expansion-panels class="tw-mb-6 tw-w-full" multiple>
         <v-expansion-panel v-for="(attr, i) in prodAttributesList" :key="`attribute-${i}`" class="tw-my-2">
-          <v-expansion-panel-title>{{ attr.attribute?.name }}</v-expansion-panel-title>
+          <v-expansion-panel-title class="tw-font-bold">{{ attr.attribute?.name }}</v-expansion-panel-title>
           <v-expansion-panel-text>
             <div class="tw-flex tw-flex-row tw-flex-wrap tw-justify-center lg:tw-justify-start mx-auto">
               <div
@@ -460,7 +480,7 @@
                 :class="{ 'tw-bg-green-100 tw-border-green-400': isCurrentConfiguration(attr?.attribute?.id!, attrVal.id), 'hover:tw-cursor-pointer tw-transition hover:tw-bg-blue-100': getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.exists }"
                 @click.prevent="redirectToVariation(getVariationConfiguration(attr?.attribute?.id!, attrVal.id))"
               >
-                <div class="tw-text-lg lg:tw-px-6">
+                <div class="tw-text-lg lg:tw-px-6 tw-font-semibold">
                   {{ attrVal.name }}
                 </div>
                 <div v-if="attrVal.image_url">
@@ -645,6 +665,7 @@ const productStore = useProductStore();
 const route = useRoute();
 const router = useRouter();
 
+const notFound = ref(false);
 const imageSlider = ref();
 const urlTitle = ref('');
 const skuSearch = ref('');
@@ -776,17 +797,21 @@ const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
 }
 
 const onEnterSearch = async () => {
-  await loadProductInformation();
-  if (skuSearch.value)
+  if (skuSearch.value) {
+    await loadProductInformation();
     router.push(`/?sku=${skuSearch.value}`);
-  else
+  }
+  else {
     router.push('/');
+  }
 }
 
 const loadProductInformation = async () => {
   try {
     isLoading.value = true;
     product.value = await loadProduct();
+    if (!product.value)
+      notFound.value = true;
     if (product.value) {
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
@@ -810,6 +835,7 @@ const loadProductInformation = async () => {
     }
   } catch (e) {
     console.error(e);
+    notFound.value = true;
   } finally {
     isLoading.value = false;
   }
@@ -860,6 +886,16 @@ watch(
     currentYear.value = availableYears.value[0] as number;
   },
 );
+
+watch(
+  () => skuSearch.value,
+  () => {
+    if (!skuSearch.value) {
+      notFound.value = false;
+      product.value = {};
+    }
+  }
+)
 
 const tableName = (table: string, prodType: string) => ({
   'product': `product_${table}`,
