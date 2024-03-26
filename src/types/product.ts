@@ -7,6 +7,11 @@ export interface ProductAttribute {
   id?: number;
   product_id?: number;
   attribute_id?: number;
+  attribute_values?: {
+    id: number;
+    name: string;
+    image_url?: string;
+  }[];
   fill_values?: boolean;
   attribute?: Attribute;
 }
