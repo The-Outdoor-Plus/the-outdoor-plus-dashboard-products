@@ -19,6 +19,22 @@ export default [
     ],
   },
   {
+    path: '/',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: 'search-products',
+        name: 'Search Products',
+        component: () => import(/* webpackChunkName: "search-products" */ '@/views/SearchProducts.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+        }
+      },
+    ],
+  },
+  {
     path: '/login',
     component: () => import('@/layouts/login/LoginLayout.vue'),
     children: [

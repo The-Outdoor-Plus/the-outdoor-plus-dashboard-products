@@ -84,8 +84,15 @@ const navItems = reactive([
     children: [],
   },
   {
+    label: 'Search Products',
+    icon: 'mdi-archive-search-outline',
+    link: '/search-products',
+    roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+    children: [],
+  },
+  {
     label: 'Products',
-    icon: 'mdi-layers-search',
+    icon: 'mdi-package-variant',
     roles: ['MANAGER', 'ADMIN'],
     children: [
       {

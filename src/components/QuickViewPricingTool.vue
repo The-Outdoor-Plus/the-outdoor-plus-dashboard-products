@@ -481,7 +481,7 @@
                 @click.prevent="redirectToVariation(getVariationConfiguration(attr?.attribute?.id!, attrVal.id))"
               >
                 <div class="tw-text-lg lg:tw-px-6 tw-font-semibold">
-                  {{ attrVal.name }}
+                  {{ attrVal.name || attrVal.value }}
                 </div>
                 <div v-if="attrVal.image_url">
                   <v-img
@@ -813,6 +813,7 @@ const loadProductInformation = async () => {
     if (!product.value)
       notFound.value = true;
     if (product.value) {
+      notFound.value = false;
       allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
       const pricesPromises: any = [];
       allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))

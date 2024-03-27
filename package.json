@@ -16,6 +16,7 @@
     "@vee-validate/yup": "^4.10.7",
     "axios": "^1.4.0",
     "jsbarcode": "^3.11.6",
+    "papaparse": "^5.4.1",
     "pinia": "^2.0.23",
     "roboto-fontface": "*",
     "sortablejs": "^1.15.0",
