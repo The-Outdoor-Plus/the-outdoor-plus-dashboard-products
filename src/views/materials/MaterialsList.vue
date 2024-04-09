@@ -78,9 +78,9 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { usePagination } from '@/utils';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Material {
@@ -121,10 +121,16 @@ const headers = ref([
     title: 'ID',
     align: 'start',
     sortable: false,
-    key: 'id',
+    key: 'attribute_value[0].id',
   },
   { title: 'Name', align: 'end', key: 'name' },
   { title: 'Slug', align: 'end', key: 'slug' },
+  {
+    title: 'Material ID',
+    align: 'end',
+    sortable: false,
+    key: 'id',
+  },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
 const data: Data = reactive({
@@ -135,9 +141,9 @@ const totalItems = ref(10);
 const loading = ref(true);
 
 /**
- * 
+ *
  * Dialog Delete Section
- * 
+ *
  **/
 
 const itemToDelete: Ref<Columns | null> = ref(null);
@@ -188,9 +194,9 @@ const deleteItemConfirm = async () => {
 }
 
 /**
- * 
+ *
  * Search
- * 
+ *
  */
 const search = ref('');
 const searchFilter = ref('');
@@ -206,9 +212,9 @@ watch(searchFilter, (searchValue) => {
 });
 
 /**
- * 
+ *
  * List Data
- * 
+ *
  */
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
@@ -229,7 +235,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
     } else {
       const { data: materials, error, count } = await supabase
         .from('material')
-        .select('*', { count: 'exact' })
+        .select('*, attribute_value(id)', { count: 'exact' })
         .order(sortBy?.[0]?.key || 'name', {
           ascending: sortBy?.[0]?.order === 'desc' ? false : true
         })
