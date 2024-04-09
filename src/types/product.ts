@@ -180,6 +180,14 @@ export interface Product {
   msrp_prices?: Price[];
   images?: ProductImage[];
   website_link?: string | null;
+  dealer_price?: number | null;
+  distributor_price?: number | null;
+  group_price?: number | null;
+  internet_price?: number | null;
+  landscape_price?: number | null;
+  map_price?: number | null;
+  master_distributor_price?: number | null;
+  msrp_price?: number | null;
 }
 
 export interface Props {
