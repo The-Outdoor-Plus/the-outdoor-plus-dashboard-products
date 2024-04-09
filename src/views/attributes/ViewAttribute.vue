@@ -26,7 +26,7 @@ interface Attribute {
   name: string;
   table_name?: string | undefined;
   slug?: string;
-  values?: string[];
+  values?: AttributeValue[];
 }
 
 interface AttributeValue {
@@ -59,6 +59,7 @@ onMounted(async() => {
     const { data, error } = await supabase
       .from('attributes')
       .select(`id, name, slug, values: attribute_value(
+        id,
         value
       )`)
       .eq('id', route.params.id);
@@ -66,9 +67,10 @@ onMounted(async() => {
     if (data.length) {
       const flattenedData = data.map((item) => ({
         ...item,
-        values: item.values.map((value: any) => {
-          return value.value;
-        }),
+        values: item.values.map((value: any) => ({
+          value: value.value,
+          id: value.id,
+        })),
       }));
       attribute.value = flattenedData[0];
     }
