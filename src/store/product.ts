@@ -15,13 +15,13 @@ interface State<T> {
 export const useProductStore = defineStore('product', {
   state: (): State<typeof formValidation> => {
     const priceTypeList = [
-      { value: 'MAP', key: 'map',  formula: (basePrice: number): number => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2)).toFixed(2) },
-      { value: 'MSRP', key: 'msrp', formula: (basePrice: number): number => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2.2)).toFixed(2) },
-      { value: 'Group', key: 'group', formula: (basePrice: number): number => Math.ceil((basePrice * 0.92)).toFixed(2) },
-      { value: 'Distributor', key: 'distributor', formula: (basePrice: number): number => Math.ceil((basePrice * 0.85)).toFixed(2) },
-      { value: 'Master Distributor', key: 'master_distributor', formula: (basePrice: number): number => Math.ceil((basePrice * 0.80)).toFixed(2) },
-      { value: 'Internet', key: 'internet', formula: (basePrice: number): number => Math.ceil((basePrice * 1.10)).toFixed(2) },
-      { value: 'Landscape', key: 'landscape', formula: (basePrice: number): number => Math.ceil((basePrice * 1.20)).toFixed(2) },
+      { value: 'MAP', key: 'map',  formula: (basePrice: number): string => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2)).toFixed(2) },
+      { value: 'MSRP', key: 'msrp', formula: (basePrice: number): string => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2.2)).toFixed(2) },
+      { value: 'Group', key: 'group', formula: (basePrice: number): string => Math.ceil((basePrice * 0.92)).toFixed(2) },
+      { value: 'Distributor', key: 'distributor', formula: (basePrice: number): string => Math.ceil((basePrice * 0.85)).toFixed(2) },
+      { value: 'Master Distributor', key: 'master_distributor', formula: (basePrice: number): string => Math.ceil((basePrice * 0.80)).toFixed(2) },
+      { value: 'Internet', key: 'internet', formula: (basePrice: number): string => Math.ceil((basePrice * 1.10)).toFixed(2) },
+      { value: 'Landscape', key: 'landscape', formula: (basePrice: number): string => Math.ceil((basePrice * 1.20)).toFixed(2) },
     ];
     const sizes = [
       '36"',
