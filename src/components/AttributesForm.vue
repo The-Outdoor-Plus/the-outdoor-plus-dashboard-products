@@ -80,7 +80,7 @@
               :key="values.length"
             >
               <template
-                v-if="!edit"
+                v-if="readonly"
               >
                 <v-chip
                   v-for="(value, i) in values"
@@ -90,7 +90,21 @@
                   :closable="!readonly"
                   @click:close="removeValue(i)"
                 >
-                  {{ value as string }}
+                  {{ (value as AttributeValue).value }} (id: {{ (value as AttributeValue).id }})
+                </v-chip>
+              </template>
+              <template
+                v-else-if="props.new"
+              >
+                <v-chip
+                  v-for="(value, i) in values"
+                  class="tw-mr-4 tw-mb-4"
+                  :key="i"
+                  :ripple="false"
+                  :closable="!readonly"
+                  @click:close="removeValue(i)"
+                >
+                  {{ (value as string) }}
                 </v-chip>
               </template>
               <template
