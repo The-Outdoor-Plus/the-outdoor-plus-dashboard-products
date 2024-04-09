@@ -4,7 +4,11 @@
     <nav-bar></nav-bar>
     <v-main class="tw-bg-gray-50">
       <div class="tw-px-4 lg:tw-px-20 tw-pt-14">
-        <router-view />
+        <router-view v-slot="{ Component }">
+          <v-fade-transition hide-on-leave>
+            <component :is="Component"></component>
+          </v-fade-transition>
+        </router-view>
       </div>
     </v-main>
   </v-layout>
