@@ -518,7 +518,7 @@
                     <div
                       class="tw-flex tw-items-center tw-w-full tw-mt-2 tw-mb-4"
                     >
-                      {{ getPrice(dealerPrice.value.value, priceType.formula, priceType.key) }}
+                      {{ getPrice(+dealerPrice.value.value, priceType.formula, priceType.key) }}
                     </div>
 
                   </div>
