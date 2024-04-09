@@ -1,6 +1,10 @@
 <template>
   <v-app>
-    <router-view></router-view>
+    <router-view v-slot="{ Component }">
+      <transition name="fade">
+        <component :is="Component"></component>
+      </transition>
+    </router-view>
     <notifications position="bottom right" width="400"/>
   </v-app>
 </template>
