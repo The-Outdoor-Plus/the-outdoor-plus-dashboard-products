@@ -466,6 +466,16 @@ export default [
             },
           },
           {
+            path: 'variants',
+            name: 'ListVariants',
+            component: () => import(/* webpackChunkName: "list-variants" */'@/views/products/ListVariants.vue'),
+            meta: {
+              requiresAuth: true,
+              onlyWhenLoggedOut: false,
+              roles: ['MANAGER', 'ADMIN'],
+            },
+          },
+          {
             path: 'variant',
             children: [
               {
