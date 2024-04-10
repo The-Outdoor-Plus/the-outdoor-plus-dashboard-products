@@ -32,53 +32,31 @@
         We don't have information for this part number yet. Please contact TOP support and try with another Part Number.
       </div>
     </div>
-    <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row tw-mt-10 tw-mb-12">
-      <div class="tw-w-full lg:tw-w-7/12">
-        <div v-if="product && product.id && availableYears.length > 0 && userIsAdmin" class="tw-w-full tw-flex">
-          <v-spacer></v-spacer>
-          <v-menu>
-            <template v-slot:activator="{ props }">
-              <v-btn
-                color="white"
-                v-bind="props"
-                class="tw-mb-5"
-              >
-                Year: {{ currentYear }}
-                <v-icon class="tw-ml-2" icon="mdi-filter-variant"></v-icon>
-              </v-btn>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(item, index) in availableYears"
-                :key="index"
-                :value="index"
-              >
-                <v-list-item-title @click="currentYear = item">{{ item }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </div>
+    <div class="tw-w-full tw-flex tw-flex-col xl:tw-flex-row tw-mt-10 tw-mb-12">
+      <div class="tw-w-full xl:tw-w-7/12">
         <v-card
           v-if="product && product.id"
           class="py-6 px-8 tw-text-base"
         >
           <h2 class="tw-font-bold tw-text-3xl tw-text-center"><a :href="websiteLink" target="_blank" class="hover:tw-text-blue-600 hover:tw-underline">{{ product.name }}</a></h2>
-          <div class="tw-text-xl tw-text-center tw-mt-3 tw-pb-2.5">
+          <div class="tw-text-xl tw-text-center tw-mt-3 tw-pb-2.5 tw-flex tw-items-center tw-justify-center">
             <span class="tw-font-semibold">Part #: </span><span class="tw-text-blue-600">{{ product.sku }}</span>
             <v-btn
               size="small"
-              @click="copyTextToClipboard(product.sku!, 'UPC')"
+              @click="copyTextToClipboard(product.sku!, 'SKU')"
               icon="mdi-content-copy"
               variant="text"
             >
             </v-btn>
-            <v-btn
+            <div class="tw-hidden lg:tw-block">
+              <v-btn
                 size="small"
                 @click="skuDialog = true"
                 icon="mdi-barcode"
                 variant="text"
               >
               </v-btn>
+            </div>
             <v-dialog v-model="skuDialog" max-width="400px">
               <v-card>
                 <v-card-title class="d-flex justify-space-between align-center tw-px-10">
@@ -100,34 +78,19 @@
               </v-card>
             </v-dialog>
           </div>
-          <div class="tw-w-full tw-flex tw-flex-row tw-flex-wrap tw-mt-4 tw-justify-center">
-            <template
-              v-for="(priceType, i) in allowedPrices"
-              :key="i"
-            >
-              <div
-                v-if="getPriceByYear(priceType as keyof PriceData, currentYear)"
-                class="tw-min-w-[50%] tw-px-4 tw-mb-4 tw-text-2xl tw-flex-grow"
-              >
-              <span class="tw-uppercase tw-font-bold">{{ priceType }} </span> <span class="tw-font-bold">Price:</span>
-              {{ formatPrice(getPriceByYear(priceType as keyof PriceData, currentYear)) }}
-            </div>
-            </template>
-
-          </div>
           <div class="tw-flex tw-w-full tw-flex-col lg:tw-flex-row tw-mt-8 tw-text-lg tw-px-4 tw-flex-wrap">
             <!-- Collection -->
-            <div v-if="product?.parent?.collection?.name" class="tw-w-6/12 mb-4">
+            <div v-if="product?.parent?.collection?.name" class="tw-w-full lg:tw-w-6/12 mb-4">
               <span class="tw-font-semibold">Collection: </span>
               <span>{{ product.parent.collection.name }}</span>
             </div>
             <!-- Shape -->
-            <div v-if="product?.parent?.shape?.name" class="tw-w-6/12 mb-4">
+            <div v-if="product?.parent?.shape?.name" class="tw-w-full lg:tw-w-6/12 mb-4">
               <span class="tw-font-semibold">Shape: </span>
               <span>{{ product.parent.shape.name }}</span>
             </div>
            <!-- UPC -->
-            <div v-if="product?.upc_codes" class="tw-w-6/12 mb-4">
+            <div v-if="product?.upc_codes" class="tw-w-full lg:tw-w-6/12 mb-4 tw-flex tw-items-center tw-flex-wrap">
               <span class="tw-font-semibold">UPC: </span>
               <span>{{ product.upc_codes }}</span>
               <v-btn
@@ -138,14 +101,16 @@
                 variant="text"
               >
               </v-btn>
-              <v-btn
-                size="small"
-                @click="upcCodeDialog = true"
-                icon="mdi-barcode"
-                color="blue"
-                variant="text"
-              >
-              </v-btn>
+              <div class="tw-hidden lg:tw-block">
+                <v-btn
+                  size="small"
+                  @click="upcCodeDialog = true"
+                  icon="mdi-barcode"
+                  color="blue"
+                  variant="text"
+                >
+                </v-btn>
+              </div>
               <v-dialog v-model="upcCodeDialog" max-width="400px">
                 <v-card>
                   <v-card-title class="d-flex justify-space-between align-center tw-px-10">
@@ -169,7 +134,7 @@
               </v-dialog>
             </div>
            <!-- Encoded UPC -->
-            <div v-if="product?.encoded_upc_codes" class="tw-w-6/12 mb-4">
+            <div v-if="product?.encoded_upc_codes" class="tw-w-6/12 mb-4 tw-flex tw-items-center tw-flex-wrap">
               <span class="tw-font-semibold">Encoded UPC: </span>
               <span>{{ product.encoded_upc_codes }}</span>
               <v-btn
@@ -180,14 +145,16 @@
                 variant="text"
               >
               </v-btn>
-              <v-btn
-                size="small"
-                @click="encodedUpcCodeDialog = true"
-                icon="mdi-barcode"
-                color="blue"
-                variant="text"
-              >
-              </v-btn>
+              <div class="tw-hidden lg:tw-block">
+                <v-btn
+                  size="small"
+                  @click="encodedUpcCodeDialog = true"
+                  icon="mdi-barcode"
+                  color="blue"
+                  variant="text"
+                >
+                </v-btn>
+              </div>
               <v-dialog v-model="encodedUpcCodeDialog" max-width="400px">
                 <v-card>
                   <v-card-title class="d-flex justify-space-between align-center tw-px-10">
@@ -352,11 +319,48 @@
             </div>
           </div>
         </v-card>
+        <v-card
+            v-if="product && product.id && showPricingTable"
+            class="px-8 py-6 tw-mt-6"
+          >
+            <div class="tw-w-full tw-flex tw-flex-col tw-mt-4">
+              <div class="tw-px-4 tw-text-lg tw-font-bold tw-mb-4">Pricing</div>
+
+              <v-divider class="border-opacity-75 !tw-border-gray-600"></v-divider>
+              <template
+                v-for="(priceType, i) in allowedPrices"
+                :key="i"
+              >
+                <div
+                  v-if="getPrice(priceType as keyof PriceData)"
+                  class="tw-min-w-[50%] tw-px-4 tw-my-2 tw-text-base tw-flex tw-justify-between"
+                >
+                  <span class="tw-font-semibold">{{ priceType === 'master_distributor' ? 'Master Distributor' : priceType }}</span>
+                  {{ formatPrice(getPrice(priceType as keyof PriceData)) }}
+                </div>
+                <v-divider class="border-opacity-75 !tw-border-gray-600"></v-divider>
+              </template>
+            </div>
+          </v-card>
       </div>
-      <div class="tw-w-full lg:tw-w-5/12 lg:tw-pl-10">
+      <div class="tw-w-full xl:tw-w-5/12 xl:tw-pl-10">
         <v-skeleton-loader v-if="isLoading" type="image" class="mb-6 tw-h-96">
         </v-skeleton-loader>
         <template v-else>
+          <div v-if="showPricing" class="px-6 py-4 tw-mb-6 tw-mt-6 xl:tw-mt-0 tw-bg-blue-300/20 tw-rounded-md tw-flex tw-flex-wrap tw-justify-around tw-items-center">
+            <div class="tw-font-semibold tw-text-base tw-flex tw-flex-col tw-items-center tw-mx-3 tw-my-2">
+              Your Cost:
+              <div class="tw-font-bold tw-text-2xl tw-text-green-600">{{ yourPricing }}</div>
+            </div>
+            <div
+              v-for="price in allowedPrices"
+              :key="price"
+              class="tw-text-base tw-flex tw-flex-col tw-items-center tw-mx-3 tw-my-2"
+            >
+              {{ price }}
+              <div class="tw-text-2xl">{{ formatPrice(getPrice(price as keyof PriceData)) }}</div>
+            </div>
+          </div>
           <v-card
             v-if="product && allImages.length"
             max-height="435"
@@ -678,17 +682,6 @@ const parentSpecSheets: Ref<SpecSheet[]> = ref<SpecSheet[]>([]);
 const documents: Ref<Doc[]> = ref<Doc[]>([]);
 const parentDocuments: Ref<Doc[]> = ref<Doc[]>([]);
 const allowedPrices: Ref<string[]> = ref<string[]>([]);
-const currentYear = ref(0);
-const prices: Ref<PriceData> = ref<PriceData>({
-  map: [],
-  dealer: [],
-  distributor: [],
-  group: [],
-  internet: [],
-  landscape: [],
-  master_distributor: [],
-  msrp: [],
-});
 const upcCodeDialog = ref(false);
 const encodedUpcCodeDialog = ref(false);
 const skuDialog = ref(false);
@@ -709,7 +702,7 @@ const websiteLink: Ref<string> = ref<string>('')
 
 const userIsAdmin = computed(() => {
   const adminRoles = ['MANAGER', 'ADMIN'];
-  if (adminRoles.includes(userStore.currentUser?.user_metadata?.role))
+  if (adminRoles.includes(userStore.currentUser?.user_metadata?.role || ''))
     return true
   return false;
 });
@@ -730,10 +723,26 @@ const formatPrice = (price: number | null) => {
   }).format(price);
 }
 
-const getPriceByYear = (priceType: keyof PriceData, year: number) => {
-  const item = prices.value[priceType].find((price) => price.year === year);
-  return item?.price || null;
+const getPrice = (priceType: keyof PriceData) => {
+  const pricetype = priceType.toLowerCase() as keyof PriceData;
+  return product.value?.[`${pricetype}_price`] || 0;
 }
+
+const showPricing = computed(() => {
+  return yourPricing.value
+    && !['ADMIN', 'MANAGER', 'SALES'].includes(userStore.user?.user_metadata.role || '')
+})
+
+const showPricingTable = computed(() => {
+  return ['ADMIN', 'MANAGER', 'SALES'].includes(userStore.user?.user_metadata.role || '')
+})
+
+const yourPricing = computed(() => {
+  const userRole = (userStore.user?.user_metadata?.role || '' as string).toLowerCase() as keyof PriceData;
+  const price = product.value?.[`${userRole}_price`] || 0;
+  if (price) return formatPrice(price);
+  return null;
+})
 
 const allImages = computed(() => {
   let imgs: Img[] = JSON.parse(JSON.stringify(images.value));
@@ -814,11 +823,7 @@ const loadProductInformation = async () => {
       notFound.value = true;
     if (product.value) {
       notFound.value = false;
-      allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role);
-      const pricesPromises: any = [];
-      allowedPrices.value.forEach((priceType) => pricesPromises.push(loadProductPrices(priceType, product.value?.id || 0)))
-      const pricesResponse = await Promise.allSettled(pricesPromises);
-      setPrices(pricesResponse.filter((priceResponse) => priceResponse.status === 'fulfilled'));
+      allowedPrices.value = productStore.allowedPrices(userStore.user?.user_metadata.role as string);
       images.value = await loadImages(product.value?.id!) || [];
       specSheets.value = await loadSpecificationSheets(product.value?.id!) || [];
       documents.value = await loadDocuments(product.value?.id!) || [];
@@ -842,50 +847,12 @@ const loadProductInformation = async () => {
   }
 }
 
-const setPrices = (pricesList: any[]) => {
-  pricesList.forEach(({ value }) => {
-    prices.value[value.price_type as keyof PriceData] = value.prices;
-  });
-}
-
-const availableYears = computed((): number[] => {
-  const yearsSet = new Set();
-
-  for (const key in prices.value) {
-    const hasKey = Object.prototype.hasOwnProperty.call(prices.value, key);
-    if (hasKey && Array.isArray(prices.value[key as keyof PriceData])) {
-      prices.value[key as keyof PriceData].forEach((item) => {
-        if (item.year) {
-          yearsSet.add(item.year);
-        }
-      })
-    }
-  }
-  return (Array.from(yearsSet).sort((a: any, b: any) => a - b) as number[]);
-});
-
 watch(
   () => websiteLink.value,
   async () => {
-    try {
-      console.log(websiteLink.value);
-      const response = await fetch(websiteLink.value);
-      const html = await response.text();
-      const doc = new DOMParser().parseFromString(html, 'text/html');
-      const title = doc.querySelectorAll('title')[0];
-      urlTitle.value = title.innerText;
-    } catch(e) {
-      urlTitle.value = product.value?.name || '';
-    }
+    urlTitle.value = product.value?.name || '';
   },
   { deep: true }
-);
-
-watch(
-  () => availableYears.value,
-  () => {
-    currentYear.value = availableYears.value[0] as number;
-  },
 );
 
 watch(
@@ -909,10 +876,55 @@ const columnName = <T,>(prodType: string) => ({
 })[prodType] || 'product_id' as keyof T;
 
 const loadProduct = async () => {
+  let columns = `
+    id,
+    parent_id,
+    sku,
+    upc_codes,
+    encoded_upc_codes,
+    product_length,
+    product_diameter,
+    product_height,
+    product_width,
+    base_length,
+    base_diameter,
+    base_width,
+    base_opening,
+    toe_kick,
+    soil_usage,
+    scupper_width,
+    scupper_inlet_opening,
+    gpm,
+    fire_glass,
+    ba_length,
+    ba_diameter,
+    ba_width,
+    ba_depth,
+    burner_shape,
+    burner_length,
+    burner_diameter,
+    compatible_canvas_cover,
+    compatible_bullet_burner,
+    compatible_glass_wind_guard,
+    product_serial_base,
+    certifications,
+    enabled,
+    name,
+    short_description,
+    description,
+    website_link,
+    meta,
+    product_meta
+  `;
+
+  const filterPrices = productStore.allowedPricesFilter(userStore.user?.user_metadata.role as string);
+  filterPrices.forEach((priceType: string) => columns = columns.concat(`,
+    ${priceType}_price
+  `));
   try {
     const { data: product, error } = await supabase.from(`variation`)
       .select(`
-        *,
+        ${columns},
         parent:parent_id(
           category:category_id(name),
           collection:collection_id(name),
@@ -981,26 +993,6 @@ const replaceDropboxLink = (url: string | undefined, queryParam: string) => {
     return `${withoutQueryParam}${separator}${queryParam}`;
   }
   return url || '';
-}
-
-const loadProductPrices = async (type: string, product_id: number, prodType: string = 'variation') => {
-  try {
-    const { data: price, error } = await supabase.from(`${type}_price`)
-      .select('price, year')
-      .eq(`${columnName<Price>(prodType)}`, product_id);
-    if (error) throw error;
-    return {
-      price_type: type,
-      prices: price,
-    };
-  } catch (e: any) {
-    notify({
-      title: `Error loading prices.`,
-      text: e?.message || `An error occurred trying to load prices. Please contact TOP Support.`,
-      type: 'error',
-      duration: 6000,
-    });
-  }
 }
 
 const loadProductConfiguration = async (variationId: number) => {
