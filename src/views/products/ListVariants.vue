@@ -59,14 +59,14 @@ const queryParams = computed(() => {
     ...(product.value.description ? { description: product.value.description } : {}),
     ...(product.value.website_link ? { website_link: product.value.website_link } : {}),
     ...(product.value?.certifications?.length ? { certifications: JSON.stringify(product.value.certifications) }: {}),
-    ...(product.value.dealer_price ? { name: product.value.dealer_price } : {}),
-    ...(product.value.distributor_price ? { name: product.value.distributor_price } : {}),
-    ...(product.value.group_price ? { name: product.value.group_price } : {}),
-    ...(product.value.internet_price ? { name: product.value.internet_price } : {}),
-    ...(product.value.landscape_price ? { name: product.value.landscape_price } : {}),
-    ...(product.value.map_price ? { name: product.value.map_price } : {}),
-    ...(product.value.master_distributor_price ? { name: product.value.master_distributor_price } : {}),
-    ...(product.value.msrp_price ? { name: product.value.msrp_price } : {}),
+    ...(product.value.dealer_price ? { dealer_price: product.value.dealer_price } : {}),
+    ...(product.value.distributor_price ? { distributor_price: product.value.distributor_price } : {}),
+    ...(product.value.group_price ? { group_price: product.value.group_price } : {}),
+    ...(product.value.internet_price ? { internet_price: product.value.internet_price } : {}),
+    ...(product.value.landscape_price ? { landscape_price: product.value.landscape_price } : {}),
+    ...(product.value.map_price ? { map_price: product.value.map_price } : {}),
+    ...(product.value.master_distributor_price ? { master_distributor_price: product.value.master_distributor_price } : {}),
+    ...(product.value.msrp_price ? { msrp_price: product.value.msrp_price } : {}),
   };
   return new URLSearchParams(params).toString();
 });
