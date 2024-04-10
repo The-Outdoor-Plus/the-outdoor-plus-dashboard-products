@@ -3,7 +3,7 @@ import { toTypedSchema } from "@vee-validate/yup";
 import * as yup from 'yup';
 
 interface State<T> {
-  priceTypeList: { value: string, key: string }[];
+  priceTypeList: { value: string, key: string, formula: Function }[];
   formValidation: T;
   initialValues: any;
   variationKeys: string[];
@@ -47,6 +47,14 @@ export const useVariationStore = defineStore('variation', {
         compatible_glass_wind_guard: yup.string().nullable(),
         product_serial_base: yup.string().nullable(),
         website_link: yup.string().nullable(),
+        dealer_price: yup.number().nullable(),
+        distributor_price: yup.number().nullable(),
+        group_price: yup.number().nullable(),
+        internet_price: yup.number().nullable(),
+        landscape_price: yup.number().nullable(),
+        map_price: yup.number().nullable(),
+        master_distributor_price: yup.number().nullable(),
+        msrp_price: yup.number().nullable(),
       }),
     );
 
@@ -87,14 +95,13 @@ export const useVariationStore = defineStore('variation', {
     }
 
     const priceTypeList = [
-      { value: 'Internet', key: 'internet' },
-      { value: 'MAP', key: 'map' },
-      { value: 'MSRP', key: 'msrp' },
-      { value: 'Group', key: 'group' },
-      { value: 'Dealer', key: 'dealer' },
-      { value: 'Distributor', key: 'distributor' },
-      { value: 'Landscape', key: 'landscape' },
-      { value: 'Master Distributor', key: 'master_distributor' },
+      { value: 'MAP', key: 'map',  formula: (basePrice: number): string => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2)).toFixed(2) },
+      { value: 'MSRP', key: 'msrp', formula: (basePrice: number): string => Math.ceil((Math.ceil(( basePrice * 0.92)) * 2.2)).toFixed(2) },
+      { value: 'Group', key: 'group', formula: (basePrice: number): string => Math.ceil((basePrice * 0.92)).toFixed(2) },
+      { value: 'Distributor', key: 'distributor', formula: (basePrice: number): string => Math.ceil((basePrice * 0.85)).toFixed(2) },
+      { value: 'Master Distributor', key: 'master_distributor', formula: (basePrice: number): string => Math.ceil((basePrice * 0.80)).toFixed(2) },
+      { value: 'Internet', key: 'internet', formula: (basePrice: number): string => Math.ceil((basePrice * 1.10)).toFixed(2) },
+      { value: 'Landscape', key: 'landscape', formula: (basePrice: number): string => Math.ceil((basePrice * 1.20)).toFixed(2) },
     ];
 
     const pricesByRole = {
@@ -147,6 +154,14 @@ export const useVariationStore = defineStore('variation', {
       'product_serial_base',
       'website_link',
       'certifications',
+      'dealer_price',
+      'distributor_price',
+      'group_price',
+      'internet_price',
+      'landscape_price',
+      'map_price',
+      'master_distributor_price',
+      'msrp_price',
     ]
 
     return {

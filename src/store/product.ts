@@ -10,6 +10,7 @@ interface State<T> {
   initialValues: any;
   productKeys: string[];
   pricesByRole: { [key: string]: string[] }
+  priceFilterByRole: { [key: string]: string[] }
 }
 
 export const useProductStore = defineStore('product', {
@@ -321,15 +322,28 @@ export const useProductStore = defineStore('product', {
     // ];
 
     const pricesByRole = {
+      USER: ['MSRP'],
+      GUEST: ['MSRP'],
+      GROUP: ['MAP', 'MSRP'],
+      LANDSCAPE: ['MAP', 'MSRP'],
+      INTERNET: ['MAP', 'MSRP'],
+      DEALER: ['MAP', 'MSRP'],
+      DISTRIBUTOR: ['Dealer', 'Landscape'],
+      MASTER_DISTRIBUTOR: ['Dealer', 'Landscape'],
+      MANAGER: ['MSRP', 'MAP', 'Internet', 'Dealer', 'Distributor', 'Group', 'Landscape', 'master_distributor'],
+      ADMIN: ['MSRP', 'MAP', 'Internet', 'Dealer', 'Distributor', 'Group', 'Landscape', 'master_distributor'],
+      SALES: ['MSRP', 'MAP', 'Internet', 'Dealer', 'Distributor', 'Group', 'Landscape', 'master_distributor'],
+    }
+
+    const priceFilterByRole = {
       USER: ['msrp'],
-      GUEST: ['msrp'],
+      GUEST: ['mrsp'],
       GROUP: ['group', 'map', 'msrp'],
       LANDSCAPE: ['landscape', 'map', 'msrp'],
       INTERNET: ['internet', 'map', 'msrp'],
-      ECOMMERCE: ['map', 'msrp'],
       DEALER: ['dealer', 'map', 'msrp'],
-      DISTRIBUTOR: ['distributor', 'map', 'msrp'],
-      MASTER_DISTRIBUTOR: ['master_distributor', 'msrp', 'map'],
+      DISTRIBUTOR: ['distributor', 'dealer', 'landscape'],
+      MASTER_DISTRIBUTOR: ['master_distributor', 'dealer', 'landscape'],
       MANAGER: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       ADMIN: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
       SALES: ['msrp', 'map', 'internet', 'dealer', 'distributor', 'group', 'landscape', 'master_distributor'],
@@ -343,11 +357,15 @@ export const useProductStore = defineStore('product', {
       productKeys,
       pricesByRole,
       productTypes,
+      priceFilterByRole,
     }
   },
   actions: {
     allowedPrices(userRole: string) {
       return this.pricesByRole[userRole];
+    },
+    allowedPricesFilter(userRole: string) {
+      return this.priceFilterByRole[userRole];
     }
   },
   getters: {
