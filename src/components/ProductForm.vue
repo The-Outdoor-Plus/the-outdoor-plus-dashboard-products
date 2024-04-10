@@ -30,10 +30,9 @@
           Edit
         </v-btn>
       </div>
-
       <div class="tw-w-full xl:tw-w-7/12 2xl:tw-w-8/12 tw-px-5 tw-mb-12">
         <v-card class="py-10 px-10" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Product Information</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Product Information</h3>
           <!-- Publish & Enabled Checkboxes -->
           <div>
             <v-row>
@@ -51,24 +50,10 @@
                   :readonly="readonly"
                 ></v-checkbox>
               </v-col>
-              <v-col
-                cols="12"
-                sm="6"
-                md="5"
-                lg="3"
-                xl="3"
-              >
-                <v-checkbox
-                  v-model="published.value.value"
-                  color="blue-darken-1"
-                  label="Publish Product"
-                  :readonly="readonly"
-                ></v-checkbox>
-              </v-col>
             </v-row>
             <span class="tw-text-sm tw-text-gray-500"><b>Enable product: </b>If checked, it means that the product is enabled for display on the dashboard and on the quick view pricing tool. This will allow dealers and sales to see the details about the product.</span>
             <br>
-            <span class="tw-text-sm tw-text-gray-500"><b>Publish product: </b>If checked, it means the product is ready to be published on the website and ready to start selling.</span>
+            <!-- <span class="tw-text-sm tw-text-gray-500"><b>Publish product: </b>If checked, it means the product is ready to be published on the website and ready to start selling.</span> -->
           </div>
           <v-divider class="border-opacity-100 tw-my-6"></v-divider>
           <!-- Product Name -->
@@ -194,7 +179,7 @@
           </div>
         </v-card>
         <v-card class="py-10 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Images</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Images</h3>
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <h3 class="tw-text-base tw-font-semibold"></h3>
@@ -271,7 +256,7 @@
           </div>
         </v-card>
         <v-card class="py-10 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Product Configuration</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Product Configuration</h3>
           <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <div class="tw-flex 2xl:tw-w-9/12">
@@ -376,7 +361,7 @@
           </div>
         </v-card>
         <v-card class="py-10 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Specification Sheets</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Specification Sheets</h3>
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <h3 class="tw-text-base tw-font-semibold"></h3>
@@ -431,7 +416,7 @@
           </div>
         </v-card>
         <v-card class="py-10 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Documents</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Documents</h3>
           <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <h3 class="tw-text-base tw-font-semibold"></h3>
@@ -488,7 +473,7 @@
       </div>
       <div class="tw-w-full tw-mt-2 tw-mb-12 xl:tw-mt-0 xl:tw-w-5/12 2xl:tw-w-4/12 tw-px-5">
         <v-card class="py-12 px-10" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Pricing</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Pricing</h3>
           <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <h3 class="tw-text-base tw-font-semibold">Dealer Price</h3>
@@ -528,7 +513,7 @@
           </div>
         </v-card>
         <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Organization</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Organization</h3>
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-flex tw-flex-col">
               <div class="tw-w-full lg:tw-mb-1.5">
@@ -599,7 +584,7 @@
           </div>
         </v-card>
         <v-card class="pt-12 pb-4 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
-          <h3 class="tw-text-lg tw-mb-6 tw-text-gray-600">Extras</h3>
+          <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Extras</h3>
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-flex tw-flex-col">
               <div class="tw-w-full tw-mb-1.5">
@@ -683,7 +668,7 @@
         </v-card>
         <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
           <div class="tw-mb-6">
-            <h3 class="tw-text-lg tw-mb-1 tw-text-gray-600">Accessories</h3>
+            <h3 class="tw-text-xl tw-font-semibold tw-mb-1 tw-text-gray-600">Accessories</h3>
             <span class="tw-text-sm tw-text-gray-500">The value of a compatible accessory <i>must</i> be the SKU from that accessory.</span>
           </div>
           <div class="tw-w-full tw-flex tw-flex-col">
