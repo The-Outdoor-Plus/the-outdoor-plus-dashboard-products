@@ -100,6 +100,9 @@
                           </div>
                         </template>
                       </div>
+                      <div v-if="item.parent_id" :class="{ 'tw-text-green-600': !!item.price }">
+                        {{ formatPrice(item.price) }}
+                      </div>
                     </div>
                     <div>
                       <v-btn
@@ -188,8 +191,12 @@ import { useAppStore } from '@/store/app';
 import { supabase } from '@/supabase';
 import { usePagination } from '@/utils';
 import { computed } from 'vue';
+import { useUserStore } from '@/store/user';
 import { Ref, ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import ProductList from './products/ProductList.vue';
+
+const userStore = useUserStore();
 
 const isLoading = ref(false);
 const store = useAppStore();
@@ -276,6 +283,9 @@ const loadProductsList = async () => {
         ...prod,
         image_url: replaceDropboxLink(prod.image_url, 'raw=1'),
       }));
+      productsList.value.forEach(async (prod: any, index: number) => {
+        productsList.value[index].price = await getPricing(prod.id, !!prod.parent_id);
+      });
       totalPages.value = Math.ceil((data?.[0]?.count || 0) / itemsPerPage.value);
       itemsToShow.value = data.length;
       fromLimit.value = from;
@@ -346,6 +356,33 @@ const updateAttributeFilter = async(attributeSlug: string, attributeValue: any) 
     attributesFilter.value[attributeSlug] = attributeValue;
     await loadProductsList();
   } catch (e: any) {
+    console.error(e);
+  }
+}
+
+const formatPrice = (price: number | null) => {
+  if (!price)
+    return 'No Price Available';
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+  }).format(price);
+}
+
+const getPricing = async (productId: number, isVariation: boolean) => {
+  try {
+    const availablePrices = ['dealer_price', 'distributor_price', 'group_price', 'internet_price', 'landscape_price', 'master_distribuitor'];
+    const currentRolePricing = `${(userStore.user?.user_metadata.role as string).toLowerCase()}_price`;
+    if (availablePrices.includes(currentRolePricing) && isVariation) {
+      const { data, error } = await supabase
+        .from('variation')
+        .select(`${currentRolePricing}`)
+        .eq('id', productId);
+      if (error) throw error;
+      return (data[0] as any)[currentRolePricing];
+    }
+    return null;
+  } catch (e) {
     console.error(e);
   }
 }

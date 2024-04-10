@@ -4,7 +4,6 @@
       readonly
       :loading="isLoading"
       :variation="variation"
-      :variation-prices="prices"
       :variation-images="images"
       :variation-documents="documents"
       :variation-spec-sheets="specificationSheets"
@@ -18,7 +17,7 @@ import { useVariation } from '@/composables/variation';
 import { useAppStore } from '@/store/app';
 import { useVariationStore } from '@/store/variation';
 import { supabase } from '@/supabase';
-import { Documents, Image, PriceData, SpecificationSheet } from '@/types/product';
+import { Documents, Image, SpecificationSheet } from '@/types/product';
 import { Variation } from '@/types/variation';
 import { notify } from '@kyvg/vue3-notification';
 import { computed, onMounted, ref, Ref } from 'vue';
@@ -31,16 +30,6 @@ const route = useRoute();
 const isLoading = computed(() => loading.value && variationLoading.value);
 const loading = ref(false);
 const variation: Ref<Variation> = ref<Variation>({});
-const prices: Ref<PriceData> = ref<PriceData>({
-  dealer: [],
-  distributor: [],
-  group: [],
-  internet: [],
-  landscape: [],
-  map: [],
-  master_distributor: [],
-  msrp: [],
-});
 const images: Ref<Image[]> = ref<Image[]>([]);
 const specificationSheets: Ref<SpecificationSheet[]> = ref<SpecificationSheet[]>([]);
 const documents: Ref<Documents[]> = ref<Documents[]>([]);
@@ -72,7 +61,6 @@ const {
   attributes,
   loadAttributes,
   loadDocuments,
-  loadVariationPrices,
   loadVariationImages,
   loadSpecificationSheets
 } = useVariation();
@@ -81,14 +69,6 @@ const loadVariationInformation = async () => {
   if (variation.value?.id) {
     const variationId = +variation.value?.id;
     await loadAttributes(variationId);
-    prices.value.msrp = await loadVariationPrices('msrp', variationId) || [];
-    prices.value.internet = await loadVariationPrices('internet', variationId) || [];
-    prices.value.map = await loadVariationPrices('map', variationId) || [];
-    prices.value.group = await loadVariationPrices('group', variationId) || [];
-    prices.value.dealer = await loadVariationPrices('dealer', variationId) || [];
-    prices.value.distributor = await loadVariationPrices('distributor', variationId) || [];
-    prices.value.landscape = await loadVariationPrices('landscape', variationId) || [];
-    prices.value.master_distributor = await loadVariationPrices('master_distributor', variationId) || [];
     images.value = await loadVariationImages(variationId) || [];
     documents.value = await loadDocuments(variationId) || [];
     specificationSheets.value = await loadSpecificationSheets(variationId) || [];
