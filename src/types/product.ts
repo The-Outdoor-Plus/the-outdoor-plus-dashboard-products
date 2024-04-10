@@ -66,6 +66,7 @@ export interface GasType {
 export interface Color {
   id?: number;
   name: string;
+  material_id?: number;
 }
 
 export interface Collection {
