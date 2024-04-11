@@ -966,6 +966,7 @@ const loadProduct = async () => {
       .eq(`enabled`, true)
       .maybeSingle();
     if (error) throw error;
+    if (product) throw new Error('Test Error');
     return product as unknown as Variation;
   } catch(e: any) {
     product.value = {};
