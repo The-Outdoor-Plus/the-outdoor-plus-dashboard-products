@@ -1,17 +1,24 @@
 <template>
   <div>
-    <div class="tw-w-full tw-text-center">
-      <h1 class="tw-text-4xl tw-font-bold">Quick View Pricing Tool</h1>
-      <span class="tw-text-lg">Enter SKU in the search bar below</span>
+    <div v-show="!(product && product.id)" class="tw-w-full tw-text-center tw-transition-all">
+      <h1 class="tw-text-4xl tw-font-bold tw-mb-1.5">Quick View Pricing Tool</h1>
+      <span class="tw-text-lg">Find information about a specific Part Number/SKU. Works only with complete and existent SKU.</span>
+      <br>
+      <RouterLink
+        class="tw-text-lg tw-font-normal tw-text-blue-700 tw-transition-all hover:tw-underline"
+        to="/"
+      >
+        Search products by name or partial SKU instead.
+      </RouterLink>
     </div>
 
     <div class="tw-w-full tw-mt-8">
       <v-text-field
         v-model="skuSearch"
         variant="solo"
-        label="Search by SKU/Part Number"
+        label="SKU/Part Number"
         append-inner-icon="mdi-magnify"
-        placeholder="Enter SKU/Part Number (Hit Enter To Search)"
+        placeholder="Enter SKU/Part Number (Hit Enter)"
         @click:append-inner="onEnterSearch"
         @keyup.enter="onEnterSearch"
       ></v-text-field>
@@ -347,7 +354,7 @@
         <v-skeleton-loader v-if="isLoading" type="image" class="mb-6 tw-h-96">
         </v-skeleton-loader>
         <template v-else>
-          <div v-if="showPricing" class="px-6 py-4 tw-mb-6 tw-mt-6 xl:tw-mt-0 tw-bg-blue-300/20 tw-rounded-md tw-flex tw-flex-wrap tw-justify-around tw-items-center">
+          <div v-if="product && product.id && showPricing" class="px-6 py-4 tw-mb-6 tw-mt-6 xl:tw-mt-0 tw-bg-blue-300/20 tw-rounded-md tw-flex tw-flex-wrap tw-justify-around tw-items-center">
             <div class="tw-font-semibold tw-text-base tw-flex tw-flex-col tw-items-center tw-mx-3 tw-my-2">
               Your Cost:
               <div class="tw-font-bold tw-text-2xl tw-text-green-600">{{ yourPricing }}</div>
@@ -362,7 +369,7 @@
             </div>
           </div>
           <v-card
-            v-if="product && allImages.length"
+            v-if="product && product.id && allImages.length"
             max-height="435"
           >
             <v-carousel
@@ -380,7 +387,7 @@
               </v-carousel-item>
             </v-carousel>
           </v-card>
-          <div v-if="product && imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
+          <div v-if="product && product.id && imageSlider >= 0" class="tw-w-full tw-flex tw-justify-center tw-mt-2 -tw-mb-1.5">
             <div class="tw-flex tw-text-lg tw-font-semibold">
               {{ allImages[imageSlider].name }}
               </div>
@@ -496,6 +503,11 @@
                 </div>
                 <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
                   SKU: <span class="tw-text-blue-600">{{ getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku }}</span>
+                </span>
+                <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
+                  <div class="tw-text-base tw-font-semibold" :class="getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === -1 ? 'tw-text-green-600' : 'tw-text-red-600'">
+                    {{ getPriceDifference(attr?.attribute?.id!, attrVal.id).price }}
+                  </div>
                 </span>
               </div>
             </div>
@@ -661,6 +673,14 @@ interface VariationConfiguration {
   attributeId: number;
   valueId: number;
   exists: boolean;
+  dealer_price?: number | null;
+  distributor_price?: number | null;
+  group_price?: number | null;
+  internet_price?: number | null;
+  landscape_price?: number | null;
+  map_price?: number | null;
+  master_distributor_price?: number | null;
+  msrp_price?: number | null;
 }
 
 const { notify } = useNotification();
@@ -714,19 +734,23 @@ onMounted(async () => {
   }
 })
 
-const formatPrice = (price: number | null) => {
+const formatPrice = (price: number | null, showSign: boolean = false) => {
   if (!price)
     return 'No Price Available';
-  return new Intl.NumberFormat('en-US', {
+  let sign = '';
+  if (showSign && Math.sign(price) === 1) sign = '+';
+  return `${sign} ${new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
-  }).format(price);
+  }).format(price)}`;
 }
 
 const getPrice = (priceType: keyof PriceData) => {
   const pricetype = priceType.toLowerCase() as keyof PriceData;
   return product.value?.[`${pricetype}_price`] || 0;
 }
+
+const userRole = computed(() => userStore?.user?.user_metadata?.role || '');
 
 const showPricing = computed(() => {
   return yourPricing.value
@@ -738,8 +762,8 @@ const showPricingTable = computed(() => {
 })
 
 const yourPricing = computed(() => {
-  const userRole = (userStore.user?.user_metadata?.role || '' as string).toLowerCase() as keyof PriceData;
-  const price = product.value?.[`${userRole}_price`] || 0;
+  const userrole = userRole.value.toLowerCase() as keyof PriceData;
+  const price = product.value?.[`${userrole}_price`] || 0;
   if (price) return formatPrice(price);
   return null;
 })
@@ -808,10 +832,10 @@ const removeDuplicates = <T,>(arr: T[], key: string): T[] => {
 const onEnterSearch = async () => {
   if (skuSearch.value) {
     await loadProductInformation();
-    router.push(`/?sku=${skuSearch.value}`);
+    router.push(`/quick-pricing-view?sku=${skuSearch.value}`);
   }
   else {
-    router.push('/');
+    router.push('/quick-pricing-view');
   }
 }
 
@@ -1201,9 +1225,19 @@ const loadProductAttributes = async (productId: number, attributeId: number) => 
 
 const loadAllProductVariations = async (parentId: number) => {
   try {
+    let columns = `
+    id,
+    parent_id,
+    sku
+  `;
+
+  const filterPrices = productStore.allowedPricesFilter(userStore.user?.user_metadata.role as string);
+  filterPrices.forEach((priceType: string) => columns = columns.concat(`,
+    ${priceType}_price
+  `));
     const { data, error } = await supabase
       .from('variation')
-      .select('id, parent_id, sku, variation_configuration(value_id(id, attribute_id))')
+      .select(`${columns}, variation_configuration(value_id(id, attribute_id))`)
       .eq('parent_id', parentId);
     if (error) throw error;
     allProductVariations.value = data as ProductVariation[];
@@ -1268,24 +1302,53 @@ const calculateConfigurationsData = (selectedAttrId: number, selectedAttrValueId
       isVariation = hasConfiguration.every((hasConf: any) => hasConf.isCurrent);
       return isVariation;
     });
+    console.log(variation);
     variationConfigurations.value.push({
       sku: variation?.sku || 'No SKU Assigned.',
       attributeId: selectedAttrId,
       valueId: selectedAttrValueId,
       exists: !!(variation && variation.sku),
+      dealer_price: variation?.dealer_price ?? null,
+      distributor_price: variation?.distributor_price ?? null,
+      group_price: variation?.group_price ?? null,
+      internet_price: variation?.internet_price ?? null,
+      landscape_price: variation?.landscape_price ?? null,
+      map_price: variation?.map_price ?? null,
+      master_distributor_price: variation?.master_distributor_price ?? null,
+      msrp_price: variation?.msrp_price ?? null,
     });
   }
 }
 
 const getVariationConfiguration = (attrId: number, valueId: number) => {
-  return  variationConfigurations.value.find((varConf) => varConf.attributeId === attrId && varConf.valueId === valueId);
+  return variationConfigurations.value.find((varConf) => varConf.attributeId === attrId && varConf.valueId === valueId);
+}
+
+const getPriceDifference = (attrId: number, valueId: number) => {
+  const currentConfiguration = variationConfigurations.value.find((varConf) => varConf.attributeId === attrId && varConf.valueId === valueId);
+  if (currentConfiguration) {
+    const userrole = userRole.value.toLowerCase() as keyof PriceData;
+    const price = product.value?.[`${userrole}_price`] || null;
+    const confPrice = currentConfiguration?.[`${userrole}_price`] || null;
+    if (price && confPrice) {
+      const diff = confPrice - price;
+      return {
+        sign: Math.sign(diff),
+        price: `${formatPrice(diff, true)}`
+      };
+    }
+  }
+  return {
+    sign: 1,
+    price: 'No Price Available',
+  };
 }
 
 const redirectToVariation = async (variationConfiguration?: VariationConfiguration) => {
   if (variationConfiguration && variationConfiguration.sku && variationConfiguration.exists) {
     skuSearch.value = variationConfiguration.sku;
     await loadProductInformation();
-    router.push(`/?sku=${variationConfiguration.sku}`);
+    router.push(`/quick-pricing-view?sku=${variationConfiguration.sku}`);
   }
 }
 
