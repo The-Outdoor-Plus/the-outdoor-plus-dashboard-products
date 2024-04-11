@@ -10,7 +10,7 @@
     ></v-text-field>
 
     <div class="tw-mt-8 tw-mb-16 tw-w-full">
-      <div v-if="productsList?.length" class="tw-w-full tw-flex tw-justify-end">
+      <div class="tw-w-full tw-flex tw-justify-end">
         <v-btn
           color="white"
           class="tw-mb-3"
@@ -29,10 +29,10 @@
           </v-menu>
         </v-btn>
       </div>
-      <div v-if="productsList?.length" class="tw-w-full tw-flex tw-flex-wrap tw-justify-end">
+      <div class="tw-w-full tw-flex tw-flex-wrap tw-justify-end">
         <div class="tw-flex tw-flex-wrap tw-flex-col tw-items-end">
-          <div class="tw-ml-5 tw-mb-1.5 tw-font-semibold tw-text-lg">
-            <span>Filter by Attributes:</span>
+          <div class="tw-ml-5 tw-mb-1.5 tw-mt-1 tw-font-semibold tw-text-lg">
+            <span>Filter by Attributes</span>
           </div>
           <div class="tw-flex tw-flex-wrap">
             <template
@@ -74,92 +74,105 @@
           </div>
         </div>
       </div>
-        <v-virtual-scroll
-          :items="productsList"
-        >
-          <template v-slot:default="{ item, index }">
-            <v-card
-              elevation="0"
-              rounded="0"
-              :class="{ '!tw-border-b-2 !tw-border-gray-200' : index+1 < productsList.length }"
+      <div
+        v-if="productsList?.length <= 0 && !isLoading"
+        class="tw-w-full tw-flex tw-flex-col tw-justify-start tw-items-center tw-px-4 lg:tw-px-12"
+      >
+        <v-img
+          src="@/assets/not_found.svg"
+          inline
+          class="tw-w-10/12 sm:tw-w-5/12 lg:tw-mt-16 tw-mb-8"
+        ></v-img>
+        <h2 class="tw-text-2xl tw-text-center">
+          No results Found.
+        </h2>
+        <div class="md:tw-text-lg tw-text-center tw-mt-4">
+          No results found with this search criteria.
+        </div>
+      </div>
+      <v-virtual-scroll
+        :items="productsList"
+      >
+        <template v-slot:default="{ item, index }">
+          <v-card
+            elevation="0"
+            rounded="0"
+            :class="{ '!tw-border-b-2 !tw-border-gray-200' : index+1 < productsList.length }"
+          >
+            <v-list-item
+              :key="item.id"
+              lines="two"
+              :to="getProductLink(item.sku, !!item.parent_id, item.id, item.name)"
             >
-              <v-list-item
-                :key="item.id"
-                lines="two"
-                :to="getProductLink(item.sku, !!item.parent_id)"
-              >
-                <template v-slot:default>
-                  <div class="tw-ml-8 tw-flex tw-justify-between tw-flex-wrap tw-items-center">
-                    <div>
-                      <RouterLink
-                        class="tw-font-semibold tw-text-lg hover:tw-underline hover:tw-cursor-pointer hover:tw-text-blue-500"
-                        :to="getProductLink(item.sku, !!item.parent_id)"
-                      >
-                        {{ item.name }}
-                      </RouterLink>
-                      <div class="tw-w-full" >
-                        <template v-if="item.parent_id">
-                          SKU: {{ item.sku }}
-                        </template>
-                        <template v-else>
-                          <div class="tw-text-gray-400">
-                            PARENT PRODUCT
-                          </div>
-                        </template>
-                      </div>
-                      <div v-if="item.parent_id" :class="{ 'tw-text-green-600': !!item.price }">
-                        {{ formatPrice(item.price) }}
-                      </div>
-                    </div>
-                    <div>
-                      <v-btn
-                        v-if="item.parent_id"
-                        icon="mdi-open-in-new"
-                        variant="text"
-                      ></v-btn>
-                      <v-btn
-                        v-else
-                        icon="mdi-chevron-right"
-                        variant="text"
-                      ></v-btn>
-                    </div>
-                  </div>
-                  <!-- <hr v-if="index+1 < productsList.length" class="tw-w-full"> -->
-                </template>
-                <template v-slot:prepend>
+              <template v-slot:default>
+                <div class="tw-ml-8 tw-flex tw-justify-between tw-flex-wrap tw-items-center">
                   <div>
-                    <v-img
-                      :src="item.image_url || `@/assets/top_logo.png`"
-                      lazy-src="@/assets/top_logo.png"
-                      width="120"
-                      height="120"
+                    <RouterLink
+                      class="tw-font-semibold tw-text-lg hover:tw-underline hover:tw-cursor-pointer hover:tw-text-blue-500"
+                      :to="getProductLink(item.sku, !!item.parent_id, item.id, item.name)"
                     >
-                      <template v-slot:placeholder>
-                        <div class="d-flex align-center justify-center fill-height">
-                          <v-progress-circular
-                            color="grey-lighten-4"
-                            indeterminate
-                          >
-                          </v-progress-circular>
+                      {{ item.name }}
+                    </RouterLink>
+                    <div class="tw-w-full" >
+                      <template v-if="item.parent_id">
+                        SKU: {{ item.sku }}
+                      </template>
+                      <template v-else>
+                        <div class="tw-text-gray-400">
+                          PARENT PRODUCT
                         </div>
                       </template>
-                      <template v-slot:error>
-                        <div class="lg:tw-px-4">
-                          <v-img
-                            height="120"
-                            width="120"
-                            src="@/assets/top_logo.png"
-                          >
-                          </v-img>
-                        </div>
-                      </template>
-                    </v-img>
+                    </div>
                   </div>
-                </template>
-              </v-list-item>
-            </v-card>
-          </template>
-        </v-virtual-scroll>
+                  <div>
+                    <v-btn
+                      v-if="item.parent_id"
+                      icon="mdi-open-in-new"
+                      variant="text"
+                    ></v-btn>
+                    <v-btn
+                      v-else
+                      icon="mdi-chevron-right"
+                      variant="text"
+                    ></v-btn>
+                  </div>
+                </div>
+                <!-- <hr v-if="index+1 < productsList.length" class="tw-w-full"> -->
+              </template>
+              <template v-slot:prepend>
+                <div>
+                  <v-img
+                    :src="item.image_url || `@/assets/top_logo.png`"
+                    lazy-src="@/assets/top_logo.png"
+                    width="120"
+                    height="120"
+                  >
+                    <template v-slot:placeholder>
+                      <div class="d-flex align-center justify-center fill-height">
+                        <v-progress-circular
+                          color="grey-lighten-4"
+                          indeterminate
+                        >
+                        </v-progress-circular>
+                      </div>
+                    </template>
+                    <template v-slot:error>
+                      <div class="lg:tw-px-4">
+                        <v-img
+                          height="120"
+                          width="120"
+                          src="@/assets/top_logo.png"
+                        >
+                        </v-img>
+                      </div>
+                    </template>
+                  </v-img>
+                </div>
+              </template>
+            </v-list-item>
+          </v-card>
+        </template>
+      </v-virtual-scroll>
       <div v-if="productsList.length" class="tw-w-full tw-flex tw-flex-wrap tw-justify-between tw-items-center tw-mt-6">
         <div class="tw-flex tw-items-center">
           Items per page:
@@ -201,7 +214,6 @@ import { computed } from 'vue';
 import { useUserStore } from '@/store/user';
 import { Ref, ref, onMounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import ProductList from './products/ProductList.vue';
 
 const userStore = useUserStore();
 
@@ -227,6 +239,10 @@ const colorAttributes = computed(() => {
   colorAttributes.unshift({ value: 'All', value_id: null, attribute_id: null, material_id: null });
   return colorAttributes;
 });
+
+const isAdmin = computed(() => {
+  return ['ADMIN', 'MANAGER', 'SALES'].includes(userStore.user?.user_metadata?.role || '');
+})
 
 onMounted(async () => {
   store.pageTitle = 'Search Products';
@@ -257,7 +273,7 @@ const loadProductsList = async () => {
     const { from, to } = usePagination(page.value - 1, itemsPerPage.value);
     if (search.value) {
       const { data, error } = await supabase
-        .rpc('search_products_or_variations', {
+        .rpc('search_products', {
           search_term: search.value,
           sort_term: 'name',
           sort_order: sortBy.value,
@@ -277,7 +293,7 @@ const loadProductsList = async () => {
       totalItems.value = data?.[0]?.count || 0;
     } else {
       const { data, error } = await supabase
-        .rpc('filter_all_products_or_variations', {
+        .rpc('filter_all_products', {
           sort_term: 'name',
           sort_order: sortBy.value,
           from_limit: from,
@@ -290,9 +306,6 @@ const loadProductsList = async () => {
         ...prod,
         image_url: replaceDropboxLink(prod.image_url, 'raw=1'),
       }));
-      productsList.value.forEach(async (prod: any, index: number) => {
-        productsList.value[index].price = await getPricing(prod.id, !!prod.parent_id);
-      });
       totalPages.value = Math.ceil((data?.[0]?.count || 0) / itemsPerPage.value);
       itemsToShow.value = data.length;
       fromLimit.value = from;
@@ -307,8 +320,8 @@ const loadProductsList = async () => {
 }
 
 const onEnterSearch = async () => {
+  await loadProductsList();
   if (search.value) {
-    await loadProductsList();
     router.push(`/search-products?s=${search.value}&page=${page.value}`);
   } else {
     router.push('/search-products');
@@ -341,11 +354,11 @@ const onPageChange = async () => {
   }
 }
 
-const getProductLink = (sku: string, isVariation: boolean) => {
+const getProductLink = (sku: string, isVariation: boolean, productId?: number, productName?: string) => {
   if (isVariation)
-    return `/?sku=${sku.toUpperCase()}`;
+    return `/quick-pricing-view?sku=${sku.toUpperCase()}`;
   else
-    return `/`
+    return `/search-variations/${productId}?parent-name=${productName}`;
 }
 
 const replaceDropboxLink = (url: string | undefined, queryParam: string) => {
@@ -363,33 +376,6 @@ const updateAttributeFilter = async(attributeSlug: string, attributeValue: any) 
     attributesFilter.value[attributeSlug] = attributeValue;
     await loadProductsList();
   } catch (e: any) {
-    console.error(e);
-  }
-}
-
-const formatPrice = (price: number | null) => {
-  if (!price)
-    return 'No Price Available';
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(price);
-}
-
-const getPricing = async (productId: number, isVariation: boolean) => {
-  try {
-    const availablePrices = ['dealer_price', 'distributor_price', 'group_price', 'internet_price', 'landscape_price', 'master_distribuitor'];
-    const currentRolePricing = `${(userStore.user?.user_metadata.role as string).toLowerCase()}_price`;
-    if (availablePrices.includes(currentRolePricing) && isVariation) {
-      const { data, error } = await supabase
-        .from('variation')
-        .select(`${currentRolePricing}`)
-        .eq('id', productId);
-      if (error) throw error;
-      return (data[0] as any)[currentRolePricing];
-    }
-    return null;
-  } catch (e) {
     console.error(e);
   }
 }
@@ -423,9 +409,7 @@ const loadAttributes = async () => {
       )`);
     if (error) throw error;
     data.forEach((attr: any) => {
-      console.log(attr)
       const values = attr.attribute_value.map((attrVal: any) => {
-        console.log('AttrVal', attrVal);
         let value = null;
         value = attrVal?.value ??
           attrVal?.color?.name ??
@@ -448,7 +432,6 @@ const loadAttributes = async () => {
       attributes.value[attr.slug] = attribute;
       attributesFilter.value[attr.slug] = { value: 'All', value_id: null, attribute_id: null, material_id: null };
     });
-    console.log(attributes.value);
   } catch (e) {
     console.error(e);
   } finally {

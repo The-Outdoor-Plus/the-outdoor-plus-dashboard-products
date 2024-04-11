@@ -77,17 +77,24 @@ const userStore = useUserStore();
 
 const navItems = reactive([
   {
-    label: 'Quick View Pricing Tool',
-    icon: 'mdi-tag-search',
+    label: 'Products',
+    icon: 'mdi-archive-search-outline',
     link: '/',
     roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
   {
-    label: 'Search Products',
-    icon: 'mdi-archive-search-outline',
-    link: '/search-products',
+    label: 'Quick Pricing View',
+    icon: 'mdi-tag-search',
+    link: '/quick-pricing-view',
     roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+    children: [],
+  },
+  {
+    label: 'Search Product Variations',
+    icon: 'mdi-store-search-outline',
+    link: '/search-variations',
+    roles: ['MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
   {
