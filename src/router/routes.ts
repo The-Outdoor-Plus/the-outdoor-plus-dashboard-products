@@ -5,11 +5,11 @@ export default [
     children: [
       {
         path: '',
-        name: 'Home',
+        name: 'Home - Search Products',
         // route level code-splitting
         // this generates a separate chunk (about.[hash].js) for this route
         // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "home" */ '@/views/Home.vue'),
+        component: () => import(/* webpackChunkName: "search-products" */ '@/views/SearchProducts.vue'),
         meta: {
           requiresAuth: true,
           onlyWhenLoggedOut: false,
@@ -23,15 +23,42 @@ export default [
     component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
     children: [
       {
-        path: 'search-products',
-        name: 'Search Products',
-        component: () => import(/* webpackChunkName: "search-products" */ '@/views/SearchProducts.vue'),
+        path: 'quick-pricing-view',
+        name: 'Quick Pricing View',
+        component: () => import(/* webpackChunkName: "quick-view-pricing" */ '@/views/QuickViewPricingTool.vue'),
         meta: {
           requiresAuth: true,
           onlyWhenLoggedOut: false,
           roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
         }
       },
+      {
+        path: 'search-variations',
+        name: 'Search Variations',
+        children: [
+          {
+            path: '',
+            name: 'Search Variations',
+            component: () => import(/* webpackChunkName: "search-variations" */ '@/views/SearchVariations.vue'),
+            meta: {
+              requiresAuth: true,
+              onlyWhenLoggedOut: false,
+              roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+            }
+          },
+          {
+            path: ':parentid',
+            name: 'Search Variations By Parent',
+            component: () => import(/* webpackChunkName: "search-variations-id" */ '@/views/SearchVariations.vue'),
+            meta: {
+              requiresAuth: true,
+              onlyWhenLoggedOut: false,
+              roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+            }
+          }
+        ]
+      },
+
     ],
   },
   {
