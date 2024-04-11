@@ -30,42 +30,49 @@
         </v-btn>
       </div>
       <div v-if="productsList?.length" class="tw-w-full tw-flex tw-flex-wrap tw-justify-end">
-        <template
-          v-for="(attribute) in attributes"
-          :key="attribute.slug"
-        >
-          <v-btn
-            v-if="showAttributes(attribute)"
-            color="white"
-            class="tw-mb-3 tw-ml-5 tw-mt-2"
-          >
-            {{ attribute.name }}: {{ attributesFilter[attribute.slug].value }}
-            <v-menu activator="parent">
-              <v-list>
-                <template
-                  v-if="attribute.slug === 'color'"
-                >
-                  <v-list-item
-                    v-for="(item) in colorAttributes"
-                    :key="item.value_id"
-                    :value="item.value_id || 'All'"
-                  >
-                    <v-list-item-title @click="updateAttributeFilter(attribute.slug, item)">{{ item.value }}</v-list-item-title>
-                  </v-list-item>
-                </template>
-                <template v-else>
-                  <v-list-item
-                    v-for="(item) in attribute.attribute_value"
-                    :key="item.value_id"
-                    :value="item.value_id || 'All'"
-                  >
-                    <v-list-item-title @click="updateAttributeFilter(attribute.slug, item)">{{ item.value }}</v-list-item-title>
-                  </v-list-item>
-                </template>
-              </v-list>
-            </v-menu>
-          </v-btn>
-        </template>
+        <div class="tw-flex tw-flex-wrap tw-flex-col tw-items-end">
+          <div class="tw-ml-5 tw-mb-1.5 tw-font-semibold tw-text-lg">
+            <span>Filter by Attributes:</span>
+          </div>
+          <div class="tw-flex tw-flex-wrap">
+            <template
+              v-for="(attribute) in attributes"
+              :key="attribute.slug"
+            >
+              <v-btn
+                v-if="showAttributes(attribute)"
+                color="white"
+                class="tw-mb-3 tw-ml-5 tw-mt-2"
+              >
+                {{ attribute.name }}: {{ attributesFilter[attribute.slug].value }}
+                <v-menu activator="parent">
+                  <v-list>
+                    <template
+                      v-if="attribute.slug === 'color'"
+                    >
+                      <v-list-item
+                        v-for="(item) in colorAttributes"
+                        :key="item.value_id"
+                        :value="item.value_id || 'All'"
+                      >
+                        <v-list-item-title @click="updateAttributeFilter(attribute.slug, item)">{{ item.value }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                    <template v-else>
+                      <v-list-item
+                        v-for="(item) in attribute.attribute_value"
+                        :key="item.value_id"
+                        :value="item.value_id || 'All'"
+                      >
+                        <v-list-item-title @click="updateAttributeFilter(attribute.slug, item)">{{ item.value }}</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                  </v-list>
+                </v-menu>
+              </v-btn>
+            </template>
+          </div>
+        </div>
       </div>
         <v-virtual-scroll
           :items="productsList"
@@ -82,7 +89,7 @@
                 :to="getProductLink(item.sku, !!item.parent_id)"
               >
                 <template v-slot:default>
-                  <div class="tw-ml-8 tw-flex tw-justify-between tw-flex-wrap">
+                  <div class="tw-ml-8 tw-flex tw-justify-between tw-flex-wrap tw-items-center">
                     <div>
                       <RouterLink
                         class="tw-font-semibold tw-text-lg hover:tw-underline hover:tw-cursor-pointer hover:tw-text-blue-500"
