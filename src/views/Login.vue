@@ -1,13 +1,13 @@
 <template>
   <div class="tw-w-full tw-min-h-screen">
-    <div class="tw-flex tw-flex-row tw-h-full">
-      <div class="tw-w-3/12 tw-min-h-screen">
-        <div class="tw-w-full tw-bg-white tw-mt-60 tw-flex tw-flex-col tw-px-8">
+    <div class="tw-flex tw-flex-col sm:tw-flex-row tw-h-full">
+      <div class="tw-w-full md:tw-w-6/12 lg:tw-w-5/12 xl:tw-w-4/12 2xl:tw-w-3/12 sm:tw-min-h-screen tw-bg-white tw-flex tw-flex-col tw-items-center">
+        <div class="tw-w-full tw-bg-white tw-my-24 sm:tw-mt-60 tw-flex tw-flex-col tw-px-8 tw-max-w-xl">
           <v-img
             class="tw-w-full"
             src="@/assets/top_logo.png"
           ></v-img>
-          <form 
+          <form
             class="tw-mt-8"
             @submit.prevent="submit"
           >
@@ -40,7 +40,7 @@
           </form>
         </div>
       </div>
-      <div class="tw-w-9/12 tw-min-h-screen">
+      <div class="tw-w-full md:tw-w-6/12 lg:tw-w-7/12 xl:tw-w-8/12 2xl:tw-w-9/12 sm:tw-min-h-screen">
         <v-img
           class="tw-h-full"
           cover
