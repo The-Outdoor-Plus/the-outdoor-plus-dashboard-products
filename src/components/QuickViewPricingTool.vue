@@ -967,8 +967,6 @@ const loadProduct = async () => {
       .eq(`enabled`, true)
       .maybeSingle();
     if (error) throw error;
-    Sentry.captureException(new Error('Error Capture'));
-    Sentry.captureMessage('Message Capture');
     return product as unknown as Variation;
   } catch(e: any) {
     product.value = {};
