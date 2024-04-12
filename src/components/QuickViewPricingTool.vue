@@ -535,6 +535,7 @@ import ULCertification from '@/assets/UL_certification.webp';
 import CSACertification from '@/assets/CSA_certification.png';
 import ETLCertification from '@/assets/ETL_certification.png';
 import LCCertification from '@/assets/LC_certification.png';
+import * as Sentry from '@sentry/vue';
 
 interface Variation extends BaseVariation {
   parent?: {
@@ -966,7 +967,8 @@ const loadProduct = async () => {
       .eq(`enabled`, true)
       .maybeSingle();
     if (error) throw error;
-    if (product) throw new Error('Test Error');
+    Sentry.captureException(new Error('Error Capture'));
+    Sentry.captureMessage('Message Capture');
     return product as unknown as Variation;
   } catch(e: any) {
     product.value = {};
