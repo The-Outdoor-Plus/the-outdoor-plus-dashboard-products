@@ -9,15 +9,19 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue({ 
-    template: { transformAssetUrls }
-  }), // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
-  vuetify({
-    autoImport: true,
-  }), sentryVitePlugin({
-    org: "the-outdoor-plus",
-    project: "javascript-vue"
-  })],
+  plugins: [
+    // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
+    vue({
+      template: { transformAssetUrls }
+    }),
+    vuetify({
+      autoImport: true,
+    }),
+    sentryVitePlugin({
+      org: "the-outdoor-plus",
+      project: "the-outdoor-plus-products-dashboard"
+    })
+  ],
 
   define: { 'process.env': {} },
 
