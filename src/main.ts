@@ -20,7 +20,7 @@ const app = createApp(App);
 Sentry.init({
   app,
   dsn: import.meta.env.VITE_SENTRY_DSN,
-  environment: import.met.env.VITE_VERCEL_ENV || 'local',
+  environment: import.meta.env.VITE_VERCEL_ENV || 'local',
   integrations: [
     Sentry.browserTracingIntegration(),
     Sentry.replayIntegration(),
