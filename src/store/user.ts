@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { supabase } from '@/supabase';
 import { User } from '@supabase/supabase-js';
+import * as Sentry from '@sentry/vue';
 
 interface Session {
   access_token: string;
@@ -36,7 +37,7 @@ export const useUserStore = defineStore('user', {
       } else {
         supabase.auth.signOut();
       }
-      
+
     }
     return {
       token,
@@ -52,8 +53,16 @@ export const useUserStore = defineStore('user', {
       this.session = session;
       this.token = `${session.token_type} ${session.access_token}`;
     },
+    setSentryUser(user: User) {
+      Sentry.setUser({
+        id: user.id,
+        email: user.email,
+        username: `${user.user_metadata.first_name} ${user.user_metadata.last_name}`,
+      })
+    },
     successfullLogIn(user: User, session: any) {
       this.setUser(user);
+      this.setSentryUser(user);
       this.setSession(session);
     },
     async logOut() {
@@ -61,6 +70,7 @@ export const useUserStore = defineStore('user', {
       this.user = null;
       this.session = null;
       this.token = null;
+      Sentry.setUser(null);
     }
   },
   getters: {
