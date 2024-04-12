@@ -22,6 +22,7 @@ export function registerPlugins (app: App) {
     .use(router)
     .use(pinia)
     .use(Notifications);
+
   Sentry.init({
     app,
     dsn: import.meta.env.VITE_SENTRY_DSN,
