@@ -588,4 +588,20 @@ export default [
       }
     ],
   },
+  {
+    path: '/help',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'help',
+        component: () => import(/* webpackChunkName: "help" */'@/views/Help.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['GROUP', 'LANDSCAPE', 'INTERNET', 'ECOMMERCE', 'USER', 'GUEST', 'DEALER', 'DISTRIBUTOR', 'MASTER_DISTRIBUTOR', 'MANAGER', 'ADMIN', 'SALES'],
+        }
+      }
+    ],
+  },
 ];
