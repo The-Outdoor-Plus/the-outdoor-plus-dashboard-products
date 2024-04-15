@@ -55,7 +55,16 @@
     <template v-slot:append>
       <v-divider></v-divider>
       <v-list-item
-        class="mb-3 mt-2"
+          class="tw-mx-2 mt-2"
+          prepend-icon="mdi-help-circle-outline"
+          title="Get Help"
+          to="/help"
+          nav
+        >
+      </v-list-item>
+      <v-divider></v-divider>
+      <v-list-item
+        class="mb-3 mt-1"
         :prepend-avatar="avatar"
         :title="userName"
         :subtitle="userEmail"
