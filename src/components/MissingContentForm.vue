@@ -173,9 +173,9 @@ const columnValues = computed(() => {
     // Missing Type
     "text9__1": missingType.value.value,
     // Missing Product
-    "text4__1": missingType.value.value,
+    "text4__1": missingProduct.value.value,
     // Missing URL
-    "text0__1": missingType.value.value,
+    "text0__1": missingUrl.value.value,
   }
 
   return JSON.stringify(columns);
