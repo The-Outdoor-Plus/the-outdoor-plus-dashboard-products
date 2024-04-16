@@ -89,15 +89,17 @@
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Company</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
-            <v-text-field
-              v-model="company.value.value"
+            <v-autocomplete
+              v-model="company"
+              :items="companiesList"
               variant="outlined"
               density="compact"
               name="Company"
+              item-value="id"
+              item-title="name"
               placeholder="Company"
-              :error-messages="company.errorMessage.value"
               :readonly="readonly"
-            ></v-text-field>
+            ></v-autocomplete>
           </div>
         </div>
         <v-divider class="border-opacity-100 tw-mb-6 tw-mt-1"></v-divider>
@@ -148,7 +150,10 @@ interface User {
   last_name?: string | null;
   email: string;
   role?: string | null;
-  company?: string | null;
+  company?: {
+    id?: number;
+    name?: string;
+  };
 }
 
 interface Props {
@@ -177,14 +182,6 @@ const router = useRouter();
 
 const roles = [
   {
-    title: 'User',
-    value: 'USER'
-  },
-  {
-    title: 'Guest',
-    value: 'GUEST',
-  },
-  {
     title: 'Dealer',
     value: 'DEALER',
   },
@@ -195,6 +192,18 @@ const roles = [
   {
     title: 'Master Distributor',
     value: 'MASTER_DISTRIBUTOR',
+  },
+  {
+    title: 'Group',
+    value: 'GROUP',
+  },
+  {
+    title: 'Internet',
+    value: 'INTERNET',
+  },
+  {
+    title: 'Landscape / Designer',
+    value: 'LANDSCAPE',
   },
   {
     title: 'Manager',
@@ -220,7 +229,6 @@ const { handleSubmit } = useForm({
       first_name: yup.string().min(3).required(),
       last_name: yup.string().min(3).required(),
       role: yup.string().required(),
-      company: yup.string().min(3),
       password: props.new ? yup.string().min(6).required() : yup.string().min(6),
     })
   ),
@@ -230,8 +238,9 @@ const firstName = useField<string>('first_name');
 const lastName = useField<string>('last_name');
 const email = useField<string>('email');
 const role = useField<string>('role');
-const company = useField<string>('company');
 const password = useField<string>('password');
+
+const company = ref(1);
 
 const title = computed(() => {
   if (props.new) return 'Create User';
@@ -253,12 +262,13 @@ const fillUserInformation = () => {
     lastName.value.value = props.user?.last_name || '';
     email.value.value = props.user?.email || '';
     role.value.value = props.user?.role || '';
-    company.value.value = props.user?.company || '';
+    company.value = props.user?.company?.id || 0;
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
   fillUserInformation();
+  await getCompaniesList();
 });
 watch(
   () => props.user,
@@ -276,6 +286,33 @@ const submit = handleSubmit(async (values) => {
   }
 });
 
+interface Company {
+  id?: number;
+  name?: string;
+}
+
+const companiesList = ref<Company[]>([]);
+
+const getCompaniesList = async () => {
+  try {
+    isLoading.value = true;
+    const { data: companies, error } = await supabase
+      .from('company')
+      .select('id, name');
+    if (error) throw error;
+    companiesList.value = companies || [];
+  } catch (e: any) {
+    notify({
+      title: 'Error retrieving companies list',
+      text: e?.message || 'An error ocurred trying to retrieve companies list. Please contact TOP Support',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const handleCreate = async (values: User) => {
   try {
     isLoading.value = true;
@@ -287,7 +324,7 @@ const handleCreate = async (values: User) => {
         first_name: form.first_name,
         last_name: form.last_name,
         role: form.role,
-        company: form.company,
+        company: company.value,
       }
     });
     if (error) throw error;
@@ -321,7 +358,7 @@ const handleUpdate = async (values: User) => {
         first_name: form.first_name,
         last_name: form.last_name,
         role: form.role,
-        company: form.company,
+        company: company.value,
       }
     }
     const publicUserData = {
@@ -329,7 +366,7 @@ const handleUpdate = async (values: User) => {
       first_name: form.first_name,
       last_name: form.last_name,
       role: form.role,
-      company: form.company,
+      company: company.value,
     }
     if (!form.password) delete userInformation.password;
     const { error: err } = await supabaseAdmin.auth.admin.updateUserById(
