@@ -17,7 +17,10 @@ interface User {
   last_name?: string | null;
   email: string;
   role?: string | null;
-  company?: string | null;
+  company?: {
+    id?: number;
+    name?: string;
+  }
 }
 
 const store = useAppStore();
@@ -31,7 +34,10 @@ const user: Ref<User> = ref<User>({
   last_name: '',
   email: '',
   role: '',
-  company: '',
+  company: {
+    id: 0,
+    name: ''
+  }
 });
 
 onMounted(async () => {
