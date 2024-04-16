@@ -15,7 +15,7 @@
           </div>
         </div>
         <v-btn
-          v-if="!readonly && props.new"
+          v-if="!readonly"
           type="submit"
           color="primary"
         >
@@ -1076,7 +1076,7 @@ onMounted(async () => {
 const showColorAttribute = (prodAttr: ProductAttribute) => {
   if (prodAttr.attribute?.table_name === 'color') {
     const colorAttributeId = prodAttributesList.value.find((prodAttr) => prodAttr.attribute?.table_name === 'color')?.attribute?.id || 0;
-    return attributeValuesListFiltered.value[colorAttributeId].length;
+    return attributeValuesListFiltered?.value?.[colorAttributeId]?.length || false;
   }
   return true;
 }
@@ -1163,8 +1163,7 @@ const loadAttributeValues = async (attrId: number, productId: number, fill_value
         return (prodConf.attribute_value as AttributeValue)
       });
     }
-    if (attribute_values && attribute_values.length)
-      attributeValuesList.value[attrId] = attribute_values;
+    if (attribute_values && attribute_values?.length) attributeValuesList.value[attrId] = attribute_values;
   } catch (e) {
     console.error(e);
   } finally {
