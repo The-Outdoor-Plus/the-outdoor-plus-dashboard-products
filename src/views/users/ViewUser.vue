@@ -40,7 +40,7 @@ onMounted(async () => {
     loading.value = true;
     const { data, error } = await supabase
       .from('users')
-      .select()
+      .select('*, company(id, name)')
       .eq('id', route.params.id);
     if (error) throw error;
     if (data.length) user.value = data[0];

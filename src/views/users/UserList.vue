@@ -10,7 +10,7 @@
         variant="solo"
         density="comfortable"
         @keyup.enter="onEnterSearch"
-      ></v-text-field>  
+      ></v-text-field>
     <v-data-table-server
       v-model:items-per-page="itemsPerPage"
       :headers="(headers as [])"
@@ -34,7 +34,7 @@
             <v-card-title class="text-h5">Are you sure you want to delete this user?</v-card-title>
             <v-card-text>
               The user <strong>{{ itemToDelete?.first_name }}</strong> with id
-              {{ itemToDelete?.id }} will be will be deleted. 
+              {{ itemToDelete?.id }} will be will be deleted.
               This action cannot be reversed. Are you sure you want to continue?
             </v-card-text>
             <v-card-actions>
@@ -47,13 +47,13 @@
       </template>
       <!-- eslint-disable-next-line vue/valid-v-slot -->
       <template v-slot:item.actions="{ item }">
-        <v-btn 
+        <v-btn
           size="small"
           icon="mdi-eye"
           variant="text"
           :to="`/users/${item.raw.id}`"
         ></v-btn>
-        <v-btn 
+        <v-btn
           v-if="isActionEnabled((item.raw as Columns))"
           size="small"
           icon="mdi-pencil"
@@ -152,7 +152,7 @@ const headers = ref([
   { title: 'First Name', align: 'end', key: 'first_name' },
   { title: 'Last Name', align: 'end', key: 'last_name' },
   { title: 'Email', align: 'end', key: 'email' },
-  { title: 'Company', align: 'end', key: 'company' },
+  { title: 'Company', align: 'end', key: 'company.name' },
   { title: 'Role', align: 'end', key: 'role' },
   { title: 'Actions', key: 'actions', sortable: false },
 ]);
@@ -207,7 +207,7 @@ const loadItems = async ({ page, itemsPerPage, sortBy }: { page: number, itemsPe
     } else {
       const { data: users, error, count } = await supabase
         .from('users')
-        .select('*', { count: 'exact' })
+        .select('*, company(id, name)', { count: 'exact' })
         .order(sortBy?.[0]?.key || 'first_name', { ascending: sortBy?.[0]?.order === 'desc' ? false : true })
         .range(from, to);
       if (error) throw error;
