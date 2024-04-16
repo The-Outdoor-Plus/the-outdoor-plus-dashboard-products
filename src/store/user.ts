@@ -71,6 +71,18 @@ export const useUserStore = defineStore('user', {
       this.session = null;
       this.token = null;
       Sentry.setUser(null);
+    },
+    async showCompanyLogo() {
+      if (this.user?.user_metadata?.company) {
+        const { data, error } = await supabase
+          .from('company')
+          .select('id, slug, logo_url')
+          .eq(`id`, this.user?.user_metadata?.company);
+        if (error) throw error;
+        if (data[0].slug === 'the-outdoor-plus') return false;
+        return data[0].logo_url;
+      }
+      return false;
     }
   },
   getters: {
@@ -83,5 +95,8 @@ export const useUserStore = defineStore('user', {
     isUserAuthenticated(state) {
       return !!state.session;
     },
+    currentRole: (state) => {
+      return state?.user?.user_metadata?.role
+    }
   },
 })
