@@ -49,6 +49,13 @@ const currentTitle = ref('Explore Popular Topics');
 
 const items = ref<Item[]>([
   {
+    id: 'missing-content',
+    icon: 'mdi-file-alert',
+    name: 'Missing Content / Incorrect Information',
+    component: MissingContentForm,
+    description: 'Share with us if you can\'t find any product, photo, specification sheet or similar.',
+  },
+  {
     id: 'bug-report',
     icon: 'mdi-bug',
     name: 'Report a Issue / Bug',
@@ -61,13 +68,6 @@ const items = ref<Item[]>([
     name: 'Share your ideas / Request Feature',
     component: IdeasForm,
     description: 'Share with us any idea or feature that you would like to see implemented.',
-  },
-  {
-    id: 'missing-content',
-    icon: 'mdi-file-alert',
-    name: 'Missing Content / Incorrect Information',
-    component: MissingContentForm,
-    description: 'Share with us if you can\'t find any product, photo, specification sheet or similar.',
   },
 ]);
 
