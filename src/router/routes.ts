@@ -589,6 +589,52 @@ export default [
     ],
   },
   {
+    path: '/companies',
+    component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
+    children: [
+      {
+        path: '',
+        name: 'CompaniesList',
+        component: () => import(/* webpackChunkName: "companies-list" */'@/views/companies/CompaniesList.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: 'new',
+        name: 'NewCompany',
+        component: () => import(/* webpackChunkName: "new-company" */'@/views/companies/CreateCompany.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        }
+      },
+      {
+        path: 'edit/:id',
+        name: 'EditCompany',
+        component: () => import(/* webpackChunkName: "edit-company" */'@/views/companies/EditCompany.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      },
+      {
+        path: ':id',
+        name: 'ViewCompany',
+        component: () => import(/* webpackChunkName: "view-company" */'@/views/companies/ViewCompany.vue'),
+        meta: {
+          requiresAuth: true,
+          onlyWhenLoggedOut: false,
+          roles: ['MANAGER', 'ADMIN'],
+        },
+      }
+    ],
+  },
+  {
     path: '/help',
     component: () => import('@/layouts/dashboard/DashboardLayout.vue'),
     children: [
