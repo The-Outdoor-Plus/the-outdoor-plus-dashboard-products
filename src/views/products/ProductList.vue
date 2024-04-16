@@ -34,15 +34,28 @@
           <v-card class="pt-4 pb-3" :loading="deleteLoading">
             <v-card-title class="text-h5">Are you sure you want to delelete this product?</v-card-title>
             <v-card-text>
-              Product <strong>{{ itemToDelete?.name }}</strong> will be deleted.
-              You are about to delete a parent product, if you delete it, all of the
-              child products associated with it (variations), will also be deleted.
-              This action cannot be reversed. Are you sure you want to continue?
+              <div class="tw-mb-4">
+                Product <strong>{{ itemToDelete?.name }}</strong> will be deleted.
+                You are about to delete a parent product, if you delete it, all of the
+                child products associated with it (variations), will also be deleted.
+                This action cannot be reversed. Are you sure you want to continue?
+              </div>
+              <span class="tw-text-sm tw-italic">To confirm product deletion, please type <span class="tw-font-semibold tw-not-italic">{{ itemToDelete?.name }}</span> below.</span>
+              <v-text-field
+                v-model="deleteConfirmationText"
+                class="tw-mt-2"
+                variant="outlined"
+                density="compact"
+                name="deleteConfirmationText"
+                :placeholder="itemToDelete?.name"
+                base-color="red"
+                color="red"
+              ></v-text-field>
             </v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue-darken-1" variant="text" @click="closeDialogDelete">Cancel</v-btn>
-              <v-btn color="red-darken-1" variant="text" @click="deleteItemConfirm">Delete</v-btn>
+              <v-btn color="red-darken-1" variant="text" @click="deleteItemConfirm(itemToDelete?.name)" :disabled="itemToDelete?.name !== deleteConfirmationText">Delete</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -156,6 +169,7 @@ const data: Data = reactive({
 const itemsPerPage = ref(40);
 const totalItems = ref(40);
 const loading = ref(true);
+const deleteConfirmationText = ref('');
 
 /**
  *
@@ -183,18 +197,27 @@ const closeDialogDelete = () => {
   itemToDelete.value = null;
 }
 
-const deleteItemConfirm = async () => {
+const deleteItemConfirm = async (itemName?: string) => {
   try {
-    deleteLoading.value = true;
-    const { error } = await supabase.from('product').delete()
-      .eq('id', itemToDelete?.value?.id);
-    if (error) throw error;
-    notify({
-      type: 'success',
-      title: 'Product deleted successfully',
-      duration: 6000,
-    });
-    data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
+    if (deleteConfirmationText.value === itemName) {
+      deleteLoading.value = true;
+      const { error } = await supabase.from('product').delete()
+        .eq('id', itemToDelete?.value?.id);
+      if (error) throw error;
+      notify({
+        type: 'success',
+        title: 'Product deleted successfully',
+        duration: 6000,
+      });
+      data.serverItems = data.serverItems.filter((item) => item.id !== itemToDelete?.value?.id);
+    } else {
+      notify({
+        title: 'Product not deleted.',
+        text: 'Confirmation text doesn\'t match product name.',
+        type: 'info',
+        duration: 6000,
+      });
+    }
   } catch (e: any) {
     console.error(e);
     notify({
