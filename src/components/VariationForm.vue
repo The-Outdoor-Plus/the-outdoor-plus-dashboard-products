@@ -15,11 +15,11 @@
           </div>
         </div>
         <v-btn
-          v-if="!readonly"
+          v-if="!readonly && props.new"
           type="submit"
           color="primary"
         >
-          Submit
+          {{ props.new ? 'Create Product' : 'Save' }}
         </v-btn>
         <v-btn
           v-if="readonly"
