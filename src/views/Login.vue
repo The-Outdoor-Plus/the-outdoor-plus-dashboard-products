@@ -59,11 +59,12 @@ import * as yup from 'yup';
 import { useNotification } from '@kyvg/vue3-notification';
 import { supabase } from '@/supabase';
 import { useUserStore } from '@/store/user';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 
 const userStore = useUserStore();
 const { notify } = useNotification();
 const router = useRouter();
+const route = useRoute();
 
 const isLoading = ref(false);
 
@@ -93,7 +94,9 @@ const submit = handleSubmit(async (values) => {
       type: 'success',
       duration: 5000,
     });
-    router.push('/');
+    console.log(route.query);
+    if (route?.query?.redirect) router.push(`${route.query.redirect}`)
+    else router.push('/');
   } catch (e: any) {
     notify({
       title: 'Error signing in.',
