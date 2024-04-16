@@ -179,7 +179,6 @@ const headers = ref([
   { title: 'Name', align: 'end', key: 'name', width: '250px' },
   { title: 'SKU', align: 'end', key: 'sku', width: '300px' },
   { title: 'Collection', align: 'end', key: 'collection', width: '150px' },
-  { title: 'Published', align: 'end', key: 'published' },
   { title: 'Enabled', align: 'end', key: 'enabled' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' },
 ]);
