@@ -243,6 +243,23 @@ const navItems = reactive([
     ]
   },
   {
+    label: 'Companies',
+    icon: 'mdi-office-building-outline',
+    roles: ['MANAGER', 'ADMIN'],
+    children: [
+      {
+        label: 'View Companies',
+        link: '/companies',
+        roles: ['MANAGER', 'ADMIN'],
+      },
+      {
+        label: 'Create a company',
+        link: '/companies/new',
+        roles: ['MANAGER', 'ADMIN']
+      }
+    ]
+  },
+  {
     label: 'Users',
     icon: 'mdi-account-multiple',
     roles: ['MANAGER', 'ADMIN'],
@@ -276,12 +293,6 @@ const navItems = reactive([
       }
     ]
   },
-  {
-    label: 'Settings',
-    icon: 'mdi-cog',
-    roles: ['MANAGER', 'ADMIN'],
-    children: [],
-  }
 ]);
 
 const drawer = ref(true);
