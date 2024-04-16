@@ -62,24 +62,56 @@
         <!-- eslint-disable-next-line vue/valid-v-slot -->
         <template v-slot:item.actions="{ item }">
           <div class="tw-flex tw-flex-nowrap tw-justify-end -tw-mr-1.5">
-            <v-btn
-              size="small"
-              icon="mdi-eye"
-              variant="text"
-              :to="`/products/${route.params.id}/variant/${item.raw.id}`"
-            ></v-btn>
-            <v-btn
-              size="small"
-              icon="mdi-pencil"
-              variant="text"
-              :to="`/products/${route.params.id}/variant/edit/${item.raw.id}`"
-            ></v-btn>
-            <v-btn
-              size="small"
-              @click="deleteItem((item.raw as Columns))"
-              icon="mdi-delete"
-              variant="text"
-            ></v-btn>
+            <v-tooltip text="See Details" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  size="small"
+                  icon="mdi-eye"
+                  variant="text"
+                  :to="`/products/${route.params.id}/variant/${item.raw.id}`"
+                >
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Edit Variation" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  size="small"
+                  icon="mdi-pencil"
+                  variant="text"
+                  :to="`/products/${route.params.id}/variant/edit/${item.raw.id}`"
+                >
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Delete Variation" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  size="small"
+                  @click="deleteItem((item.raw as Columns))"
+                  icon="mdi-delete"
+                  variant="text"
+                >
+                </v-btn>
+              </template>
+            </v-tooltip>
+            <v-tooltip text="Open in Quick Pricing View" location="top">
+              <template v-slot:activator="{ props }">
+                <v-btn
+                  v-bind="props"
+                  size="small"
+                  @click="((item.raw as Columns))"
+                  :to="`/quick-pricing-view?sku=${(item.raw as Columns).sku}`"
+                  icon="mdi-open-in-new"
+                  variant="text"
+                >
+                </v-btn>
+              </template>
+            </v-tooltip>
+
           </div>
         </template>
       </v-data-table-server>

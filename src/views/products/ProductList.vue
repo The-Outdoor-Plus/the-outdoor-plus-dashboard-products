@@ -73,30 +73,50 @@
       <!-- eslint-disable-next-line vue/valid-v-slot -->
       <template v-slot:item.actions="{ item }">
         <div class="tw-flex tw-flex-nowrap tw-justify-end -tw-mr-1.5">
-          <v-btn
-            size="small"
-            icon="mdi-view-list"
-            variant="text"
-            :to="`/products/${item.raw.id}/variants`"
-          ></v-btn>
-          <v-btn
-            size="small"
-            icon="mdi-eye"
-            variant="text"
-            :to="`/products/${item.raw.id}`"
-          ></v-btn>
-          <v-btn
-            size="small"
-            icon="mdi-pencil"
-            variant="text"
-            :to="`/products/edit/${item.raw.id}`"
-          ></v-btn>
-          <v-btn
-            size="small"
-            @click="deleteItem((item.raw as Columns))"
-            icon="mdi-delete"
-            variant="text"
-          ></v-btn>
+          <v-tooltip text="View Variations" location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="small"
+                icon="mdi-view-list"
+                variant="text"
+                :to="`/products/${item.raw.id}/variants`"
+            ></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip text="See Product Details" location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="small"
+                icon="mdi-eye"
+                variant="text"
+                :to="`/products/${item.raw.id}`"
+              ></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip text="Edit Product" location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="small"
+                icon="mdi-pencil"
+                variant="text"
+                :to="`/products/edit/${item.raw.id}`"
+              ></v-btn>
+            </template>
+          </v-tooltip>
+          <v-tooltip text="Delete Product" location="top">
+            <template v-slot:activator="{ props }">
+              <v-btn
+                v-bind="props"
+                size="small"
+                @click="deleteItem((item.raw as Columns))"
+                icon="mdi-delete"
+                variant="text"
+              ></v-btn>
+            </template>
+          </v-tooltip>
         </div>
       </template>
     </v-data-table-server>

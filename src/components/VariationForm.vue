@@ -19,7 +19,7 @@
           type="submit"
           color="primary"
         >
-          {{ props.new ? 'Create Product' : 'Save' }}
+          {{ props.new ? 'Create Variation' : 'Save' }}
         </v-btn>
         <v-btn
           v-if="readonly"
