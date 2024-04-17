@@ -6,6 +6,52 @@
     permanent
     @click="store.rail = false"
   >
+
+    <v-list density="compact" nav>
+      <template v-for="(item, i) in publicNavItems" :key="i">
+        <template v-if="item.children.length">
+          <v-list-group
+            v-if="isLinkAllowed(item.roles)"
+            :value="item.label"
+          >
+            <template v-slot:activator="{ props }">
+              <v-list-item
+                v-bind="props"
+                exact
+                :prepend-icon="item.icon"
+                :title="item.label"
+              ></v-list-item>
+            </template>
+            <template
+              v-for="(child, i) in item.children"
+              :key="i"
+            >
+              <v-list-item
+                v-if="isLinkAllowed(child.roles)"
+                exact
+                :title="child.label"
+                :value="child.label"
+                :to="child.link"
+              >
+              </v-list-item>
+            </template>
+          </v-list-group>
+        </template>
+        <template v-else>
+          <v-list-item
+            v-if="isLinkAllowed(item.roles)"
+            exact
+            :prepend-icon="item.icon"
+            :title="item.label"
+            :value="item.label"
+            :to="item.link"
+          ></v-list-item>
+        </template>
+      </template>
+    </v-list>
+
+    <v-divider></v-divider>
+    <div v-if="isAdmin" class="tw-px-4 tw-mt-2 tw-font-semibold tw-text-blue-900">Admin</div>
     <v-list density="compact" nav>
       <template v-for="(item, i) in navItems" :key="i">
         <template v-if="item.children.length">
@@ -84,7 +130,8 @@ import { useUserStore } from '@/store/user';
 const store = useAppStore();
 const userStore = useUserStore();
 
-const navItems = reactive([
+const publicNavItems = reactive([
+  { label: '', icon: '', link: '', roles: [], children: [{ label: '', link: '', roles: [] }] },
   {
     label: 'Products',
     icon: 'mdi-archive-search-outline',
@@ -106,6 +153,10 @@ const navItems = reactive([
     roles: ['MANAGER', 'ADMIN', 'SALES'],
     children: [],
   },
+]);
+
+const navItems = reactive([
+  { label: '', icon: '', link: '', roles: [], children: [] },
   {
     label: 'Products',
     icon: 'mdi-package-variant',
@@ -302,6 +353,10 @@ const userName = computed(() => {
 const userEmail = computed(() => userStore.currentUser?.email);
 const avatar = computed(() => {
   return `https://ui-avatars.com/api/?background=FCB017&color=fff&name=${userStore.currentUser?.user_metadata?.first_name}+${userStore.currentUser?.user_metadata?.last_name}`;
+})
+
+const isAdmin = computed(() => {
+  return ['ADMIN', 'MANAGER', 'SALES'].includes(userStore.user?.user_metadata?.role || '');
 })
 
 const isLinkAllowed = (roles: string[]) => {
