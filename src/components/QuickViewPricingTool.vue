@@ -505,7 +505,7 @@
                   SKU: <span class="tw-text-blue-600">{{ getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku }}</span>
                 </span>
                 <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
-                  <div class="tw-text-base tw-font-semibold" :class="getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === -1 ? 'tw-text-green-600' : 'tw-text-red-600'">
+                  <div class="tw-text-base tw-font-semibold" :class="getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === -1 ? 'tw-text-green-600' : getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === 1 ? 'tw-text-red-600' : 'tw-text-black !tw-text-sm !tw-font-normal'">
                     {{ getPriceDifference(attr?.attribute?.id!, attrVal.id).price }}
                   </div>
                 </span>
@@ -728,6 +728,13 @@ const userIsAdmin = computed(() => {
   return false;
 });
 
+const userIsSales = computed(() => {
+  const salesRoles = ['SALES'];
+  if (salesRoles.includes(userStore.currentUser?.user_metadata?.role || ''))
+    return true
+  return false;
+})
+
 onMounted(async () => {
   if (route.query.sku) {
     skuSearch.value = String(route.query.sku);
@@ -735,8 +742,8 @@ onMounted(async () => {
   }
 })
 
-const formatPrice = (price: number | null, showSign: boolean = false) => {
-  if (!price)
+const formatPrice = (price: number | null, showSign: boolean = false, showZero: boolean = false) => {
+  if (price === null || price === undefined)
     return 'No Price Available';
   let sign = '';
   if (showSign && Math.sign(price) === 1) sign = '+';
@@ -1303,7 +1310,6 @@ const calculateConfigurationsData = (selectedAttrId: number, selectedAttrValueId
       isVariation = hasConfiguration.every((hasConf: any) => hasConf.isCurrent);
       return isVariation;
     });
-    console.log(variation);
     variationConfigurations.value.push({
       sku: variation?.sku || 'No SKU Assigned.',
       attributeId: selectedAttrId,
@@ -1329,18 +1335,22 @@ const getPriceDifference = (attrId: number, valueId: number) => {
   const currentConfiguration = variationConfigurations.value.find((varConf) => varConf.attributeId === attrId && varConf.valueId === valueId);
   if (currentConfiguration) {
     const userrole = userRole.value.toLowerCase() as keyof PriceData;
+    if (userIsAdmin.value || userIsSales.value) return {
+      sign: 0,
+      price: '',
+    }
     const price = product.value?.[`${userrole}_price`] || null;
     const confPrice = currentConfiguration?.[`${userrole}_price`] || null;
     if (price && confPrice) {
       const diff = confPrice - price;
       return {
-        sign: Math.sign(diff),
-        price: `${formatPrice(diff, true)}`
+        sign: diff === 0 ? -1 : Math.sign(diff),
+        price: `${diff === 0 ? '+' : ''}${formatPrice(diff, true)}`
       };
     }
   }
   return {
-    sign: 1,
+    sign: 0,
     price: 'No Price Available',
   };
 }
