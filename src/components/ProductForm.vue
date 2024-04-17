@@ -38,10 +38,10 @@
             <v-row>
               <v-col
                 cols="12"
-                sm="6"
-                md="5"
-                lg="3"
-                xl="3"
+                sm="12"
+                md="12"
+                lg="12"
+                xl="12"
               >
                 <v-checkbox
                   v-model="enabled.value.value"
@@ -51,7 +51,7 @@
                 ></v-checkbox>
               </v-col>
             </v-row>
-            <span class="tw-text-sm tw-text-gray-500"><b>Enable product: </b>If checked, it means that the product is enabled for display on the dashboard and on the quick view pricing tool. This will allow dealers and sales to see the details about the product.</span>
+            <span class="tw-text-sm tw-text-gray-500"><b>Enable product: </b>If checked, it means that the product is enabled for display to vendors, on both product search and Quick Pricing View. This will allow vendors and sales to see the details about the product.</span>
             <br>
             <!-- <span class="tw-text-sm tw-text-gray-500"><b>Publish product: </b>If checked, it means the product is ready to be published on the website and ready to start selling.</span> -->
           </div>
@@ -59,7 +59,7 @@
           <!-- Product Name -->
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-mb-1.5">
-              <h3 class="tw-font-semibold tw-mt-1">Product Name</h3>
+              <h3 class="tw-font-semibold tw-mt-1">Product Name <span class="tw-text-red-500"><sup>*</sup></span></h3>
             </div>
             <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
               <v-text-field
@@ -96,7 +96,7 @@
             </div>
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pl-4">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-font-semibold tw-mt-1">SKU</h3>
+                <h3 class="tw-font-semibold tw-mt-1">{{ productType.value.value === 'VARIABLE' ? 'Base SKU' : 'SKU' }}</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -624,7 +624,7 @@
             </div>
             <div class="tw-w-full tw-flex tw-flex-col ">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-text-base tw-font-semibold tw-mt-1">Website Link</h3>
+                <h3 class="tw-text-base tw-font-semibold tw-mt-1">Product Website Link</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -661,12 +661,12 @@
               v-model="accessDoor.value.value"
               class="tw-w-full -tw-mt-1"
               color="green-darken-1"
-              label="Has Access Door?"
+              label="Has Access Door"
               :readonly="readonly"
             ></v-checkbox>
           </div>
         </v-card>
-        <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
+        <!-- <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
           <div class="tw-mb-6">
             <h3 class="tw-text-xl tw-font-semibold tw-mb-1 tw-text-gray-600">Accessories</h3>
             <span class="tw-text-sm tw-text-gray-500">The value of a compatible accessory <i>must</i> be the SKU from that accessory.</span>
@@ -727,7 +727,7 @@
               </div>
             </div>
           </div>
-        </v-card>
+        </v-card> -->
       </div>
     </form>
   </div>
