@@ -1255,6 +1255,7 @@ const loadAllProductVariations = async (parentId: number) => {
 }
 
 const calculateCurrentConfiguration = () => {
+  variationConfigurations.value = [];
   prodAttributesList.value.forEach((attr) => {
     attr.attribute_values?.forEach((attrVal) => {
       let isCurrent = false;
