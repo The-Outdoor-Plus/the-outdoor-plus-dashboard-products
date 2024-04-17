@@ -501,14 +501,16 @@
                     class="tw-my-2"
                   ></v-img>
                 </div>
-                <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
-                  SKU: <span class="tw-text-blue-600">{{ getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku }}</span>
-                </span>
-                <span v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)" class="tw-text-xs tw-mt-1">
-                  <div class="tw-text-base tw-font-semibold" :class="getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === -1 ? 'tw-text-green-600' : getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === 1 ? 'tw-text-red-600' : 'tw-text-black !tw-text-sm !tw-font-normal'">
-                    {{ getPriceDifference(attr?.attribute?.id!, attrVal.id).price }}
-                  </div>
-                </span>
+                <template v-if="!isCurrentConfiguration(attr?.attribute?.id!, attrVal.id)">
+                  <span class="tw-text-xs tw-mt-1">
+                    SKU: <span :class="getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku.toLowerCase() !== 'no sku assigned.' ? 'tw-text-blue-600' : 'tw-text-black'">{{ getVariationConfiguration(attr?.attribute?.id!, attrVal.id)?.sku }}</span>
+                  </span>
+                  <span class="tw-text-xs tw-mt-1">
+                    <div class="tw-text-base tw-font-semibold" :class="getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === -1 ? 'tw-text-green-600' : getPriceDifference(attr?.attribute?.id!, attrVal.id).sign === 1 ? 'tw-text-red-600' : 'tw-text-black !tw-text-sm !tw-font-normal'">
+                      {{ getPriceDifference(attr?.attribute?.id!, attrVal.id).price }}
+                    </div>
+                  </span>
+                </template>
               </div>
             </div>
 

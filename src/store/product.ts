@@ -74,7 +74,7 @@ export const useProductStore = defineStore('product', {
       yup.object({
         collection_id: yup.number().nullable(),
         name: yup.string().min(2).required(),
-        sku: yup.string().min(2).required(),
+        sku: yup.string().min(2),
         product_type: yup.string().required(),
         burner_shape: yup.string().nullable(),
         compatible_canvas_cover: yup.string().nullable(),
