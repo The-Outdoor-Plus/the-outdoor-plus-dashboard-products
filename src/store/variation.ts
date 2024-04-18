@@ -55,6 +55,7 @@ export const useVariationStore = defineStore('variation', {
         map_price: yup.number().nullable(),
         master_distributor_price: yup.number().nullable(),
         msrp_price: yup.number().nullable(),
+        btu: yup.number().nullable(),
       }),
     );
 
@@ -92,6 +93,7 @@ export const useVariationStore = defineStore('variation', {
       compatible_glass_wind_guard: '',
       product_serial_base: '',
       website_link: '',
+      btu: null,
     }
 
     const priceTypeList = [
@@ -162,6 +164,7 @@ export const useVariationStore = defineStore('variation', {
       'map_price',
       'master_distributor_price',
       'msrp_price',
+      'btu',
     ]
 
     return {

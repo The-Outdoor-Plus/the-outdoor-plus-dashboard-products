@@ -92,6 +92,11 @@
               <span>{{ product.parent.collection.name }}</span>
             </div>
             <!-- Shape -->
+            <div v-if="product?.btu" class="tw-w-full lg:tw-w-6/12 mb-4">
+              <span class="tw-font-semibold">BTU: </span>
+              <span>{{ product.btu.toLocaleString() }}</span>
+            </div>
+            <!-- Shape -->
             <div v-if="product?.parent?.shape?.name" class="tw-w-full lg:tw-w-6/12 mb-4">
               <span class="tw-font-semibold">Shape: </span>
               <span>{{ product.parent.shape.name }}</span>
@@ -144,7 +149,7 @@
             <div v-if="product?.encoded_upc_codes" class="tw-w-6/12 mb-4 tw-flex tw-items-center tw-flex-wrap">
               <span class="tw-font-semibold">Encoded UPC: </span>
               <span>{{ product.encoded_upc_codes }}</span>
-              <v-btn
+              <!-- <v-btn
                 size="small"
                 @click="copyTextToClipboard(product.encoded_upc_codes, 'Encoded UPC')"
                 icon="mdi-content-copy"
@@ -161,7 +166,7 @@
                   variant="text"
                 >
                 </v-btn>
-              </div>
+              </div> -->
               <v-dialog v-model="encodedUpcCodeDialog" max-width="400px">
                 <v-card>
                   <v-card-title class="d-flex justify-space-between align-center tw-px-10">
@@ -255,22 +260,22 @@
             </div>
             <!-- BA Length -->
             <div v-if="product?.ba_length" class="tw-w-6/12 mb-4">
-              <span class="tw-font-semibold">BA Length: </span>
+              <span class="tw-font-semibold">Burning Area Length: </span>
               <span>{{ product.fire_glass }}</span>
             </div>
             <!-- BA Diameter -->
             <div v-if="product?.ba_diameter" class="tw-w-6/12 mb-4">
-              <span class="tw-font-semibold">BA Diameter: </span>
+              <span class="tw-font-semibold">Burning Area Diameter: </span>
               <span>{{ product.ba_diameter }}</span>
             </div>
             <!-- BA Width -->
             <div v-if="product?.ba_width" class="tw-w-6/12 mb-4">
-              <span class="tw-font-semibold">BA Width: </span>
+              <span class="tw-font-semibold">Burning Area Width: </span>
               <span>{{ product.ba_width }}</span>
             </div>
             <!-- BA Depth -->
             <div v-if="product?.ba_depth" class="tw-w-6/12 mb-4">
-              <span class="tw-font-semibold">BA Depth: </span>
+              <span class="tw-font-semibold">Burning Area Depth: </span>
               <span>{{ product.ba_depth }}</span>
             </div>
             <!-- Burner Shape -->
@@ -948,7 +953,8 @@ const loadProduct = async () => {
     description,
     website_link,
     meta,
-    product_meta
+    product_meta,
+    btu
   `;
 
   const filterPrices = productStore.allowedPricesFilter(userStore.user?.user_metadata.role as string);

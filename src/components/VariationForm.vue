@@ -380,6 +380,29 @@
         </v-card>
         <v-card class="py-10 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
           <h3 class="tw-text-xl tw-font-semibold tw-mb-6 tw-text-gray-600">Dimensions</h3>
+          <!-- Product BTU -->
+          <div class="tw-w-full tw-flex tw-flex-wrap">
+            <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pr-4">
+              <div class="tw-w-full tw-mb-1.5">
+                <h3 class="tw-font-semibold tw-mt-1">BTU</h3>
+              </div>
+              <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
+                 <v-text-field
+                    v-model="btu.value.value"
+                    class="tw-w-full"
+                    variant="outlined"
+                    density="compact"
+                    name="BTU"
+                    placeholder="BTU"
+                    type="number"
+                    step="500"
+                    :error-messages="btu.errorMessage.value"
+                    :readonly="readonly"
+                  >
+                </v-text-field>
+              </div>
+            </div>
+          </div>
           <!-- Product Length & Diameter -->
           <div class="tw-w-full tw-flex tw-flex-wrap">
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pr-4">
@@ -663,7 +686,7 @@
           <div class="tw-w-full tw-flex tw-flex-wrap">
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pr-4">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-font-semibold tw-mt-1">BA Length</h3>
+                <h3 class="tw-font-semibold tw-mt-1">Burning Area Length</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -672,7 +695,7 @@
                   variant="outlined"
                   density="compact"
                   name="BALength"
-                  placeholder="BA Length"
+                  placeholder="Burning Area Length"
                   :error-messages="baLength.errorMessage.value"
                   :readonly="readonly"
                 >
@@ -681,7 +704,7 @@
             </div>
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pl-4">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-font-semibold tw-mt-1">BA Diameter</h3>
+                <h3 class="tw-font-semibold tw-mt-1">Burning Area Diameter</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -690,7 +713,7 @@
                   variant="outlined"
                   density="compact"
                   name="BADiameter"
-                  placeholder="BA Diameter"
+                  placeholder="Burning Area Diameter"
                   :error-messages="baDiameter.errorMessage.value"
                   :readonly="readonly"
                 >
@@ -702,7 +725,7 @@
           <div class="tw-w-full tw-flex tw-flex-wrap">
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pr-4">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-font-semibold tw-mt-1">BA Width</h3>
+                <h3 class="tw-font-semibold tw-mt-1">Burning Area Width</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -711,7 +734,7 @@
                   variant="outlined"
                   density="compact"
                   name="BAWidth"
-                  placeholder="BA Width"
+                  placeholder="Burning Area Width"
                   :error-messages="baWidth.errorMessage.value"
                   :readonly="readonly"
                 >
@@ -720,7 +743,7 @@
             </div>
             <div class="tw-w-full tw-flex tw-flex-col xl:tw-w-6/12 xl:tw-pl-4">
               <div class="tw-w-full tw-mb-1.5">
-                <h3 class="tw-font-semibold tw-mt-1">BA Depth</h3>
+                <h3 class="tw-font-semibold tw-mt-1">Burning Area Depth</h3>
               </div>
               <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
                 <v-text-field
@@ -729,7 +752,7 @@
                   variant="outlined"
                   density="compact"
                   name="BADepth"
-                  placeholder="BA Depth"
+                  placeholder="Burning Area Depth"
                   :error-messages="baDepth.errorMessage.value"
                   :readonly="readonly"
                 >
@@ -902,7 +925,7 @@
             </div>
           </div>
         </v-card>
-        <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
+        <!-- <v-card class="py-12 px-10 tw-mt-12" rounded="lg" :loading="isLoading">
           <div class="tw-mb-6">
             <h3 class="tw-text-xl tw-font-semibold tw-mb-1 tw-text-gray-600">Accessories</h3>
             <span class="tw-text-sm tw-text-gray-500">The value of a compatible accessory <i>must</i> be the SKU from that accessory.</span>
@@ -963,7 +986,7 @@
               </div>
             </div>
           </div>
-        </v-card>
+        </v-card> -->
       </div>
     </form>
   </div>
@@ -1394,6 +1417,7 @@ const landscapePrice = useField<number>('landscape_price');
 const mapPrice = useField<number>('map_price');
 const masterDistributorPrice = useField<number>('master_distributor_price');
 const msrpPrice = useField<number>('msrp_price');
+const btu = useField<number>('btu');
 
 const certifications: Ref<string[]> = ref<string[]>([]);
 

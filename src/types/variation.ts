@@ -50,6 +50,7 @@ export interface Variation {
   map_price?: number | null;
   master_distributor_price?: number | null;
   msrp_price?: number | null;
+  btu?: number | null;
 }
 
 export interface Props {
