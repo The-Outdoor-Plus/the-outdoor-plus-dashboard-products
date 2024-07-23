@@ -12,6 +12,10 @@ SET row_security = off;
 
 CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
 
+CREATE SCHEMA IF NOT EXISTS "public";
+
+ALTER SCHEMA "public" OWNER TO "pg_database_owner";
+
 CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
 
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
@@ -36,9 +40,17 @@ CREATE TYPE "public"."certification_type" AS ENUM (
 
 ALTER TYPE "public"."certification_type" OWNER TO "postgres";
 
+CREATE TYPE "public"."product_type" AS ENUM (
+    'VARIABLE',
+    'SIMPLE'
+);
+
+ALTER TYPE "public"."product_type" OWNER TO "postgres";
+
 CREATE TYPE "public"."relation_type" AS ENUM (
     'PARENT',
-    'CHILD'
+    'CHILD',
+    'PARENT_GROUP'
 );
 
 ALTER TYPE "public"."relation_type" OWNER TO "postgres";
@@ -50,7 +62,12 @@ CREATE TYPE "public"."user_role" AS ENUM (
     'DISTRIBUTOR',
     'MANAGER',
     'ADMIN',
-    'MASTER_DISTRIBUTOR'
+    'MASTER_DISTRIBUTOR',
+    'GROUP',
+    'LANDSCAPE',
+    'INTERNET',
+    'ECOMMERCE',
+    'SALES'
 );
 
 ALTER TYPE "public"."user_role" OWNER TO "postgres";
@@ -81,6 +98,7 @@ CREATE OR REPLACE FUNCTION "public"."create_user"() RETURNS "trigger"
     AS $$
 DECLARE
   role_name public.user_role;
+  company_id int;
 BEGIN
   IF NEW.raw_user_meta_data->>'role' = 'role' OR NEW.raw_user_meta_data->>'role' IS NULL THEN
     -- NEW.raw_user_meta_data = jsonb_set(NEW.raw_user_meta_data, '{role}', 'USER'::jsonb);
@@ -89,8 +107,14 @@ BEGIN
     role_name := NEW.raw_user_meta_data->>'role';
   END IF;
 
+  IF NEW.raw_user_meta_data->>'company' IS NULL THEN
+    company_id := NULL;
+  ELSE
+    company_id := NEW.raw_user_meta_data->>'company';
+  END IF;
+
   INSERT INTO public.users (id, first_name, email, last_name, role, company)
-  VALUES (NEW.id, NEW.raw_user_meta_data->>'first_name', NEW.email, NEW.raw_user_meta_data->>'last_name', role_name, NEW.raw_user_meta_data->>'company');
+  VALUES (NEW.id, NEW.raw_user_meta_data->>'first_name', NEW.email, NEW.raw_user_meta_data->>'last_name', role_name,  company_id);
 
   RETURN NEW;
 END $$;
@@ -106,6 +130,266 @@ BEGIN
 END $$;
 
 ALTER FUNCTION "public"."delete_user"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."filter_all_products"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "public"."product_type", "parent_id" "text", "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+      SELECT p.id, p.name, p.sku, p.enabled, p.product_type, NULL as parent_id, img.url as image_url, count(*) OVER () AS count
+      FROM product p
+      LEFT JOIN LATERAL (
+        SELECT pi.image_id, image.url
+        FROM product_image pi
+        JOIN image ON pi.image_id = image.id
+        WHERE
+          pi.product_id = p.id AND
+          pi.is_primary = TRUE
+        LIMIT 1
+      ) img ON TRUE
+      LEFT JOIN product_attribute pa ON p.id = pa.product_id AND pa.attribute_id = ANY($4)
+      LEFT JOIN product_configuration pc ON p.id = pc.product_id AND pc.value_id = ANY($3) 
+      GROUP BY
+        p.id, p.name, p.sku, p.enabled, p.product_type, img.url
+      HAVING
+        (
+          array_length($4, 1) IS NULL OR 
+          array_length(ARRAY_REMOVE($4, NULL), 1) = COUNT(pa.product_id) AND
+          (COUNT(pa.product_id) > 0 AND bool_or(pa.fill_values) OR COUNT(pa.product_id) = 0)
+        )
+        OR
+        -- New condition for fill_values = FALSE
+        (
+            COUNT(pa.product_id) > 0 AND NOT bool_or(pa.fill_values)
+            AND
+            (
+                array_length($3, 1) IS NULL OR 
+                array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(pc.product_id)
+            )
+        )
+      ORDER BY ' || sort_term || ' ' || sort_order || '
+      LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, value_id, attribute_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."filter_all_products"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "public"."product_type", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+      SELECT id, name, sku, enabled, product_type, parent_id, image_url, count(*) OVER () AS count
+      FROM (
+        SELECT p.id, p.name, p.sku, p.enabled, p.product_type, NULL as parent_id, img.url as image_url
+        FROM product p
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = p.id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) img ON TRUE
+
+        UNION
+
+        SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url
+        FROM variation v
+        LEFT JOIN LATERAL (
+          SELECT vi.image_id, image.url
+          FROM variation_image vi
+          JOIN image ON vi.image_id = image.id
+          WHERE
+            vi.variation_id = v.id AND
+            vi.is_primary = TRUE
+          LIMIT 1
+        ) variation_img ON TRUE
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = v.parent_id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) parent_img ON TRUE
+        LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($3)
+        GROUP BY
+          v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+        HAVING
+          array_length($3, 1) IS NULL OR 
+          array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(vc.variation_id)
+      ) AS combined
+      ORDER BY ' || sort_term || ' ' || sort_order || '
+      LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, value_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "public"."product_type", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+      SELECT id, name, sku, enabled, product_type, parent_id, image_url, count(*) OVER () AS count
+      FROM (
+        SELECT p.id, p.name, p.sku, p.enabled, p.product_type, NULL as parent_id, img.url as image_url
+        FROM product p
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = p.id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) img ON TRUE
+        LEFT JOIN product_attribute pa ON p.id = pa.product_id AND pa.attribute_id = ANY($4)
+        LEFT JOIN product_configuration pc ON p.id = pc.product_id AND pc.value_id = ANY($3) 
+        GROUP BY
+          p.id, p.name, p.sku, p.enabled, p.product_type, img.url
+        HAVING
+          (
+            array_length($4, 1) IS NULL OR 
+            array_length(ARRAY_REMOVE($4, NULL), 1) = COUNT(pa.product_id) AND
+            (COUNT(pa.product_id) > 0 AND bool_or(pa.fill_values) OR COUNT(pa.product_id) = 0)
+          )
+          OR
+          -- New condition for fill_values = FALSE
+          (
+              COUNT(pa.product_id) > 0 AND NOT bool_or(pa.fill_values)
+              AND
+              (
+                  array_length($3, 1) IS NULL OR 
+                  array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(pc.product_id)
+              )
+          )
+
+        UNION
+
+        SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url
+        FROM variation v
+        LEFT JOIN LATERAL (
+          SELECT vi.image_id, image.url
+          FROM variation_image vi
+          JOIN image ON vi.image_id = image.id
+          WHERE
+            vi.variation_id = v.id AND
+            vi.is_primary = TRUE
+          LIMIT 1
+        ) variation_img ON TRUE
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = v.parent_id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) parent_img ON TRUE
+        LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($3)
+        GROUP BY
+          v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+        HAVING
+          array_length($3, 1) IS NULL OR 
+          array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(vc.variation_id)
+      ) AS combined
+      ORDER BY ' || sort_term || ' ' || sort_order || '
+      LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, value_id, attribute_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "text", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+    SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url, count(*) OVER () AS count
+      FROM variation v
+      LEFT JOIN LATERAL (
+        SELECT vi.image_id, image.url
+        FROM variation_image vi
+        JOIN image ON vi.image_id = image.id
+        WHERE
+          vi.variation_id = v.id AND
+          vi.is_primary = TRUE
+        LIMIT 1
+      ) variation_img ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT pi.image_id, image.url
+        FROM product_image pi
+        JOIN image ON pi.image_id = image.id
+        WHERE
+          pi.product_id = v.parent_id AND
+          pi.is_primary = TRUE
+        LIMIT 1
+      ) parent_img ON TRUE
+      LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($3)
+      GROUP BY
+        v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+      HAVING
+        array_length($3, 1) IS NULL OR 
+        array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(vc.variation_id)
+    ORDER BY ' || sort_term || ' ' || sort_order || '
+    LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, value_id, attribute_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[], "parentid" integer) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "text", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+    SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url, count(*) OVER () AS count
+      FROM variation v
+      LEFT JOIN LATERAL (
+        SELECT vi.image_id, image.url
+        FROM variation_image vi
+        JOIN image ON vi.image_id = image.id
+        WHERE
+          vi.variation_id = v.id AND
+          vi.is_primary = TRUE
+        LIMIT 1
+      ) variation_img ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT pi.image_id, image.url
+        FROM product_image pi
+        JOIN image ON pi.image_id = image.id
+        WHERE
+          pi.product_id = v.parent_id AND
+          pi.is_primary = TRUE
+        LIMIT 1
+      ) parent_img ON TRUE
+      LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($3)
+      WHERE v.parent_id = $5
+      GROUP BY
+        v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+      HAVING
+        array_length($3, 1) IS NULL OR 
+        array_length(ARRAY_REMOVE($3, NULL), 1) = COUNT(vc.variation_id)
+    ORDER BY ' || sort_term || ' ' || sort_order || '
+    LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, value_id, attribute_id, parentid;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[], "parentid" integer) OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."get_category_tree"() RETURNS SETOF "jsonb"
     LANGUAGE "plpgsql"
@@ -216,8 +500,8 @@ BEGIN
       c.id AS category_id,
       c.name AS category_name,
       c.slug AS category_slug,
-      c.parent_id AS parent_category_id,
-      NULL::jsonb AS child_categories,
+      c.parent_id AS parent_category_id,  -- Specify the table alias for parent_category_id
+      '[]'::jsonb AS child_categories,
       1 AS level
     FROM
       category c
@@ -231,38 +515,218 @@ BEGIN
       c.id AS category_id,
       c.name AS category_name,
       c.slug AS category_slug,
-      c.parent_id AS parent_category_id,
-      jsonb_agg(ct.child_categories) FILTER (WHERE ct.child_categories IS NOT NULL) AS child_categories,
+      c.parent_id AS parent_category_id,  -- Specify the table alias for parent_category_id
+      '[]'::jsonb AS child_categories,
       ct.level + 1 AS level
     FROM
       category c
     INNER JOIN category_tree ct ON c.parent_id = ct.category_id
     WHERE
       (search_term IS NULL OR c.name ILIKE '%' || search_term || '%')
+  ),
+  get_child_categories AS (
+    SELECT
+      parent_category_id,
+      JSONB_AGG(
+        JSONB_BUILD_OBJECT(
+          'category_id', ct.category_id,
+          'category_name', ct.category_name,
+          'category_slug', ct.category_slug
+        )
+      ) AS child_categories
+    FROM
+      category_tree ct
     GROUP BY
-      c.id, c.name, c.slug, c.parent_id, ct.level
+      parent_category_id
   )
   SELECT
     ct.category_id,
     ct.category_name,
     ct.category_slug,
-    ct.parent_category_id,
-    ct.child_categories,
-    count(*) OVER () AS total_count
+    ct.parent_category_id,  -- Specify the table alias for parent_category_id
+    gc.child_categories,
+    COUNT(*) OVER () AS total_count
   FROM
     category_tree ct
-  WHERE
-    ct.level = 1
+  LEFT JOIN
+    get_child_categories gc ON ct.category_id = gc.parent_category_id
   ORDER BY
-    CASE WHEN sort_term = 'category_name' THEN ct.category_name END,
-    CASE WHEN sort_term = 'category_id' THEN ct.category_id END,
-    CASE WHEN sort_term = 'category_slug' THEN ct.category_slug END
+    CASE
+      WHEN sort_term = 'category_name' THEN ct.category_name
+      WHEN sort_term = 'category_id' THEN ct.category_id::varchar
+      WHEN sort_term = 'category_slug' THEN ct.category_slug
+    END
   FETCH FIRST (to_limit - from_limit + 1) ROWS ONLY
   OFFSET from_limit;
 END;
 $$;
 
 ALTER FUNCTION "public"."get_category_tree_search"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."get_category_tree_search_test"() RETURNS "jsonb"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    _json_output jsonb;
+    _temprow record;
+BEGIN
+    SELECT 
+        jsonb_build_object('id', id, 'name', name, 'slug', slug, 'child_categories', array_to_json(ARRAY[]::int[])) 
+    INTO _json_output 
+    FROM category 
+    WHERE parent_id IS NULL;
+    
+    FOR _temprow IN
+        WITH RECURSIVE tree(id, ancestor, child, path, json) AS  (
+          SELECT 
+              c1.id, 
+              NULL::int, 
+              c2.id,
+              '{child_categories}'::text[] || (row_number() OVER (PARTITION BY c1.id ORDER BY c2.id) - 1)::text,
+              jsonb_build_object('id', c2.id, 'name', c2.name, 'slug', c2.slug, 'child_categories', array_to_json(ARRAY[]::int[]))
+          FROM category c1
+          LEFT JOIN category c2 ON c1.id = c2.parent_id
+          WHERE c1.parent_id IS NULL
+
+          UNION
+
+          SELECT
+              c1.id, 
+              c1.parent_id, 
+              c2.id,
+              tree.path || '{child_categories}' || (row_number() OVER (PARTITION BY c1.id ORDER BY c2.id) - 1)::text, 
+              jsonb_build_object('id', c2.id, 'name', c2.name, 'slug', c2.slug, 'child_categories', array_to_json(ARRAY[]::int[]))
+          FROM category c1
+          LEFT JOIN category c2 ON c1.id = c2.parent_id
+          INNER JOIN tree ON (c1.id = tree.child)
+          WHERE c1.parent_id = tree.id
+        )
+        SELECT 
+            child as id, path, json 
+        FROM tree 
+        WHERE child IS NOT NULL ORDER BY path
+    LOOP
+        SELECT jsonb_insert(_json_output, _temprow.path, _temprow.json) INTO _json_output;
+    END LOOP;
+    
+    RETURN _json_output;
+END;
+$$;
+
+ALTER FUNCTION "public"."get_category_tree_search_test"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."get_nested_categories"() RETURNS "json"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    result json;
+BEGIN
+    SELECT json_agg(parent_category)
+    INTO result
+    FROM (
+        SELECT 
+            jsonb_build_object(
+                'category_id', parent.id,
+                'category_name', parent.name,
+                'category_slug', parent.slug,
+                'parent_category_id', parent.parent_id,
+                'child_categories', COALESCE(json_agg(child_category), '[]'::jsonb),
+                'total_count', COALESCE(count(child_category.*), 0)
+            ) AS parent_category
+        FROM 
+            public.category AS parent
+            LEFT JOIN (
+                SELECT 
+                    id,
+                    name,
+                    slug,
+                    parent_id
+                FROM 
+                    public.category
+            ) AS child_category ON parent.id = child_category.parent_id
+        WHERE 
+            parent.parent_id IS NULL
+        GROUP BY 
+            parent.id, parent.name, parent.slug, parent.parent_id
+    ) AS result_query;
+
+    RETURN result;
+END;
+$$;
+
+ALTER FUNCTION "public"."get_nested_categories"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."json_tree"() RETURNS "jsonb"
+    LANGUAGE "plpgsql"
+    AS $$
+DECLARE
+    _json_output jsonb;
+    _temprow record;
+BEGIN
+    SELECT 
+        jsonb_build_object('id', id, 'name', name, 'slug', slug, 'children', array_to_json(ARRAY[]::int[])) 
+    INTO _json_output 
+    FROM category 
+    WHERE parent_id IS NULL;
+    
+    FOR _temprow IN
+        WITH RECURSIVE tree(id, ancestor, child, path, json) AS  (
+          SELECT 
+              t1.id, 
+              NULL::int, 
+              t2.id,
+              '{children}'::text[] || (row_number() OVER (PARTITION BY t1.id ORDER BY t2.id) - 1)::text,
+              jsonb_build_object('id', t2.id, 'name', t2.name, 'slug', t2.slug, 'children', array_to_json(ARRAY[]::int[]))
+          FROM category t1
+          LEFT JOIN category t2 ON t1.id = t2.parent_id
+          WHERE t1.parent_id IS NULL
+
+          UNION
+
+          SELECT
+              t1.id, 
+              t1.parent_id, 
+              t2.id,
+              tree.path || '{children}' || (row_number() OVER (PARTITION BY t1.id ORDER BY t2.id) - 1)::text, 
+              jsonb_build_object('id', t2.id, 'name', t2.name, 'slug', t2.slug, 'children', array_to_json(ARRAY[]::int[]))
+          FROM category t1
+          LEFT JOIN category t2 ON t1.id = t2.parent_id
+          INNER JOIN tree ON (t1.id = tree.child)
+          WHERE t1.parent_id = tree.id
+        )
+        SELECT 
+            child as id, path, json 
+        FROM tree 
+        WHERE child IS NOT NULL ORDER BY path
+    LOOP
+        SELECT jsonb_insert(_json_output, _temprow.path, _temprow.json) INTO _json_output;
+    END LOOP;
+    
+    RETURN _json_output;
+END;
+$$;
+
+ALTER FUNCTION "public"."json_tree"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."search_attributes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) RETURNS TABLE("id" integer, "name" "text", "slug" "text", "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+	begin
+		return query execute
+		'
+			SELECT a.id, a.name, a.slug, count(*) OVER () AS count 
+			FROM attributes a
+			WHERE 
+				$3 % ANY(STRING_TO_ARRAY(a.name, '' ''))
+				OR
+				$3 % ANY(STRING_TO_ARRAY(a.slug, '' ''))
+			ORDER BY ' || sort_term || ' ' || sort_order || '
+			LIMIT $1 OFFSET $2;'
+			USING (to_limit - from_limit + 1), from_limit, search_term;
+	end;
+$_$;
+
+ALTER FUNCTION "public"."search_attributes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."search_categories"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) RETURNS TABLE("id" integer, "name" character varying, "slug" "text", "parent_id" integer, "count" bigint)
     LANGUAGE "plpgsql"
@@ -395,19 +859,19 @@ $_$;
 
 ALTER FUNCTION "public"."search_materials"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) OWNER TO "postgres";
 
-CREATE OR REPLACE FUNCTION "public"."search_parent_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "relation" "public"."relation_type", "enabled" boolean, "published" boolean, "collection" character varying, "category" character varying, "material" character varying, "count" bigint)
+CREATE OR REPLACE FUNCTION "public"."search_parent_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "product_type" "public"."product_type", "enabled" boolean, "published" boolean, "collection" character varying, "category" character varying, "material" character varying, "count" bigint)
     LANGUAGE "plpgsql"
     AS $_$
 	begin
 		return query execute
 		'
-			SELECT p.id, p.name, p.sku, p.relation, p.enabled, p.published, collection.name AS collection, category.name AS category, material.name AS material, count(*) OVER () AS count 
+			SELECT p.id, p.name, p.sku, p.product_type, p.enabled, p.published, collection.name AS collection, category.name AS category, material.name AS material, count(*) OVER () AS count 
 			FROM product p
 			LEFT JOIN collection ON p.collection_id = collection.id
 			LEFT JOIN category ON p.category_id = category.id
-			LEFT JOIN material ON p.material_id = material.id
+      LEFT JOIN product_material ON p.id = product_material.product_id
+      LEFT JOIN material ON product_material.material_id = material.id
 			WHERE 
-				p.relation = ''PARENT'' AND
 				($3 % ANY(STRING_TO_ARRAY(p.name, '' ''))
 				OR
 				$3 % ANY(STRING_TO_ARRAY(p.sku, '' '')))				
@@ -418,6 +882,122 @@ CREATE OR REPLACE FUNCTION "public"."search_parent_products"("search_term" chara
 $_$;
 
 ALTER FUNCTION "public"."search_parent_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."search_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "public"."product_type", "parent_id" "text", "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+      SELECT id, name, sku, enabled, product_type, NULL as parent_id, image_url, count(*) OVER () AS count
+      FROM (
+        SELECT p.id, p.name, p.sku, p.enabled, p.product_type, img.url as image_url
+        FROM product p
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = p.id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) img ON TRUE
+        WHERE
+          ($3 % ANY(STRING_TO_ARRAY(p.name, '' ''))
+          OR
+          $3 % ANY(STRING_TO_ARRAY(p.sku, '' '')))
+
+        UNION
+
+        SELECT p.id, p.name, p.sku, p.enabled, p.product_type, parent_img.url AS image_url
+        FROM product p
+        JOIN variation v ON p.id = v.parent_id
+        LEFT JOIN LATERAL (
+            SELECT pi.image_id, image.url
+            FROM product_image pi
+            JOIN image ON pi.image_id = image.id
+            WHERE
+                pi.product_id = p.id AND
+                pi.is_primary = TRUE
+            LIMIT 1
+        ) parent_img ON TRUE
+        WHERE
+            ($3 % ANY(STRING_TO_ARRAY(v.name, '' ''))
+            OR
+            $3 % ANY(STRING_TO_ARRAY(v.sku, '' '')))
+        GROUP BY
+            p.id, p.name, p.sku, p.enabled, p.product_type, parent_img.url
+      ) AS combined
+      ORDER BY ' || sort_term || ' ' || sort_order || '
+      LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, search_term, value_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."search_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."search_products_or_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "public"."product_type", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+      SELECT id, name, sku, enabled, product_type, parent_id, image_url, count(*) OVER () AS count
+      FROM (
+        SELECT p.id, p.name, p.sku, p.enabled, p.product_type, NULL as parent_id, img.url as image_url
+        FROM product p
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = p.id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) img ON TRUE
+        WHERE
+          ($3 % ANY(STRING_TO_ARRAY(p.name, '' ''))
+          OR
+          $3 % ANY(STRING_TO_ARRAY(p.sku, '' '')))
+        UNION
+        SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url
+        FROM variation v
+        LEFT JOIN LATERAL (
+          SELECT vi.image_id, image.url
+          FROM variation_image vi
+          JOIN image ON vi.image_id = image.id
+          WHERE
+            vi.variation_id = v.id AND
+            vi.is_primary = TRUE
+          LIMIT 1
+        ) variation_img ON TRUE
+        LEFT JOIN LATERAL (
+          SELECT pi.image_id, image.url
+          FROM product_image pi
+          JOIN image ON pi.image_id = image.id
+          WHERE
+            pi.product_id = v.parent_id AND
+            pi.is_primary = TRUE
+          LIMIT 1
+        ) parent_img ON TRUE
+        LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($4)
+        WHERE
+          ($3 % ANY(STRING_TO_ARRAY(v.name, '' ''))
+          OR
+          $3 % ANY(STRING_TO_ARRAY(v.sku, '' '')))
+        GROUP BY
+          v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+        HAVING
+          array_length($4, 1) IS NULL OR 
+          array_length(ARRAY_REMOVE($4, NULL), 1) = COUNT(vc.variation_id)
+      ) AS combined
+      ORDER BY ' || sort_term || ' ' || sort_order || '
+      LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, search_term, value_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."search_products_or_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."search_shapes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) RETURNS TABLE("id" integer, "name" character varying, "slug" "text", "count" bigint)
     LANGUAGE "plpgsql"
@@ -463,6 +1043,165 @@ $_$;
 
 ALTER FUNCTION "public"."search_users"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) OWNER TO "postgres";
 
+CREATE OR REPLACE FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "text", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+    SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url, count(*) OVER () AS count
+      FROM variation v
+      LEFT JOIN LATERAL (
+        SELECT vi.image_id, image.url
+        FROM variation_image vi
+        JOIN image ON vi.image_id = image.id
+        WHERE
+          vi.variation_id = v.id AND
+          vi.is_primary = TRUE
+        LIMIT 1
+      ) variation_img ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT pi.image_id, image.url
+        FROM product_image pi
+        JOIN image ON pi.image_id = image.id
+        WHERE
+          pi.product_id = v.parent_id AND
+          pi.is_primary = TRUE
+        LIMIT 1
+      ) parent_img ON TRUE
+      LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($4)
+      WHERE
+        ($3 % ANY(STRING_TO_ARRAY(v.name, '' ''))
+        OR
+        $3 % ANY(STRING_TO_ARRAY(v.sku, '' '')))
+      GROUP BY
+        v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+      HAVING
+        array_length($4, 1) IS NULL OR 
+        array_length(ARRAY_REMOVE($4, NULL), 1) = COUNT(vc.variation_id)
+    ORDER BY ' || sort_term || ' ' || sort_order || '
+    LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, search_term, value_id;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "parentid" integer, VARIADIC "value_id" integer[]) RETURNS TABLE("id" integer, "name" character varying, "sku" character varying, "enabled" boolean, "product_type" "text", "parent_id" integer, "image_url" character varying, "count" bigint)
+    LANGUAGE "plpgsql"
+    AS $_$
+  begin
+    return query execute
+    '
+    SELECT v.id, v.name, v.sku, v.enabled, NULL as product_type, v.parent_id AS parent_id, COALESCE(variation_img.url, parent_img.url) as image_url, count(*) OVER () AS count
+      FROM variation v
+      LEFT JOIN LATERAL (
+        SELECT vi.image_id, image.url
+        FROM variation_image vi
+        JOIN image ON vi.image_id = image.id
+        WHERE
+          vi.variation_id = v.id AND
+          vi.is_primary = TRUE
+        LIMIT 1
+      ) variation_img ON TRUE
+      LEFT JOIN LATERAL (
+        SELECT pi.image_id, image.url
+        FROM product_image pi
+        JOIN image ON pi.image_id = image.id
+        WHERE
+          pi.product_id = v.parent_id AND
+          pi.is_primary = TRUE
+        LIMIT 1
+      ) parent_img ON TRUE
+      LEFT JOIN variation_configuration vc ON v.id = vc.variation_id AND vc.value_id = ANY($4)
+      WHERE
+        (v.parent_id = $5) AND
+        ($3 % ANY(STRING_TO_ARRAY(v.name, '' ''))
+        OR
+        $3 % ANY(STRING_TO_ARRAY(v.sku, '' '')))
+      GROUP BY
+        v.id, v.name, v.sku, v.enabled, v.parent_id, variation_img.url, parent_img.url
+      HAVING
+        array_length($4, 1) IS NULL OR 
+        array_length(ARRAY_REMOVE($4, NULL), 1) = COUNT(vc.variation_id)
+    ORDER BY ' || sort_term || ' ' || sort_order || '
+    LIMIT $1 OFFSET $2;'
+    USING (to_limit - from_limit + 1), from_limit, search_term, value_id, parentid;
+  end;
+$_$;
+
+ALTER FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "parentid" integer, VARIADIC "value_id" integer[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_distributor_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.distributor_price := CEIL(NEW.dealer_price * 0.85);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_distributor_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_group_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.group_price := CEIL(NEW.dealer_price * 0.92);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_group_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_internet_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.internet_price := CEIL(NEW.dealer_price * 1.10);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_internet_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_landscape_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.landscape_price := CEIL(NEW.dealer_price * 1.20);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_landscape_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_map_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.map_price := CEIL(CEIL(NEW.dealer_price * 0.92) * 2);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_map_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_master_distributor_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.master_distributor_price := CEIL(NEW.dealer_price * 0.80);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_master_distributor_price"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_msrp_price"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.msrp_price := CEIL(CEIL(NEW.dealer_price * 0.92) * 2.2);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_msrp_price"() OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."set_slug_from_name"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
@@ -472,6 +1211,16 @@ BEGIN
 END $$;
 
 ALTER FUNCTION "public"."set_slug_from_name"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."set_slug_from_value"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.slug := slugify(NEW.value);
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."set_slug_from_value"() OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."slugify"("value" "text") RETURNS "text"
     LANGUAGE "plpgsql" SECURITY DEFINER
@@ -522,11 +1271,20 @@ CREATE OR REPLACE FUNCTION "public"."trigger_set_updated_at_timestamp"() RETURNS
     AS $$
 BEGIN
   NEW.updated_at = NOW();
-  NEW.updated_by = auth.uid();
   RETURN NEW;
 END $$;
 
 ALTER FUNCTION "public"."trigger_set_updated_at_timestamp"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."trigger_set_updated_by"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+BEGIN
+  NEW.updated_by = auth.uid();
+  RETURN NEW;
+END $$;
+
+ALTER FUNCTION "public"."trigger_set_updated_by"() OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."update_users_meta"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
@@ -542,9 +1300,64 @@ END $$;
 
 ALTER FUNCTION "public"."update_users_meta"() OWNER TO "postgres";
 
+CREATE OR REPLACE FUNCTION "public"."validate_product_or_variation"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+  IF NEW.product_id IS NULL AND NEW.variation_id IS NULL THEN
+    RAISE EXCEPTION 'At least one of product_id or variant_id must be provided.';
+  ELSIF NEW.product_id IS NOT NULL AND NEW.variation_id IS NOT NULL THEN
+    RAISE EXCEPTION 'Both product_id and variant_id cannot be provided at the same time.';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+ALTER FUNCTION "public"."validate_product_or_variation"() OWNER TO "postgres";
+
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
+
+CREATE TABLE IF NOT EXISTS "public"."attribute_value" (
+    "id" integer NOT NULL,
+    "attribute_id" integer NOT NULL,
+    "value" "text",
+    "material_id" integer,
+    "color_id" integer,
+    "gas_id" integer,
+    "ignition_id" integer,
+    "slug" "text"
+);
+
+ALTER TABLE "public"."attribute_value" OWNER TO "postgres";
+
+ALTER TABLE "public"."attribute_value" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."attribute_value_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."attributes" (
+    "id" integer NOT NULL,
+    "name" "text",
+    "table_name" "text",
+    "slug" "text"
+);
+
+ALTER TABLE "public"."attributes" OWNER TO "postgres";
+
+ALTER TABLE "public"."attributes" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."attributes_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 CREATE TABLE IF NOT EXISTS "public"."category" (
     "id" integer NOT NULL,
@@ -609,11 +1422,32 @@ ALTER TABLE "public"."color_id_seq" OWNER TO "postgres";
 
 ALTER SEQUENCE "public"."color_id_seq" OWNED BY "public"."color"."id";
 
+CREATE TABLE IF NOT EXISTS "public"."company" (
+    "id" integer NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "name" "text" NOT NULL,
+    "slug" "text",
+    "logo_url" "text",
+    "role" "public"."user_role"
+);
+
+ALTER TABLE "public"."company" OWNER TO "postgres";
+
+ALTER TABLE "public"."company" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."company_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
 CREATE TABLE IF NOT EXISTS "public"."dealer_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."dealer_price" OWNER TO "postgres";
@@ -632,9 +1466,10 @@ ALTER SEQUENCE "public"."dealer_price_id_seq" OWNED BY "public"."dealer_price"."
 
 CREATE TABLE IF NOT EXISTS "public"."distributor_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."distributor_price" OWNER TO "postgres";
@@ -650,6 +1485,23 @@ CREATE SEQUENCE IF NOT EXISTS "public"."distributor_price_id_seq"
 ALTER TABLE "public"."distributor_price_id_seq" OWNER TO "postgres";
 
 ALTER SEQUENCE "public"."distributor_price_id_seq" OWNED BY "public"."distributor_price"."id";
+
+CREATE TABLE IF NOT EXISTS "public"."documents" (
+    "id" integer NOT NULL,
+    "url" character varying NOT NULL,
+    "name" "text"
+);
+
+ALTER TABLE "public"."documents" OWNER TO "postgres";
+
+ALTER TABLE "public"."documents" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."documents_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 CREATE TABLE IF NOT EXISTS "public"."gas" (
     "id" integer NOT NULL,
@@ -673,9 +1525,10 @@ ALTER SEQUENCE "public"."gas_id_seq" OWNED BY "public"."gas"."id";
 
 CREATE TABLE IF NOT EXISTS "public"."group_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."group_price" OWNER TO "postgres";
@@ -734,9 +1587,10 @@ ALTER SEQUENCE "public"."image_id_seq" OWNED BY "public"."image"."id";
 
 CREATE TABLE IF NOT EXISTS "public"."internet_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."internet_price" OWNER TO "postgres";
@@ -755,9 +1609,10 @@ ALTER SEQUENCE "public"."internet_price_id_seq" OWNED BY "public"."internet_pric
 
 CREATE TABLE IF NOT EXISTS "public"."landscape_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."landscape_price" OWNER TO "postgres";
@@ -776,9 +1631,10 @@ ALTER SEQUENCE "public"."landscape_price_id_seq" OWNED BY "public"."landscape_pr
 
 CREATE TABLE IF NOT EXISTS "public"."map_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."map_price" OWNER TO "postgres";
@@ -797,9 +1653,10 @@ ALTER SEQUENCE "public"."map_price_id_seq" OWNED BY "public"."map_price"."id";
 
 CREATE TABLE IF NOT EXISTS "public"."master_distributor_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."master_distributor_price" OWNER TO "postgres";
@@ -839,9 +1696,10 @@ ALTER SEQUENCE "public"."material_id_seq" OWNED BY "public"."material"."id";
 
 CREATE TABLE IF NOT EXISTS "public"."msrp_price" (
     "id" integer NOT NULL,
-    "product_id" integer NOT NULL,
+    "product_id" integer,
     "price" numeric NOT NULL,
-    "year" integer NOT NULL
+    "year" integer NOT NULL,
+    "variation_id" integer
 );
 
 ALTER TABLE "public"."msrp_price" OWNER TO "postgres";
@@ -861,46 +1719,16 @@ ALTER SEQUENCE "public"."msrp_price_id_seq" OWNED BY "public"."msrp_price"."id";
 CREATE TABLE IF NOT EXISTS "public"."product" (
     "id" integer NOT NULL,
     "sku" character varying,
-    "upc_codes" character varying,
-    "encoded_upc_codes" character varying,
-    "relation" "public"."relation_type" DEFAULT 'PARENT'::"public"."relation_type" NOT NULL,
-    "product_length" character varying(60),
-    "product_diameter" character varying(60),
-    "product_width" character varying(60),
-    "product_height" character varying(60),
-    "base_length" character varying(60),
-    "base_diameter" character varying(60),
-    "base_width" character varying(60),
-    "base_opening" character varying(60),
-    "toe_kick" character varying(60),
-    "soil_usage" character varying(60),
-    "scupper_width" character varying(60),
-    "scupper_inlet_opening" character varying(60),
-    "gpm" character varying(60),
-    "fire_glass" character varying(60),
-    "ba_length" character varying(60),
-    "ba_diameter" character varying(60),
-    "ba_width" character varying(60),
-    "ba_depth" character varying(60),
     "burner_shape" character varying(60),
-    "burner_length" character varying(60),
-    "burner_diameter" character varying(60),
     "compatible_canvas_cover" character varying,
     "compatible_bullet_burner" character varying,
     "compatible_glass_wind_guard" character varying,
     "access_door" boolean,
-    "parent_id" integer,
     "collection_id" integer,
     "category_id" integer,
     "shape_id" integer,
-    "material_id" integer,
-    "color_id" integer,
-    "ignition_id" integer,
-    "gas_id" integer,
     "product_serial_base" character varying,
     "certifications" "public"."certification_type"[],
-    "base_color_id" integer,
-    "base_material_id" integer,
     "published" boolean DEFAULT false,
     "enabled" boolean DEFAULT false,
     "created_by" "uuid" DEFAULT "auth"."uid"(),
@@ -910,10 +1738,41 @@ CREATE TABLE IF NOT EXISTS "public"."product" (
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "name" character varying,
     "short_description" "text",
-    "description" "text"
+    "description" "text",
+    "product_type" "public"."product_type" DEFAULT 'VARIABLE'::"public"."product_type",
+    "website_link" "text",
+    "meta" "jsonb",
+    "product_meta" "jsonb",
+    "material_id" integer,
+    "dealer_price" numeric,
+    "distributor_price" numeric,
+    "group_price" numeric,
+    "internet_price" numeric,
+    "landscape_price" numeric,
+    "map_price" numeric,
+    "master_distributor_price" numeric,
+    "msrp_price" numeric
 );
 
 ALTER TABLE "public"."product" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."product_attribute" (
+    "id" integer NOT NULL,
+    "product_id" integer NOT NULL,
+    "attribute_id" integer NOT NULL,
+    "fill_values" boolean DEFAULT false
+);
+
+ALTER TABLE "public"."product_attribute" OWNER TO "postgres";
+
+ALTER TABLE "public"."product_attribute" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."product_attribute_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
 
 CREATE TABLE IF NOT EXISTS "public"."product_color" (
     "product_id" integer NOT NULL,
@@ -922,6 +1781,20 @@ CREATE TABLE IF NOT EXISTS "public"."product_color" (
 );
 
 ALTER TABLE "public"."product_color" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."product_configuration" (
+    "product_id" integer NOT NULL,
+    "value_id" integer NOT NULL
+);
+
+ALTER TABLE "public"."product_configuration" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."product_documents" (
+    "product_id" integer NOT NULL,
+    "document_id" integer NOT NULL
+);
+
+ALTER TABLE "public"."product_documents" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."product_gas" (
     "product_id" integer NOT NULL,
@@ -957,6 +1830,13 @@ CREATE TABLE IF NOT EXISTS "public"."product_image" (
 );
 
 ALTER TABLE "public"."product_image" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."product_material" (
+    "product_id" integer NOT NULL,
+    "material_id" integer NOT NULL
+);
+
+ALTER TABLE "public"."product_material" OWNER TO "postgres";
 
 CREATE TABLE IF NOT EXISTS "public"."product_specification_sheet" (
     "product_id" integer NOT NULL,
@@ -1017,10 +1897,109 @@ CREATE TABLE IF NOT EXISTS "public"."users" (
     "email" character varying,
     "last_name" character varying,
     "role" "public"."user_role" DEFAULT 'USER'::"public"."user_role",
-    "company" "text" DEFAULT 'NULL'::"text"
+    "company" integer
 );
 
 ALTER TABLE "public"."users" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."variation" (
+    "id" integer NOT NULL,
+    "parent_id" integer NOT NULL,
+    "sku" character varying NOT NULL,
+    "upc_codes" character varying,
+    "encoded_upc_codes" character varying,
+    "product_length" character varying(60),
+    "product_diameter" character varying(60),
+    "product_width" character varying(60),
+    "product_height" character varying(60),
+    "base_length" character varying(60),
+    "base_diameter" character varying(60),
+    "base_width" character varying(60),
+    "base_opening" character varying(60),
+    "toe_kick" character varying(60),
+    "soil_usage" character varying(60),
+    "scupper_width" character varying(60),
+    "scupper_inlet_opening" character varying(60),
+    "gpm" character varying(60),
+    "fire_glass" character varying(60),
+    "ba_length" character varying(60),
+    "ba_diameter" character varying(60),
+    "ba_width" character varying(60),
+    "ba_depth" character varying(60),
+    "burner_shape" character varying(60),
+    "burner_length" character varying(60),
+    "burner_diameter" character varying(60),
+    "compatible_canvas_cover" character varying,
+    "compatible_bullet_burner" character varying,
+    "compatible_glass_wind_guard" character varying,
+    "product_serial_base" character varying,
+    "certifications" "public"."certification_type"[],
+    "enabled" boolean DEFAULT false,
+    "created_by" "uuid" DEFAULT "auth"."uid"(),
+    "updated_by" "uuid",
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "name" character varying,
+    "short_description" "text",
+    "description" "text",
+    "website_link" "text",
+    "meta" "jsonb" DEFAULT '{}'::"jsonb",
+    "product_meta" "jsonb" DEFAULT '{}'::"jsonb",
+    "dealer_price" numeric,
+    "distributor_price" numeric,
+    "group_price" numeric,
+    "internet_price" numeric,
+    "landscape_price" numeric,
+    "map_price" numeric,
+    "master_distributor_price" numeric,
+    "msrp_price" numeric,
+    "btu" numeric
+);
+
+ALTER TABLE "public"."variation" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."variation_configuration" (
+    "variation_id" integer NOT NULL,
+    "value_id" integer NOT NULL,
+    "attribute_id" integer
+);
+
+ALTER TABLE "public"."variation_configuration" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."variation_documents" (
+    "variation_id" integer NOT NULL,
+    "document_id" integer NOT NULL
+);
+
+ALTER TABLE "public"."variation_documents" OWNER TO "postgres";
+
+CREATE SEQUENCE IF NOT EXISTS "public"."variation_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER TABLE "public"."variation_id_seq" OWNER TO "postgres";
+
+ALTER SEQUENCE "public"."variation_id_seq" OWNED BY "public"."variation"."id";
+
+CREATE TABLE IF NOT EXISTS "public"."variation_image" (
+    "variation_id" integer NOT NULL,
+    "image_id" integer NOT NULL,
+    "display_order" integer DEFAULT 0 NOT NULL,
+    "is_primary" boolean DEFAULT false
+);
+
+ALTER TABLE "public"."variation_image" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."variation_specification_sheet" (
+    "variation_id" integer NOT NULL,
+    "specification_sheet_id" integer NOT NULL
+);
+
+ALTER TABLE "public"."variation_specification_sheet" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."category" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."category_id_seq"'::"regclass");
 
@@ -1056,6 +2035,29 @@ ALTER TABLE ONLY "public"."product" ALTER COLUMN "id" SET DEFAULT "nextval"('"pu
 
 ALTER TABLE ONLY "public"."shape" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."shape_id_seq"'::"regclass");
 
+ALTER TABLE ONLY "public"."variation" ALTER COLUMN "id" SET DEFAULT "nextval"('"public"."variation_id_seq"'::"regclass");
+
+ALTER TABLE ONLY "public"."attributes"
+    ADD CONSTRAINT "attribute_name_table_unique" UNIQUE ("name", "table_name");
+
+ALTER TABLE ONLY "public"."attributes"
+    ADD CONSTRAINT "attribute_name_unique" UNIQUE ("name");
+
+ALTER TABLE ONLY "public"."attributes"
+    ADD CONSTRAINT "attribute_table_name_unique" UNIQUE ("table_name");
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_id_key" UNIQUE ("id");
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."attributes"
+    ADD CONSTRAINT "attributes_id_key" UNIQUE ("id");
+
+ALTER TABLE ONLY "public"."attributes"
+    ADD CONSTRAINT "attributes_pkey" PRIMARY KEY ("id");
+
 ALTER TABLE ONLY "public"."category"
     ADD CONSTRAINT "category_pkey" PRIMARY KEY ("id");
 
@@ -1071,11 +2073,17 @@ ALTER TABLE ONLY "public"."collection"
 ALTER TABLE ONLY "public"."color"
     ADD CONSTRAINT "color_pkey" PRIMARY KEY ("id");
 
+ALTER TABLE ONLY "public"."company"
+    ADD CONSTRAINT "company_pkey" PRIMARY KEY ("id");
+
 ALTER TABLE ONLY "public"."dealer_price"
     ADD CONSTRAINT "dealer_price_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."distributor_price"
     ADD CONSTRAINT "distributor_price_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."documents"
+    ADD CONSTRAINT "documents_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."gas"
     ADD CONSTRAINT "gas_pkey" PRIMARY KEY ("id");
@@ -1116,8 +2124,20 @@ ALTER TABLE ONLY "public"."material"
 ALTER TABLE ONLY "public"."msrp_price"
     ADD CONSTRAINT "msrp_price_pkey" PRIMARY KEY ("id");
 
+ALTER TABLE ONLY "public"."product_attribute"
+    ADD CONSTRAINT "product_attribute_id_key" UNIQUE ("id");
+
+ALTER TABLE ONLY "public"."product_attribute"
+    ADD CONSTRAINT "product_attribute_pkey" PRIMARY KEY ("id");
+
 ALTER TABLE ONLY "public"."product_color"
     ADD CONSTRAINT "product_color_pkey" PRIMARY KEY ("product_id", "color_id");
+
+ALTER TABLE ONLY "public"."product_configuration"
+    ADD CONSTRAINT "product_configuration_pkey" PRIMARY KEY ("product_id", "value_id");
+
+ALTER TABLE ONLY "public"."product_documents"
+    ADD CONSTRAINT "product_documents_pkey" PRIMARY KEY ("product_id", "document_id");
 
 ALTER TABLE ONLY "public"."product_gas"
     ADD CONSTRAINT "product_gas_pkey" PRIMARY KEY ("product_id", "gas_id");
@@ -1127,6 +2147,9 @@ ALTER TABLE ONLY "public"."product_ignition"
 
 ALTER TABLE ONLY "public"."product_image"
     ADD CONSTRAINT "product_image_pkey" PRIMARY KEY ("product_id", "image_id");
+
+ALTER TABLE ONLY "public"."product_material"
+    ADD CONSTRAINT "product_material_pkey" PRIMARY KEY ("product_id", "material_id");
 
 ALTER TABLE ONLY "public"."product"
     ADD CONSTRAINT "product_pkey" PRIMARY KEY ("id");
@@ -1149,69 +2172,185 @@ ALTER TABLE ONLY "public"."specification_sheet"
 ALTER TABLE ONLY "public"."users"
     ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
 
+ALTER TABLE ONLY "public"."variation_configuration"
+    ADD CONSTRAINT "variation_configuration_pkey" PRIMARY KEY ("variation_id", "value_id");
+
+ALTER TABLE ONLY "public"."variation_documents"
+    ADD CONSTRAINT "variation_documents_pkey" PRIMARY KEY ("variation_id", "document_id");
+
+ALTER TABLE ONLY "public"."variation_image"
+    ADD CONSTRAINT "variation_image_pkey" PRIMARY KEY ("variation_id", "image_id");
+
+ALTER TABLE ONLY "public"."variation"
+    ADD CONSTRAINT "variation_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."variation"
+    ADD CONSTRAINT "variation_sku_key" UNIQUE ("sku");
+
+ALTER TABLE ONLY "public"."variation_specification_sheet"
+    ADD CONSTRAINT "variation_specification_sheet_pkey" PRIMARY KEY ("variation_id", "specification_sheet_id");
+
 CREATE INDEX "idx_product_and_variants_sku" ON "public"."product" USING "btree" ("sku");
-
-CREATE INDEX "idx_product_name" ON "public"."product" USING "btree" ("name") WHERE ("parent_id" IS NULL);
-
-CREATE INDEX "idx_product_sku" ON "public"."product" USING "btree" ("sku") WHERE ("parent_id" IS NULL);
 
 CREATE INDEX "idx_products_and_variants_name" ON "public"."product" USING "btree" ("name");
 
-CREATE TRIGGER "category_slug_insert" BEFORE INSERT OR UPDATE ON "public"."category" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "attribute_slug_insert" BEFORE INSERT OR UPDATE ON "public"."attributes" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
 
-CREATE TRIGGER "collection_slug_insert" BEFORE INSERT OR UPDATE ON "public"."collection" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "attribute_value_slug_insert" BEFORE INSERT OR UPDATE ON "public"."attribute_value" FOR EACH ROW WHEN ((("new"."value" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_value"();
 
-CREATE TRIGGER "color_slug_insert" BEFORE INSERT OR UPDATE ON "public"."color" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "calculate_distributor_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_distributor_price"();
 
-CREATE TRIGGER "delete_user_trigger" AFTER DELETE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."delete_user"();
+CREATE OR REPLACE TRIGGER "calculate_distributor_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_distributor_price"();
 
-CREATE TRIGGER "gas_slug_insert" BEFORE INSERT OR UPDATE ON "public"."gas" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "calculate_group_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_group_price"();
 
-CREATE TRIGGER "ignition_slug_insert" BEFORE INSERT OR UPDATE ON "public"."ignition" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "calculate_group_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_group_price"();
 
-CREATE TRIGGER "material_slug_insert" BEFORE INSERT OR UPDATE ON "public"."material" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "calculate_internet_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_internet_price"();
 
-CREATE TRIGGER "set_updated_at_timestamp" BEFORE UPDATE ON "public"."product" FOR EACH ROW EXECUTE FUNCTION "public"."trigger_set_updated_at_timestamp"();
+CREATE OR REPLACE TRIGGER "calculate_internet_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_internet_price"();
 
-CREATE TRIGGER "shape_slug_insert" BEFORE INSERT OR UPDATE ON "public"."shape" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+CREATE OR REPLACE TRIGGER "calculate_landscape_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_landscape_price"();
 
-CREATE TRIGGER "update_users_meta" AFTER UPDATE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."update_users_meta"();
+CREATE OR REPLACE TRIGGER "calculate_landscape_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_landscape_price"();
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "base_color_id_fkey" FOREIGN KEY ("base_color_id") REFERENCES "public"."color"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE OR REPLACE TRIGGER "calculate_map_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_map_price"();
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "base_material_id_fkey" FOREIGN KEY ("base_material_id") REFERENCES "public"."material"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE OR REPLACE TRIGGER "calculate_map_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_map_price"();
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."category"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+CREATE OR REPLACE TRIGGER "calculate_master_distributor_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_master_distributor_price"();
+
+CREATE OR REPLACE TRIGGER "calculate_master_distributor_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_master_distributor_price"();
+
+CREATE OR REPLACE TRIGGER "calculate_msrp_price_product" BEFORE INSERT OR UPDATE ON "public"."product" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_msrp_price"();
+
+CREATE OR REPLACE TRIGGER "calculate_msrp_price_variation" BEFORE INSERT OR UPDATE ON "public"."variation" FOR EACH ROW WHEN (("new"."dealer_price" IS NOT NULL)) EXECUTE FUNCTION "public"."set_msrp_price"();
+
+CREATE OR REPLACE TRIGGER "category_slug_insert" BEFORE INSERT OR UPDATE ON "public"."category" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "collection_slug_insert" BEFORE INSERT OR UPDATE ON "public"."collection" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "color_slug_insert" BEFORE INSERT OR UPDATE ON "public"."color" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "delete_user_trigger" AFTER DELETE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."delete_user"();
+
+CREATE OR REPLACE TRIGGER "gas_slug_insert" BEFORE INSERT OR UPDATE ON "public"."gas" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "ignition_slug_insert" BEFORE INSERT OR UPDATE ON "public"."ignition" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "material_slug_insert" BEFORE INSERT OR UPDATE ON "public"."material" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "set_updated_at_timestamp" BEFORE UPDATE ON "public"."product" FOR EACH ROW EXECUTE FUNCTION "public"."trigger_set_updated_at_timestamp"();
+
+CREATE OR REPLACE TRIGGER "set_updated_at_variation_timestamp" BEFORE UPDATE ON "public"."variation" FOR EACH ROW EXECUTE FUNCTION "public"."trigger_set_updated_at_timestamp"();
+
+CREATE OR REPLACE TRIGGER "set_updated_by" BEFORE UPDATE ON "public"."product" FOR EACH ROW EXECUTE FUNCTION "public"."trigger_set_updated_by"();
+
+CREATE OR REPLACE TRIGGER "set_updated_by_variation" BEFORE UPDATE ON "public"."variation" FOR EACH ROW EXECUTE FUNCTION "public"."trigger_set_updated_by"();
+
+CREATE OR REPLACE TRIGGER "shape_slug_insert" BEFORE INSERT OR UPDATE ON "public"."shape" FOR EACH ROW WHEN ((("new"."name" IS NOT NULL) AND ("new"."slug" IS NULL))) EXECUTE FUNCTION "public"."set_slug_from_name"();
+
+CREATE OR REPLACE TRIGGER "update_users_meta" AFTER UPDATE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."update_users_meta"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_dealer_trigger" BEFORE INSERT ON "public"."dealer_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_distributor_trigger" BEFORE INSERT ON "public"."distributor_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_group_trigger" BEFORE INSERT ON "public"."group_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_internet_trigger" BEFORE INSERT ON "public"."internet_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_landscape_trigger" BEFORE INSERT ON "public"."landscape_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_map_trigger" BEFORE INSERT ON "public"."map_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_master_distributor_trigger" BEFORE INSERT ON "public"."master_distributor_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+CREATE OR REPLACE TRIGGER "validate_product_or_variation_msrp_trigger" BEFORE INSERT ON "public"."msrp_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_color_id_fkey" FOREIGN KEY ("color_id") REFERENCES "public"."color"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_gas_id_fkey" FOREIGN KEY ("gas_id") REFERENCES "public"."gas"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_ignition_id_fkey" FOREIGN KEY ("ignition_id") REFERENCES "public"."ignition"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."attribute_value"
+    ADD CONSTRAINT "attribute_value_material_id_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."material"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."category"
     ADD CONSTRAINT "category_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."category"("id") ON DELETE SET NULL;
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "public"."collection"("id") ON UPDATE CASCADE ON DELETE SET NULL;
-
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "color_id_fkey" FOREIGN KEY ("color_id") REFERENCES "public"."color"("id") ON UPDATE CASCADE ON DELETE SET NULL;
-
 ALTER TABLE ONLY "public"."color"
     ADD CONSTRAINT "color_material_id_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."material"("id") ON DELETE SET NULL;
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "gas_id_fkey" FOREIGN KEY ("gas_id") REFERENCES "public"."gas"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."dealer_price"
+    ADD CONSTRAINT "dealer_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "ignition_id_fkey" FOREIGN KEY ("ignition_id") REFERENCES "public"."ignition"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."dealer_price"
+    ADD CONSTRAINT "dealer_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."distributor_price"
+    ADD CONSTRAINT "distributor_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."distributor_price"
+    ADD CONSTRAINT "distributor_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."group_price"
+    ADD CONSTRAINT "group_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."group_price"
+    ADD CONSTRAINT "group_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."product_image"
     ADD CONSTRAINT "image_id_fkey" FOREIGN KEY ("image_id") REFERENCES "public"."image"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "material_id_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."material"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."internet_price"
+    ADD CONSTRAINT "internet_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."internet_price"
+    ADD CONSTRAINT "internet_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."landscape_price"
+    ADD CONSTRAINT "landscape_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."landscape_price"
+    ADD CONSTRAINT "landscape_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."map_price"
+    ADD CONSTRAINT "map_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."map_price"
+    ADD CONSTRAINT "map_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."master_distributor_price"
+    ADD CONSTRAINT "master_distributor_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."master_distributor_price"
+    ADD CONSTRAINT "master_distributor_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."msrp_price"
+    ADD CONSTRAINT "msrp_price_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."msrp_price"
+    ADD CONSTRAINT "msrp_price_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product_attribute"
+    ADD CONSTRAINT "product_attribute_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product_attribute"
+    ADD CONSTRAINT "product_attribute_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+    ADD CONSTRAINT "product_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."category"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."product"
+    ADD CONSTRAINT "product_collection_id_fkey" FOREIGN KEY ("collection_id") REFERENCES "public"."collection"("id") ON UPDATE CASCADE ON DELETE SET NULL;
 
 ALTER TABLE ONLY "public"."product_color"
     ADD CONSTRAINT "product_color_color_id_fkey" FOREIGN KEY ("color_id") REFERENCES "public"."color"("id") ON DELETE CASCADE;
@@ -1228,8 +2367,20 @@ ALTER TABLE ONLY "public"."product"
 ALTER TABLE ONLY "public"."product"
     ADD CONSTRAINT "product_compatible_glass_wind_guard_fkey" FOREIGN KEY ("compatible_glass_wind_guard") REFERENCES "public"."product"("sku") ON DELETE SET NULL;
 
+ALTER TABLE ONLY "public"."product_configuration"
+    ADD CONSTRAINT "product_configuration_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product_configuration"
+    ADD CONSTRAINT "product_configuration_value_id_fkey" FOREIGN KEY ("value_id") REFERENCES "public"."attribute_value"("id") ON DELETE CASCADE;
+
 ALTER TABLE ONLY "public"."product"
     ADD CONSTRAINT "product_created_by_fkey" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."product_documents"
+    ADD CONSTRAINT "product_documents_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product_documents"
+    ADD CONSTRAINT "product_documents_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."product_gas"
     ADD CONSTRAINT "product_gas_gas_id_fkey" FOREIGN KEY ("gas_id") REFERENCES "public"."gas"("id") ON DELETE CASCADE;
@@ -1240,35 +2391,23 @@ ALTER TABLE ONLY "public"."product_gas"
 ALTER TABLE ONLY "public"."product_image"
     ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
-ALTER TABLE ONLY "public"."dealer_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."group_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."landscape_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."master_distributor_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."distributor_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."internet_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."map_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
-ALTER TABLE ONLY "public"."msrp_price"
-    ADD CONSTRAINT "product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
-
 ALTER TABLE ONLY "public"."product_ignition"
     ADD CONSTRAINT "product_ignition_ignition_id_fkey" FOREIGN KEY ("ignition_id") REFERENCES "public"."ignition"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."product_ignition"
     ADD CONSTRAINT "product_ignition_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product"
+    ADD CONSTRAINT "product_material_id_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."material"("id") ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."product_material"
+    ADD CONSTRAINT "product_material_material_id_fkey" FOREIGN KEY ("material_id") REFERENCES "public"."material"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product_material"
+    ADD CONSTRAINT "product_material_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."product"
+    ADD CONSTRAINT "product_shape_id_fkey" FOREIGN KEY ("shape_id") REFERENCES "public"."shape"("id") ON UPDATE CASCADE ON DELETE SET NULL;
 
 ALTER TABLE ONLY "public"."product_specification_sheet"
     ADD CONSTRAINT "product_specification_sheet_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."product"("id") ON DELETE CASCADE;
@@ -1279,15 +2418,49 @@ ALTER TABLE ONLY "public"."product_specification_sheet"
 ALTER TABLE ONLY "public"."product"
     ADD CONSTRAINT "product_updated_by_fkey" FOREIGN KEY ("updated_by") REFERENCES "public"."users"("id") ON DELETE SET NULL;
 
-ALTER TABLE ONLY "public"."product"
-    ADD CONSTRAINT "shape_id_fkey" FOREIGN KEY ("shape_id") REFERENCES "public"."shape"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."users"
+    ADD CONSTRAINT "public_users_company_fkey" FOREIGN KEY ("company") REFERENCES "public"."company"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+
+ALTER TABLE ONLY "public"."variation_configuration"
+    ADD CONSTRAINT "public_variation_configuration_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."users"
     ADD CONSTRAINT "users_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
+ALTER TABLE ONLY "public"."variation_configuration"
+    ADD CONSTRAINT "variation_configuration_value_id_fkey" FOREIGN KEY ("value_id") REFERENCES "public"."attribute_value"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_configuration"
+    ADD CONSTRAINT "variation_configuration_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_documents"
+    ADD CONSTRAINT "variation_documents_document_id_fkey" FOREIGN KEY ("document_id") REFERENCES "public"."documents"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_documents"
+    ADD CONSTRAINT "variation_documents_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_image"
+    ADD CONSTRAINT "variation_image_image_id_fkey" FOREIGN KEY ("image_id") REFERENCES "public"."image"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_image"
+    ADD CONSTRAINT "variation_image_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation"
+    ADD CONSTRAINT "variation_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."product"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_specification_sheet"
+    ADD CONSTRAINT "variation_specification_sheet_specification_sheet_id_fkey" FOREIGN KEY ("specification_sheet_id") REFERENCES "public"."specification_sheet"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."variation_specification_sheet"
+    ADD CONSTRAINT "variation_specification_sheet_variation_id_fkey" FOREIGN KEY ("variation_id") REFERENCES "public"."variation"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
 CREATE POLICY "Enable delete for ADMIN and ADMINISTRATOR when authenticated" ON "public"."product_gas" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable delete for ADMIN and ADMINISTRATOR when authenticated" ON "public"."product_ignition" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."attribute_value" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."attributes" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."category" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1295,9 +2468,13 @@ CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."color" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."company" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."dealer_price" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."distributor_price" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."documents" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."gas" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1321,9 +2498,17 @@ CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_attribute" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_color" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_configuration" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_documents" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_image" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_material" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."product_specification_sheet" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1331,15 +2516,31 @@ CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."specification_sheet" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."variation" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."variation_configuration" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."variation_documents" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."variation_image" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable delete for ADMIN and MANAGER when authenticated" ON "public"."variation_specification_sheet" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable delete for authenticated users that are ADMIN or MANAGER" ON "public"."users" FOR DELETE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and ADMINISTRATOR when authenticated" ON "public"."product_ignition" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."attribute_value" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."attributes" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."category" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."collection" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."color" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."company" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."dealer_price" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1367,11 +2568,19 @@ CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_attribute" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_color" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_configuration" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_documents" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_gas" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_image" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_material" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."product_specification_sheet" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1379,9 +2588,25 @@ CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."specification_sheet" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."variation" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."variation_configuration" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."variation_documents" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."variation_image" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIN and MANAGER when authenticated" ON "public"."variation_specification_sheet" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable insert for ADMIn and MANAGER when authenticated" ON "public"."documents" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable insert for authenticated users that are ADMIN or MANAGER" ON "public"."users" FOR INSERT TO "authenticated" WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable select for authenticated " ON "public"."users" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authentciated" ON "public"."attribute_value" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."attributes" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."category" FOR SELECT TO "authenticated" USING (true);
 
@@ -1389,9 +2614,13 @@ CREATE POLICY "Enable select when authenticated" ON "public"."collection" FOR SE
 
 CREATE POLICY "Enable select when authenticated" ON "public"."color" FOR SELECT TO "authenticated" USING (true);
 
+CREATE POLICY "Enable select when authenticated" ON "public"."company" FOR SELECT TO "authenticated" USING (true);
+
 CREATE POLICY "Enable select when authenticated" ON "public"."dealer_price" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."distributor_price" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."documents" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."gas" FOR SELECT TO "authenticated" USING (true);
 
@@ -1415,7 +2644,13 @@ CREATE POLICY "Enable select when authenticated" ON "public"."msrp_price" FOR SE
 
 CREATE POLICY "Enable select when authenticated" ON "public"."product" FOR SELECT TO "authenticated" USING (true);
 
+CREATE POLICY "Enable select when authenticated" ON "public"."product_attribute" FOR SELECT TO "authenticated" USING (true);
+
 CREATE POLICY "Enable select when authenticated" ON "public"."product_color" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."product_configuration" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."product_documents" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."product_gas" FOR SELECT TO "authenticated" USING (true);
 
@@ -1423,13 +2658,31 @@ CREATE POLICY "Enable select when authenticated" ON "public"."product_ignition" 
 
 CREATE POLICY "Enable select when authenticated" ON "public"."product_image" FOR SELECT TO "authenticated" USING (true);
 
+CREATE POLICY "Enable select when authenticated" ON "public"."product_material" FOR SELECT TO "authenticated" USING (true);
+
 CREATE POLICY "Enable select when authenticated" ON "public"."product_specification_sheet" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."shape" FOR SELECT TO "authenticated" USING (true);
 
 CREATE POLICY "Enable select when authenticated" ON "public"."specification_sheet" FOR SELECT TO "authenticated" USING (true);
 
+CREATE POLICY "Enable select when authenticated" ON "public"."variation" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."variation_configuration" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."variation_documents" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."variation_image" FOR SELECT TO "authenticated" USING (true);
+
+CREATE POLICY "Enable select when authenticated" ON "public"."variation_specification_sheet" FOR SELECT TO "authenticated" USING (true);
+
 CREATE POLICY "Enable update for ADMIN and ADMINISTRATOR when authenticated" ON "public"."product_ignition" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authentiated" ON "public"."variation_configuration" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."attribute_value" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."attributes" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."category" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1437,9 +2690,13 @@ CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."color" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."company" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."dealer_price" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."distributor_price" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."documents" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."gas" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1463,11 +2720,19 @@ CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_attribute" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_color" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_configuration" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_documents" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_gas" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_image" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_material" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."product_specification_sheet" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
@@ -1475,7 +2740,19 @@ CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "publi
 
 CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."specification_sheet" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
 
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."variation" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."variation_documents" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."variation_image" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
+CREATE POLICY "Enable update for ADMIN and MANAGER when authenticated" ON "public"."variation_specification_sheet" FOR UPDATE TO "authenticated" USING (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role"))) WITH CHECK (("public"."check_user_role"("auth"."uid"(), 'ADMIN'::"public"."user_role") OR "public"."check_user_role"("auth"."uid"(), 'MANAGER'::"public"."user_role")));
+
 CREATE POLICY "Enable update for authenticated users that are ADMIN or MANAGER" ON "public"."users" FOR UPDATE TO "authenticated" USING (true) WITH CHECK (true);
+
+ALTER TABLE "public"."attribute_value" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."attributes" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."category" ENABLE ROW LEVEL SECURITY;
 
@@ -1483,9 +2760,13 @@ ALTER TABLE "public"."collection" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."color" ENABLE ROW LEVEL SECURITY;
 
+ALTER TABLE "public"."company" ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE "public"."dealer_price" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."distributor_price" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."documents" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."gas" ENABLE ROW LEVEL SECURITY;
 
@@ -1509,13 +2790,21 @@ ALTER TABLE "public"."msrp_price" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."product" ENABLE ROW LEVEL SECURITY;
 
+ALTER TABLE "public"."product_attribute" ENABLE ROW LEVEL SECURITY;
+
 ALTER TABLE "public"."product_color" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."product_configuration" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."product_documents" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."product_gas" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."product_ignition" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."product_image" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."product_material" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."product_specification_sheet" ENABLE ROW LEVEL SECURITY;
 
@@ -1525,6 +2814,17 @@ ALTER TABLE "public"."specification_sheet" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
 
+ALTER TABLE "public"."variation" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."variation_configuration" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."variation_documents" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."variation_image" ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE "public"."variation_specification_sheet" ENABLE ROW LEVEL SECURITY;
+
+REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -1556,6 +2856,26 @@ GRANT ALL ON FUNCTION "public"."delete_user"() TO "anon";
 GRANT ALL ON FUNCTION "public"."delete_user"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."delete_user"() TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."filter_all_products"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."filter_all_products"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."filter_all_products"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."filter_all_products_or_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[], "parentid" integer) TO "anon";
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[], "parentid" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."filter_all_variations"("sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "value_id" integer[], "attribute_id" integer[], "parentid" integer) TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."get_category_tree"() TO "anon";
 GRANT ALL ON FUNCTION "public"."get_category_tree"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_category_tree"() TO "service_role";
@@ -1563,6 +2883,14 @@ GRANT ALL ON FUNCTION "public"."get_category_tree"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."get_category_tree_search"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "anon";
 GRANT ALL ON FUNCTION "public"."get_category_tree_search"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_category_tree_search"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_category_tree_search_test"() TO "anon";
+GRANT ALL ON FUNCTION "public"."get_category_tree_search_test"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_category_tree_search_test"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_nested_categories"() TO "anon";
+GRANT ALL ON FUNCTION "public"."get_nested_categories"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_nested_categories"() TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."gin_extract_query_trgm"("text", "internal", smallint, "internal", "internal", "internal", "internal") TO "postgres";
 GRANT ALL ON FUNCTION "public"."gin_extract_query_trgm"("text", "internal", smallint, "internal", "internal", "internal", "internal") TO "anon";
@@ -1629,6 +2957,14 @@ GRANT ALL ON FUNCTION "public"."gtrgm_union"("internal", "internal") TO "anon";
 GRANT ALL ON FUNCTION "public"."gtrgm_union"("internal", "internal") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."gtrgm_union"("internal", "internal") TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."json_tree"() TO "anon";
+GRANT ALL ON FUNCTION "public"."json_tree"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."json_tree"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."search_attributes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "anon";
+GRANT ALL ON FUNCTION "public"."search_attributes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."search_attributes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."search_categories"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "anon";
 GRANT ALL ON FUNCTION "public"."search_categories"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."search_categories"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
@@ -1657,6 +2993,14 @@ GRANT ALL ON FUNCTION "public"."search_parent_products"("search_term" character 
 GRANT ALL ON FUNCTION "public"."search_parent_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."search_parent_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."search_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."search_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."search_products"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."search_products_or_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."search_products_or_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."search_products_or_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."search_shapes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "anon";
 GRANT ALL ON FUNCTION "public"."search_shapes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."search_shapes"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
@@ -1665,14 +3009,54 @@ GRANT ALL ON FUNCTION "public"."search_users"("search_term" character varying, "
 GRANT ALL ON FUNCTION "public"."search_users"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."search_users"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer) TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, VARIADIC "value_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "parentid" integer, VARIADIC "value_id" integer[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "parentid" integer, VARIADIC "value_id" integer[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."search_variations"("search_term" character varying, "sort_term" character varying, "sort_order" character varying, "from_limit" integer, "to_limit" integer, "parentid" integer, VARIADIC "value_id" integer[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_distributor_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_distributor_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_distributor_price"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_group_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_group_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_group_price"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_internet_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_internet_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_internet_price"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_landscape_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_landscape_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_landscape_price"() TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."set_limit"(real) TO "postgres";
 GRANT ALL ON FUNCTION "public"."set_limit"(real) TO "anon";
 GRANT ALL ON FUNCTION "public"."set_limit"(real) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_limit"(real) TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."set_map_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_map_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_map_price"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_master_distributor_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_master_distributor_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_master_distributor_price"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_msrp_price"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_msrp_price"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_msrp_price"() TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."set_slug_from_name"() TO "anon";
 GRANT ALL ON FUNCTION "public"."set_slug_from_name"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_slug_from_name"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."set_slug_from_value"() TO "anon";
+GRANT ALL ON FUNCTION "public"."set_slug_from_value"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."set_slug_from_value"() TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."show_limit"() TO "postgres";
 GRANT ALL ON FUNCTION "public"."show_limit"() TO "anon";
@@ -1732,6 +3116,10 @@ GRANT ALL ON FUNCTION "public"."trigger_set_updated_at_timestamp"() TO "anon";
 GRANT ALL ON FUNCTION "public"."trigger_set_updated_at_timestamp"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."trigger_set_updated_at_timestamp"() TO "service_role";
 
+GRANT ALL ON FUNCTION "public"."trigger_set_updated_by"() TO "anon";
+GRANT ALL ON FUNCTION "public"."trigger_set_updated_by"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."trigger_set_updated_by"() TO "service_role";
+
 GRANT ALL ON FUNCTION "public"."unaccent"("text") TO "postgres";
 GRANT ALL ON FUNCTION "public"."unaccent"("text") TO "anon";
 GRANT ALL ON FUNCTION "public"."unaccent"("text") TO "authenticated";
@@ -1755,6 +3143,10 @@ GRANT ALL ON FUNCTION "public"."unaccent_lexize"("internal", "internal", "intern
 GRANT ALL ON FUNCTION "public"."update_users_meta"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_users_meta"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_users_meta"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."validate_product_or_variation"() TO "anon";
+GRANT ALL ON FUNCTION "public"."validate_product_or_variation"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."validate_product_or_variation"() TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."word_similarity"("text", "text") TO "postgres";
 GRANT ALL ON FUNCTION "public"."word_similarity"("text", "text") TO "anon";
@@ -1781,6 +3173,22 @@ GRANT ALL ON FUNCTION "public"."word_similarity_op"("text", "text") TO "anon";
 GRANT ALL ON FUNCTION "public"."word_similarity_op"("text", "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."word_similarity_op"("text", "text") TO "service_role";
 
+GRANT ALL ON TABLE "public"."attribute_value" TO "anon";
+GRANT ALL ON TABLE "public"."attribute_value" TO "authenticated";
+GRANT ALL ON TABLE "public"."attribute_value" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."attribute_value_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."attribute_value_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."attribute_value_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."attributes" TO "anon";
+GRANT ALL ON TABLE "public"."attributes" TO "authenticated";
+GRANT ALL ON TABLE "public"."attributes" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."attributes_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."attributes_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."attributes_id_seq" TO "service_role";
+
 GRANT ALL ON TABLE "public"."category" TO "anon";
 GRANT ALL ON TABLE "public"."category" TO "authenticated";
 GRANT ALL ON TABLE "public"."category" TO "service_role";
@@ -1805,6 +3213,14 @@ GRANT ALL ON SEQUENCE "public"."color_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."color_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."color_id_seq" TO "service_role";
 
+GRANT ALL ON TABLE "public"."company" TO "anon";
+GRANT ALL ON TABLE "public"."company" TO "authenticated";
+GRANT ALL ON TABLE "public"."company" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."company_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."company_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."company_id_seq" TO "service_role";
+
 GRANT ALL ON TABLE "public"."dealer_price" TO "anon";
 GRANT ALL ON TABLE "public"."dealer_price" TO "authenticated";
 GRANT ALL ON TABLE "public"."dealer_price" TO "service_role";
@@ -1820,6 +3236,14 @@ GRANT ALL ON TABLE "public"."distributor_price" TO "service_role";
 GRANT ALL ON SEQUENCE "public"."distributor_price_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."distributor_price_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."distributor_price_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."documents" TO "anon";
+GRANT ALL ON TABLE "public"."documents" TO "authenticated";
+GRANT ALL ON TABLE "public"."documents" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."documents_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."documents_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."documents_id_seq" TO "service_role";
 
 GRANT ALL ON TABLE "public"."gas" TO "anon";
 GRANT ALL ON TABLE "public"."gas" TO "authenticated";
@@ -1905,9 +3329,25 @@ GRANT ALL ON TABLE "public"."product" TO "anon";
 GRANT ALL ON TABLE "public"."product" TO "authenticated";
 GRANT ALL ON TABLE "public"."product" TO "service_role";
 
+GRANT ALL ON TABLE "public"."product_attribute" TO "anon";
+GRANT ALL ON TABLE "public"."product_attribute" TO "authenticated";
+GRANT ALL ON TABLE "public"."product_attribute" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."product_attribute_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."product_attribute_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."product_attribute_id_seq" TO "service_role";
+
 GRANT ALL ON TABLE "public"."product_color" TO "anon";
 GRANT ALL ON TABLE "public"."product_color" TO "authenticated";
 GRANT ALL ON TABLE "public"."product_color" TO "service_role";
+
+GRANT ALL ON TABLE "public"."product_configuration" TO "anon";
+GRANT ALL ON TABLE "public"."product_configuration" TO "authenticated";
+GRANT ALL ON TABLE "public"."product_configuration" TO "service_role";
+
+GRANT ALL ON TABLE "public"."product_documents" TO "anon";
+GRANT ALL ON TABLE "public"."product_documents" TO "authenticated";
+GRANT ALL ON TABLE "public"."product_documents" TO "service_role";
 
 GRANT ALL ON TABLE "public"."product_gas" TO "anon";
 GRANT ALL ON TABLE "public"."product_gas" TO "authenticated";
@@ -1924,6 +3364,10 @@ GRANT ALL ON TABLE "public"."product_ignition" TO "service_role";
 GRANT ALL ON TABLE "public"."product_image" TO "anon";
 GRANT ALL ON TABLE "public"."product_image" TO "authenticated";
 GRANT ALL ON TABLE "public"."product_image" TO "service_role";
+
+GRANT ALL ON TABLE "public"."product_material" TO "anon";
+GRANT ALL ON TABLE "public"."product_material" TO "authenticated";
+GRANT ALL ON TABLE "public"."product_material" TO "service_role";
 
 GRANT ALL ON TABLE "public"."product_specification_sheet" TO "anon";
 GRANT ALL ON TABLE "public"."product_specification_sheet" TO "authenticated";
@@ -1952,6 +3396,30 @@ GRANT ALL ON SEQUENCE "public"."specification_sheet_id_seq" TO "service_role";
 GRANT ALL ON TABLE "public"."users" TO "anon";
 GRANT ALL ON TABLE "public"."users" TO "authenticated";
 GRANT ALL ON TABLE "public"."users" TO "service_role";
+
+GRANT ALL ON TABLE "public"."variation" TO "anon";
+GRANT ALL ON TABLE "public"."variation" TO "authenticated";
+GRANT ALL ON TABLE "public"."variation" TO "service_role";
+
+GRANT ALL ON TABLE "public"."variation_configuration" TO "anon";
+GRANT ALL ON TABLE "public"."variation_configuration" TO "authenticated";
+GRANT ALL ON TABLE "public"."variation_configuration" TO "service_role";
+
+GRANT ALL ON TABLE "public"."variation_documents" TO "anon";
+GRANT ALL ON TABLE "public"."variation_documents" TO "authenticated";
+GRANT ALL ON TABLE "public"."variation_documents" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."variation_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."variation_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."variation_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."variation_image" TO "anon";
+GRANT ALL ON TABLE "public"."variation_image" TO "authenticated";
+GRANT ALL ON TABLE "public"."variation_image" TO "service_role";
+
+GRANT ALL ON TABLE "public"."variation_specification_sheet" TO "anon";
+GRANT ALL ON TABLE "public"."variation_specification_sheet" TO "authenticated";
+GRANT ALL ON TABLE "public"."variation_specification_sheet" TO "service_role";
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
