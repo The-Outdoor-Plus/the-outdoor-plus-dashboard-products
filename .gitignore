@@ -6,6 +6,12 @@ node_modules
 # local env files
 .env.local
 .env.*.local
+/supabase/.env
+/supabase/.env.local
+.env
+.env.staging
+.env.production
+
 
 # Log files
 npm-debug.log*
