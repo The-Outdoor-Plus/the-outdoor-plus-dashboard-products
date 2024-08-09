@@ -95,8 +95,12 @@ export interface Image {
   url?: string;
   name?: string;
   display_order?: number;
+  imageFile?: File | null;
+  imagePreview?: string | null;
+  force_url?: boolean;
   is_primary?: boolean;
   product_id?: number;
+  new_image?: boolean;
 }
 
 export interface SpecificationSheet {
@@ -106,6 +110,10 @@ export interface SpecificationSheet {
   product_id?: number;
   variation_id?: number;
   specification_sheet_id?: number;
+  specSheetFile?: File | null;
+  force_url?: boolean;
+  previewName?: string | null;
+  new_spec?: boolean;
 }
 
 export interface Documents {
@@ -115,6 +123,10 @@ export interface Documents {
   product_id?: number;
   variation_id?: number;
   document_id?: number;
+  documentFile?: File | null;
+  force_url?: boolean;
+  previewName?: string | null;
+  new_document?: boolean;
 }
 
 export interface Price {
