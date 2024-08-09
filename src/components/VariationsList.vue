@@ -23,7 +23,7 @@
           </v-toolbar>
           <v-dialog v-model="dialogDelete" max-width="600px">
             <v-card class="pt-4 pb-3" :loading="deleteLoading">
-              <v-card-title class="text-h5">Are you sure you want to delelete this variant?</v-card-title>
+              <v-card-title class="text-h5">Are you sure you want to delete this variant?</v-card-title>
               <v-card-text>
                 <div class="tw-mb-4">
                   Variant <strong>{{ itemToDelete?.name }}</strong> will be deleted.
