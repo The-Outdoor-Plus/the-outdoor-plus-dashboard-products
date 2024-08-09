@@ -32,7 +32,7 @@
         </v-toolbar>
         <v-dialog v-model="dialogDelete" max-width="600px">
           <v-card class="pt-4 pb-3" :loading="deleteLoading">
-            <v-card-title class="text-h5">Are you sure you want to delelete this ignition type?</v-card-title>
+            <v-card-title class="text-h5">Are you sure you want to delete this ignition type?</v-card-title>
             <v-card-text>
               Ignition type <strong>{{ itemToDelete?.name }}</strong> will be deleted.
               This action cannot be reversed. Are you sure you want to continue?

@@ -32,7 +32,7 @@
         </v-toolbar>
         <v-dialog v-model="dialogDelete" max-width="600px">
           <v-card class="pt-4 pb-3" :loading="deleteLoading">
-            <v-card-title class="text-h5">Are you sure you want to delelete this category?</v-card-title>
+            <v-card-title class="text-h5">Are you sure you want to delete this category?</v-card-title>
             <v-card-text>
               Category <strong>{{ itemToDelete?.name }}</strong> will be deleted.
               This action cannot be reversed. Are you sure you want to continue?
@@ -78,9 +78,9 @@ import { useNotification } from '@kyvg/vue3-notification';
 import { usePagination } from '@/utils';
 
 /**
- * 
+ *
  * Defining Interfaces
- * 
+ *
  */
 
 interface Category {
@@ -135,9 +135,9 @@ const totalItems = ref(40);
 const loading = ref(true);
 
 /**
- * 
+ *
  * Dialog Delete Section
- * 
+ *
  **/
 
 const itemToDelete: Ref<Columns | null> = ref(null);
@@ -188,9 +188,9 @@ const deleteItemConfirm = async () => {
 }
 
 /**
- * 
+ *
  * Search
- * 
+ *
  */
 const search = ref('');
 const searchFilter = ref('');
@@ -206,9 +206,9 @@ watch(searchFilter, (searchValue) => {
 });
 
 /**
- * 
+ *
  * List Data
- * 
+ *
  */
 const loadItems = async ({ page, itemsPerPage, sortBy }: TableOptions) => {
   try {
