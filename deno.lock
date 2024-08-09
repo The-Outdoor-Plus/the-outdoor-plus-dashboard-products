@@ -2,6 +2,7 @@
   "version": "3",
   "packages": {
     "specifiers": {
+      "npm:@aws-sdk/client-cloudfront": "npm:@aws-sdk/client-cloudfront@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
       "npm:@aws-sdk/client-s3": "npm:@aws-sdk/client-s3@3.617.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
       "npm:@supabase/supabase-js": "npm:@supabase/supabase-js@2.44.4",
       "npm:@supabase/supabase-js@^2.26.0": "npm:@supabase/supabase-js@2.44.4",
@@ -66,6 +67,55 @@
         "dependencies": {
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/util-utf8": "@smithy/util-utf8@2.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-cloudfront@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-Bb/ksMs3vF6fIZPTL/9CmLSncf86jradEpA+ErbuyfzYDzYlrIwrRaputqLS9y+q4yP5YHUtZl5Kn6/ewk8ZTA==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@aws-sdk/xml-builder": "@aws-sdk/xml-builder@3.609.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-stream": "@smithy/util-stream@3.1.1",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "@smithy/util-waiter": "@smithy/util-waiter@3.1.2",
           "tslib": "tslib@2.6.3"
         }
       },
@@ -200,9 +250,144 @@
         "dependencies": {
           "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
           "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
-          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/core": "@aws-sdk/core@3.616.0",
-          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-YY1hpYS/G1uRGjQf88dL8VLHkP/IjGxKeXdhy+JnzMdCkAWl3V9j0fEALw40NZe0x79gr6R2KUOUH/IKYQfUmg==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-YY1hpYS/G1uRGjQf88dL8VLHkP/IjGxKeXdhy+JnzMdCkAWl3V9j0fEALw40NZe0x79gr6R2KUOUH/IKYQfUmg==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-YY1hpYS/G1uRGjQf88dL8VLHkP/IjGxKeXdhy+JnzMdCkAWl3V9j0fEALw40NZe0x79gr6R2KUOUH/IKYQfUmg==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
           "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
           "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
@@ -690,6 +875,96 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-YY1hpYS/G1uRGjQf88dL8VLHkP/IjGxKeXdhy+JnzMdCkAWl3V9j0fEALw40NZe0x79gr6R2KUOUH/IKYQfUmg==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-YY1hpYS/G1uRGjQf88dL8VLHkP/IjGxKeXdhy+JnzMdCkAWl3V9j0fEALw40NZe0x79gr6R2KUOUH/IKYQfUmg==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/client-sso@3.616.0": {
         "integrity": "sha512-hwW0u1f8U4dSloAe61/eupUiGd5Q13B72BuzGxvRk0cIpYX/2m0KBG8DDl7jW1b2QQ+CflTLpG2XUf2+vRJxGA==",
         "dependencies": {
@@ -740,7 +1015,7 @@
           "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
           "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/core": "@aws-sdk/core@3.616.0",
-          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
           "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
           "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
@@ -875,7 +1150,7 @@
           "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
           "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/core": "@aws-sdk/core@3.616.0",
-          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
           "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
           "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
@@ -1003,6 +1278,141 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-FP7i7hS5FpReqnysQP1ukQF1OUWy8lkomaOnbu15H415YUrfCp947SIx6+BItjmx+esKxPkEjh/fbCVzw2D6hQ==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-FP7i7hS5FpReqnysQP1ukQF1OUWy8lkomaOnbu15H415YUrfCp947SIx6+BItjmx+esKxPkEjh/fbCVzw2D6hQ==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-FP7i7hS5FpReqnysQP1ukQF1OUWy8lkomaOnbu15H415YUrfCp947SIx6+BItjmx+esKxPkEjh/fbCVzw2D6hQ==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-FP7i7hS5FpReqnysQP1ukQF1OUWy8lkomaOnbu15H415YUrfCp947SIx6+BItjmx+esKxPkEjh/fbCVzw2D6hQ==",
         "dependencies": {
@@ -1093,6 +1503,51 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-FP7i7hS5FpReqnysQP1ukQF1OUWy8lkomaOnbu15H415YUrfCp947SIx6+BItjmx+esKxPkEjh/fbCVzw2D6hQ==",
+        "dependencies": {
+          "@aws-crypto/sha256-browser": "@aws-crypto/sha256-browser@5.2.0",
+          "@aws-crypto/sha256-js": "@aws-crypto/sha256-js@5.2.0",
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/core": "@aws-sdk/core@3.616.0",
+          "@aws-sdk/credential-provider-node": "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/middleware-host-header": "@aws-sdk/middleware-host-header@3.616.0",
+          "@aws-sdk/middleware-logger": "@aws-sdk/middleware-logger@3.609.0",
+          "@aws-sdk/middleware-recursion-detection": "@aws-sdk/middleware-recursion-detection@3.616.0",
+          "@aws-sdk/middleware-user-agent": "@aws-sdk/middleware-user-agent@3.616.0",
+          "@aws-sdk/region-config-resolver": "@aws-sdk/region-config-resolver@3.614.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@aws-sdk/util-endpoints": "@aws-sdk/util-endpoints@3.614.0",
+          "@aws-sdk/util-user-agent-browser": "@aws-sdk/util-user-agent-browser@3.609.0",
+          "@aws-sdk/util-user-agent-node": "@aws-sdk/util-user-agent-node@3.614.0",
+          "@smithy/config-resolver": "@smithy/config-resolver@3.0.5",
+          "@smithy/core": "@smithy/core@2.2.8",
+          "@smithy/fetch-http-handler": "@smithy/fetch-http-handler@3.2.2",
+          "@smithy/hash-node": "@smithy/hash-node@3.0.3",
+          "@smithy/invalid-dependency": "@smithy/invalid-dependency@3.0.3",
+          "@smithy/middleware-content-length": "@smithy/middleware-content-length@3.0.4",
+          "@smithy/middleware-endpoint": "@smithy/middleware-endpoint@3.0.5",
+          "@smithy/middleware-retry": "@smithy/middleware-retry@3.0.11",
+          "@smithy/middleware-serde": "@smithy/middleware-serde@3.0.3",
+          "@smithy/middleware-stack": "@smithy/middleware-stack@3.0.3",
+          "@smithy/node-config-provider": "@smithy/node-config-provider@3.1.4",
+          "@smithy/node-http-handler": "@smithy/node-http-handler@3.1.3",
+          "@smithy/protocol-http": "@smithy/protocol-http@4.0.4",
+          "@smithy/smithy-client": "@smithy/smithy-client@3.1.9",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "@smithy/url-parser": "@smithy/url-parser@3.0.3",
+          "@smithy/util-base64": "@smithy/util-base64@3.0.0",
+          "@smithy/util-body-length-browser": "@smithy/util-body-length-browser@3.0.0",
+          "@smithy/util-body-length-node": "@smithy/util-body-length-node@3.0.0",
+          "@smithy/util-defaults-mode-browser": "@smithy/util-defaults-mode-browser@3.0.11",
+          "@smithy/util-defaults-mode-node": "@smithy/util-defaults-mode-node@3.0.11",
+          "@smithy/util-endpoints": "@smithy/util-endpoints@2.0.5",
+          "@smithy/util-middleware": "@smithy/util-middleware@3.0.3",
+          "@smithy/util-retry": "@smithy/util-retry@3.0.3",
+          "@smithy/util-utf8": "@smithy/util-utf8@3.0.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/core@3.616.0": {
         "integrity": "sha512-O/urkh2kECs/IqZIVZxyeyHZ7OR2ZWhLNK7btsVQBQvJKrEspLrk/Fp20Qfg5JDerQfBN83ZbyRXLJOOucdZpw==",
         "dependencies": {
@@ -1137,6 +1592,40 @@
           "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
           "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
@@ -1230,6 +1719,40 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0",
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
         "dependencies": {
@@ -1298,6 +1821,23 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-5gQdMr9cca3xV7FF2SxpxWGH2t6+t4o+XBGiwsHm8muEjf4nUmw7Ij863x25Tjt2viPYV0UStczSb5Sihp7bkA==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
         "dependencies": {
@@ -1307,6 +1847,40 @@
           "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
           "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
@@ -1434,6 +2008,57 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
         "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
         "dependencies": {
@@ -1502,6 +2127,23 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-node@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-Se+u6DAxjDPjKE3vX1X2uxjkWgGq69BTo0uTB0vDUiWwBVgh16s9BsBhSAlKEH1CCbbJHvOg4YdTrzjwzqyClg==",
+        "dependencies": {
+          "@aws-sdk/credential-provider-env": "@aws-sdk/credential-provider-env@3.609.0",
+          "@aws-sdk/credential-provider-http": "@aws-sdk/credential-provider-http@3.616.0",
+          "@aws-sdk/credential-provider-ini": "@aws-sdk/credential-provider-ini@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/credential-provider-process": "@aws-sdk/credential-provider-process@3.614.0",
+          "@aws-sdk/credential-provider-sso": "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/credential-provider-web-identity": "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/credential-provider-imds": "@smithy/credential-provider-imds@3.1.4",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-process@3.614.0": {
         "integrity": "sha512-Q0SI0sTRwi8iNODLs5+bbv8vgz8Qy2QdxbCHnPk/6Cx6LMf7i3dqmWquFbspqFRd8QiqxStrblwxrUYZi09tkA==",
         "dependencies": {
@@ -1529,6 +2171,18 @@
         "dependencies": {
           "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
           "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-3rsWs9GBi8Z8Gps5ROwqguxtw+J6OIg1vawZMLRNMqqZoBvbOToe9wEnpid8ylU+27+oG8uibJNlNuRyXApUjw==",
+        "dependencies": {
+          "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
+          "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
@@ -1577,6 +2231,30 @@
         "dependencies": {
           "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
           "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-3rsWs9GBi8Z8Gps5ROwqguxtw+J6OIg1vawZMLRNMqqZoBvbOToe9wEnpid8ylU+27+oG8uibJNlNuRyXApUjw==",
+        "dependencies": {
+          "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
+          "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-3rsWs9GBi8Z8Gps5ROwqguxtw+J6OIg1vawZMLRNMqqZoBvbOToe9wEnpid8ylU+27+oG8uibJNlNuRyXApUjw==",
+        "dependencies": {
+          "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
+          "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
@@ -1656,6 +2334,30 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-3rsWs9GBi8Z8Gps5ROwqguxtw+J6OIg1vawZMLRNMqqZoBvbOToe9wEnpid8ylU+27+oG8uibJNlNuRyXApUjw==",
+        "dependencies": {
+          "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
+          "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-sso@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-3rsWs9GBi8Z8Gps5ROwqguxtw+J6OIg1vawZMLRNMqqZoBvbOToe9wEnpid8ylU+27+oG8uibJNlNuRyXApUjw==",
+        "dependencies": {
+          "@aws-sdk/client-sso": "@aws-sdk/client-sso@3.616.0",
+          "@aws-sdk/token-providers": "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0": {
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
@@ -1676,6 +2378,26 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
@@ -1687,6 +2409,26 @@
         }
       },
       "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
           "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
@@ -1746,6 +2488,26 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
@@ -1786,6 +2548,26 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
@@ -1810,6 +2592,16 @@
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
           "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/types": "@smithy/types@3.3.0",
@@ -1850,6 +2642,16 @@
         "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
         "dependencies": {
           "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/credential-provider-web-identity@3.609.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-U+PG8NhlYYF45zbr1km3ROtBMYqyyj/oK8NRp++UHHeuavgrP+4wJ4wQnlEaKvJBjevfo3+dlIBcaeQ7NYejWg==",
+        "dependencies": {
+          "@aws-sdk/client-sts": "@aws-sdk/client-sts@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/types": "@smithy/types@3.3.0",
@@ -2007,6 +2809,17 @@
           "tslib": "tslib@2.6.3"
         }
       },
+      "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0": {
+        "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
+        "dependencies": {
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
       "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
         "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
         "dependencies": {
@@ -2044,6 +2857,28 @@
         "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
         "dependencies": {
           "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
+        "dependencies": {
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
+        "dependencies": {
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
@@ -2110,6 +2945,28 @@
         "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
         "dependencies": {
           "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
+        "dependencies": {
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0",
+          "@aws-sdk/types": "@aws-sdk/types@3.609.0",
+          "@smithy/property-provider": "@smithy/property-provider@3.1.3",
+          "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",
+          "@smithy/types": "@smithy/types@3.3.0",
+          "tslib": "tslib@2.6.3"
+        }
+      },
+      "@aws-sdk/token-providers@3.614.0_@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0": {
+        "integrity": "sha512-okItqyY6L9IHdxqs+Z116y5/nda7rHxLvROxtAJdLavWTYDydxrZstImNgGWTeVdmc0xX2gJCI77UYUTQWnhRw==",
+        "dependencies": {
+          "@aws-sdk/client-sso-oidc": "@aws-sdk/client-sso-oidc@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0_@aws-sdk+client-sts@3.616.0__@aws-sdk+client-sso-oidc@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0_____@aws-sdk+client-sts@3.616.0___@aws-sdk+client-sts@3.616.0____@aws-sdk+client-sso-oidc@3.616.0_____@aws-sdk+client-sts@3.616.0______@aws-sdk+client-sso-oidc@3.616.0____@aws-sdk+client-sso-oidc@3.616.0",
           "@aws-sdk/types": "@aws-sdk/types@3.609.0",
           "@smithy/property-provider": "@smithy/property-provider@3.1.3",
           "@smithy/shared-ini-file-loader": "@smithy/shared-ini-file-loader@3.1.4",

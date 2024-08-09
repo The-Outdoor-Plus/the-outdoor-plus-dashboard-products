@@ -2,13 +2,16 @@
 // https://deno.land/manual/getting_started/setup_your_environment
 // This enables autocomplete, go to definition, etc.
 
-// import { createClient } from 'npm:@supabase/supabase-js';
+import { corsHeaders } from '../_shared/cors.ts';
 import { prepareVirtualFile } from 'https://deno.land/x/mock_file@v1.1.2/mod.ts';
 import { PutObjectCommand, S3Client } from 'npm:@aws-sdk/client-s3';
 
 
-
 Deno.serve(async (req: Request) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: { ...corsHeaders } });
+  }
+
   prepareVirtualFile('./aws/config');
   prepareVirtualFile('./aws/credentials')
 
@@ -17,38 +20,95 @@ Deno.serve(async (req: Request) => {
 
     const cloudFrontDomain = Deno.env.get('CLOUDFRONT_DOMAIN');
 
-    console.log(cloudFrontDomain);
+    console.log('cloudFrontFomain', cloudFrontDomain);
+
+    const getDateForVersioning = () => {
+      const currDate = new Date();
+
+      const date = ("0" + currDate.getDate()).slice(-2);
+
+      const month = ("0" + (currDate.getMonth() + 1)).slice(-2);
+
+      const year = currDate.getFullYear();
+
+      const hours = currDate.getHours();
+
+      const seconds = currDate.getSeconds();
+
+      return `_v${month}${date}${year}${hours}${seconds}`;
+    }
+
+    const slugify = (str: string) => (
+      String(str)
+        .normalize('NFKD') // split accented characters into their base characters and diacritical marks
+        .replace(/[\u0300-\u036f]/g, '') // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+        .trim() // trim leading or trailing whitespace
+        .toLowerCase() // convert to lowercase
+        .replace(/[^a-z0-9 -]/g, '') // remove non-alphanumeric characters
+        .replace(/\s+/g, '-') // replace spaces with hyphens
+        .replace(/-+/g, '-') // remove consecutive hyphens
+    )
+
+    const objectKeyName = (objectKey: string) => {
+      const pathParts = objectKey.split('/');
+      const fullFileName = pathParts.pop();
+      const dotIndex = fullFileName?.lastIndexOf('.');
+
+      const fileName = dotIndex === -1 ? fullFileName : fullFileName?.substring(0, dotIndex);
+      const extension = dotIndex === -1 ? '' : fullFileName?.substring(dotIndex as number);
+
+      const slugifiedFileName = slugify(fileName as string);
+
+      const newFilePath = [...pathParts, slugifiedFileName + getDateForVersioning() + extension].join('/');
+      return newFilePath;
+    }
+
+    const removeLeadingSlash = (str: string) => {
+      if (str.startsWith('/')) {
+        return str.substring(1);
+      }
+      return str;
+    }
+
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
+    const prependPath = formData.get('path') as File;
 
     if (file) {
       const fileContent = new Uint8Array(await file.arrayBuffer());
 
+      let fileName = file.name;
+
+      if (prependPath) fileName = `${prependPath}${fileName}`;
+      const objectKeyPath = removeLeadingSlash(objectKeyName(fileName));
+      console.info(objectKeyPath);
+
       const uploadParams = {
         Bucket: Deno.env.get("AWS_BUCKET"),
-        Key: file.name,
+        Key: objectKeyPath,
         Body: fileContent,
+        ContentType: file.type,
       }
 
-      const fileUrl = `${cloudFrontDomain}/${file.name}`;
+      const fileUrl = `${cloudFrontDomain}${objectKeyPath}`.replace(/([^:]\/)\/+/g, "$1");
 
       try {
-        const command = new PutObjectCommand(uploadParams);
-        await s3Client.send(command);
-        return new Response(JSON.stringify({ message: 'File uploaded successfully ', fileUrl }), { status: 200 });
+        const createCommand = new PutObjectCommand(uploadParams);
+        await s3Client.send(createCommand);
+        return new Response(JSON.stringify({ message: 'File uploaded successfully ', fileUrl }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       } catch (err) {
         console.error(err);
-        return new Response(JSON.stringify({ message: 'Error uploading file', error: err }), { status: 500 });
+        return new Response(JSON.stringify({ message: 'Error uploading file', error: err }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
 
       // return new Response(JSON.stringify({ message: 'Test' }), { status: 200 });
     } else {
-      return new Response(JSON.stringify({ message: 'No file uploaded. File is required' }), { status: 400 });
+      return new Response(JSON.stringify({ message: 'No file uploaded. File is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
   }
 
-  return new Response('Method Not Allowed', { status: 405 });
+  return new Response(JSON.stringify({ message: 'Method Not Allowed'}), { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 })
 
 /* To invoke locally:
