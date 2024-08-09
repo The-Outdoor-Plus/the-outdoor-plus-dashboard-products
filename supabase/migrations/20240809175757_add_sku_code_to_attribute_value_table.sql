@@ -1,0 +1,1 @@
+alter table "public"."attribute_value" add column "sku_code" text;

@@ -214,7 +214,56 @@
                     :readonly="readonly"
                   >
                   </v-text-field>
+                  <v-file-input
+                    label="Upload Image"
+                    variant="outlined"
+                    density="compact"
+                    class="tw-w-6/12 tw-mr-6"
+                    name="Image"
+                    show-size
+                    hide-details
+                    :readonly="readonly"
+                    @change="onImageChange($event, image?.id || 0)"
+                    @click:clear="clearImage(image?.id || 0)"
+                  ></v-file-input>
+                  <v-btn
+                    v-if="!readonly"
+                    size="small"
+                    class="ml-2"
+                    icon="mdi-close"
+                    variant="text"
+                    @click="openImageDeleteDialog(image)"
+                  ></v-btn>
+                  <v-dialog v-model="dialogDeleteImage" max-width="600px">
+                    <v-card class="pt-4 pb-3">
+                      <v-card-title class="text-h5">Are you sure you want to remove this Image?</v-card-title>
+                      <v-card-text>
+                        <div class="tw-mb-4">
+                          The image will be deleted and removed from the Product/Variation.
+                          This action cannot be reversed. This action will only be effective once you save the product.
+                        </div>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue-darken-1" variant="text" @click="closeImageDeleteDialog">Cancel</v-btn>
+                        <v-btn color="red-darken-1" variant="text" @click="removeImageFromList(imageToDelete)">Delete</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </div>
+                <div
+                  class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+                >
+                  <v-checkbox
+                    v-model="image.force_url"
+                    color="red-darken-1"
+                    label="(ADVANCED!) Override Image File"
+                    class="-tw-mb-5 tw-w-4/12"
+                    :readonly="readonly"
+                    @click="toggleForceUrlImage(image.id, image.force_url)"
+                  ></v-checkbox>
                   <v-text-field
+                    v-if="image.force_url"
                     v-model="image.url"
                     class="tw-w-6/12 tw-mr-6"
                     label="Url"
@@ -223,22 +272,14 @@
                     hide-details
                     :readonly="readonly"
                   ></v-text-field>
-                  <v-btn
-                    v-if="!readonly"
-                    size="small"
-                    class="ml-2"
-                    icon="mdi-close"
-                    variant="text"
-                    @click="removeImageFromList(image)"
-                  ></v-btn>
                 </div>
                 <div
-                  class="tw-flex tw-items-center tw-10/12 lg:tw-w-8/12 tw-mt-4 tw-mb-2"
+                  class="tw-flex tw-w-full tw-items-start tw-flex-wrap tw-mt-4 tw-mb-2"
                 >
                   <v-select
                     v-model="image.display_order"
                     :items="[...Array(images.length).keys()]"
-                    class="tw-w-2/12 2xl:tw-w-1/12"
+                    class="tw-w-2/12 2xl:tw-w-1/12 tw-h-4"
                     label="Position"
                     variant="outlined"
                     density="compact"
@@ -249,11 +290,23 @@
                     v-model="image.is_primary"
                     color="blue-darken-1"
                     label="Is Primary?"
-                    class="-tw-mb-5 tw-ml-6"
+                    class="-tw-mb-5 tw-ml-6 tw-w-2/12"
                     :readonly="readonly"
                     @click="toggleImageIsPrimary(image.id, image.is_primary)"
                   ></v-checkbox>
+                  <div class="tw-w-7/12 tw-flex tw-flex-row tw-items-start tw-justify-start">
+                    <div v-show="image.imagePreview || image.url" class="tw-text-base tw-font-semibold tw-mb-4 tw-mr-4 tw-w-4/12">Upload Preview: </div>
+                    <v-img
+                        v-show="image.imagePreview || image.url"
+                        width="150"
+                        class="tw-w-4/12 tw-h-auto"
+                        :src="image.imagePreview ? image.imagePreview : image.url || ''"
+                      >
+                    </v-img>
+                    <div class="tw-w-2/12"></div>
+                  </div>
                 </div>
+                <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               </div>
               <v-btn
                 v-if="!readonly"
@@ -291,7 +344,57 @@
                     :readonly="readonly"
                   >
                   </v-text-field>
+                  <v-file-input
+                    label="Uplaod File"
+                    variant="outlined"
+                    density="compact"
+                    class="tw-w-6/12 tw-mr-6"
+                    name="SpecificationSheet"
+                    show-size
+                    hide-details
+                    :readonly="readonly"
+                    @change="onSpecSheetChange($event, specSheet?.id || 0)"
+                    @click:clear="clearSpecSheet(specSheet?.id || 0)"
+                  ></v-file-input>
+                  <v-btn
+                    v-if="!readonly"
+                    size="small"
+                    class="ml-2"
+                    icon="mdi-close"
+                    variant="text"
+                    @click="openSpecSheetDeleteDialog(specSheet)"
+                  ></v-btn>
+                  <v-dialog v-model="dialogDeleteSpecSheet" max-width="600px">
+                    <v-card class="pt-4 pb-3">
+                      <v-card-title class="text-h5">Are you sure you want to remove this Specification Sheet?</v-card-title>
+                      <v-card-text>
+                        <div class="tw-mb-4">
+                          The Specification Sheet will be deleted and removed from the Product/Variation.
+                          This action cannot be reversed. This action will only be effective once you save the product.
+                        </div>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue-darken-1" variant="text" @click="closeSpecSheetDeleteDialog">Cancel</v-btn>
+                        <v-btn color="red-darken-1" variant="text" @click="removeSpecSheetFromList(specificationSheetToDelete)">Delete</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </div>
+                <div
+                  class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+                >
+                  <v-checkbox
+                    v-model="specSheet.force_url"
+                    color="red-darken-1"
+                    label="(ADVANCED!) Override Spec Sheet File"
+                    class="-tw-mb-5 tw-w-4/12"
+                    hide-details
+                    :readonly="readonly"
+                    @click="toggleForceUrlSpecSheet(specSheet.id, specSheet.force_url)"
+                  ></v-checkbox>
                   <v-text-field
+                    v-if="specSheet.force_url"
                     v-model="specSheet.url"
                     class="tw-w-6/12 tw-mr-6"
                     label="Url"
@@ -300,15 +403,22 @@
                     hide-details
                     :readonly="readonly"
                   ></v-text-field>
-                  <v-btn
-                    v-if="!readonly"
-                    size="small"
-                    class="ml-2"
-                    icon="mdi-close"
-                    variant="text"
-                    @click="removeSpecSheetFromList(specSheet)"
-                  ></v-btn>
                 </div>
+                <div
+                  class="tw-flex tw- tw-w-full tw-items-start tw-flex-wrap tw-mt-4 tw-mb-2"
+                >
+                  <div class="tw-flex tw-flex-row tw-items-start tw-justify-start">
+                    <div v-show="specSheet.previewName || getFileName(specSheet.url)" class="tw-text-base tw-font-semibold tw-mb-4 tw-mr-4">File Name: </div>
+                    <p
+                        v-show="specSheet.previewName || getFileName(specSheet.url)"
+                        width="150"
+                        class="tw-h-auto"
+                      >
+                      {{ specSheet.previewName || getFileName(specSheet.url) }}
+                    </p>
+                  </div>
+                </div>
+                <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               </div>
               <v-btn
                 v-if="!readonly"
@@ -346,7 +456,58 @@
                     :readonly="readonly"
                   >
                   </v-text-field>
+                  <v-file-input
+                    label="Upload File"
+                    variant="outlined"
+                    density="compact"
+                    class="tw-w-6/12 tw-mr-6"
+                    name="Documents"
+                    show-size
+                    hide-details
+                    :readonly="readonly"
+                    @change="onDocumentChange($event, doc?.id || 0)"
+                    @click:clear="clearDocument(doc?.id || 0)"
+                  >
+                  </v-file-input>
+                  <v-btn
+                    v-if="!readonly"
+                    size="small"
+                    class="ml-2"
+                    icon="mdi-close"
+                    variant="text"
+                    @click="openDocumentDeleteDialog(doc)"
+                  ></v-btn>
+                  <v-dialog v-model="dialogDeleteDocument" max-width="600px">
+                    <v-card class="pt-4 pb-3">
+                      <v-card-title class="text-h5">Are you sure you want to remove this Document?</v-card-title>
+                      <v-card-text>
+                        <div class="tw-mb-4">
+                          The document will be deleted and removed from the Product/Variation.
+                          This action cannot be reversed. This action will only be effective once you save the product.
+                        </div>
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="blue-darken-1" variant="text" @click="closeDocumentDeleteDialog">Cancel</v-btn>
+                        <v-btn color="red-darken-1" variant="text" @click="removeDocFromList(documentToDelete)">Delete</v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+                </div>
+                <div
+                  class="tw-flex tw-items-center tw-w-full tw-mt-4 tw-mb-2"
+                >
+                  <v-checkbox
+                    v-model="doc.force_url"
+                    color="red-darken-1"
+                    label="(ADVANCED!) Override Document File"
+                    class="-tw-mb-5 tw-w-4/12"
+                    hide-details
+                    :readonly="readonly"
+                    @click="toggleForceUrlDocument(doc.id, doc.force_url)"
+                  ></v-checkbox>
                   <v-text-field
+                    v-if="doc.force_url"
                     v-model="doc.url"
                     class="tw-w-6/12 tw-mr-6"
                     label="Url"
@@ -355,15 +516,22 @@
                     hide-details
                     :readonly="readonly"
                   ></v-text-field>
-                  <v-btn
-                    v-if="!readonly"
-                    size="small"
-                    class="ml-2"
-                    icon="mdi-close"
-                    variant="text"
-                    @click="removeDocFromList(doc)"
-                  ></v-btn>
                 </div>
+                <div
+                  class="tw-flex tw- tw-w-full tw-items-start tw-flex-wrap tw-mt-4 tw-mb-2"
+                >
+                  <div class="tw-flex tw-flex-row tw-items-start tw-justify-start">
+                    <div v-show="doc.previewName || getFileName(doc.url)" class="tw-text-base tw-font-semibold tw-mb-4 tw-mr-4">File Name: </div>
+                    <p
+                        v-show="doc.previewName || getFileName(doc.url)"
+                        width="150"
+                        class="tw-h-auto"
+                      >
+                      {{ doc.previewName || getFileName(doc.url) }}
+                    </p>
+                  </div>
+                </div>
+                <v-divider class="border-opacity-100 tw-my-6"></v-divider>
               </div>
               <v-btn
                 v-if="!readonly"
@@ -1328,10 +1496,18 @@ const getPrice = (basePrice: number, formula: Function, priceType: string) => {
  */
 const {
   images,
+  imageToDelete,
+  dialogDeleteImage,
   addImage,
   removeImageFromList,
   toggleImageIsPrimary,
   setImages,
+  toggleForceUrlImage,
+  clearImage,
+  onImageChange,
+  deleteImages,
+  openImageDeleteDialog,
+  closeImageDeleteDialog,
 } = useProductImage(variationImagesRef, 'variation');
 
 /**
@@ -1341,9 +1517,17 @@ const {
  */
 const {
   specificationSheets,
+  specificationSheetToDelete,
+  dialogDeleteSpecSheet,
   addSpecificationSheet,
   removeSpecSheetFromList,
   setSpecSheets,
+  toggleForceUrlSpecSheet,
+  clearSpecSheet,
+  onSpecSheetChange,
+  deleteSpecSheets,
+  openSpecSheetDeleteDialog,
+  closeSpecSheetDeleteDialog,
 } = useProductSpecificationSheet(variationSpecSheetsRef, 'variation');
 
 /**
@@ -1354,9 +1538,18 @@ const {
 
 const {
   documents,
+  documentToDelete,
+  dialogDeleteDocument,
   addDocuments,
   removeDocFromList,
   setDocuments,
+  toggleForceUrlDocument,
+  clearDocument,
+  onDocumentChange,
+  getFileName,
+  deleteDocuments,
+  openDocumentDeleteDialog,
+  closeDocumentDeleteDialog,
 } = useProductDocument(variationDocumentsRef, 'variation');
 
 /**
@@ -1538,9 +1731,12 @@ const submit = handleSubmit(async (values) => {
       variation = await handleUpdate(form);
 
     if (variation && variation.length) {
-      await setImages(variation[0].id);
-      await setSpecSheets(variation[0].id);
-      await setDocuments(variation[0].id);
+      await deleteImages();
+      await setImages(variation[0].id, variation[0]?.name || undefined);
+      await deleteSpecSheets();
+      await setSpecSheets(variation[0].id, variation[0]?.name || undefined);
+      await deleteDocuments();
+      await setDocuments(variation[0].id, variation[0]?.name || undefined);
       await setAttributeValues(variation[0].id);
       if (props.new) router.push(`/products/${route.params.id}/variant/${variation[0].id}`);
     }

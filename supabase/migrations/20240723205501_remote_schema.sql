@@ -2268,6 +2268,10 @@ CREATE OR REPLACE TRIGGER "validate_product_or_variation_master_distributor_trig
 
 CREATE OR REPLACE TRIGGER "validate_product_or_variation_msrp_trigger" BEFORE INSERT ON "public"."msrp_price" FOR EACH ROW EXECUTE FUNCTION "public"."validate_product_or_variation"();
 
+CREATE OR REPLACE TRIGGER "create_user_trigger" AFTER INSERT ON "auth"."users" FOR EACH ROW EXECUTE FUNCTION "public"."create_user"();
+
+CREATE OR REPLACE TRIGGER "auto_confirm_user" BEFORE INSERT ON "auth"."users" FOR EACH ROW EXECUTE FUNCTION "public"."auto_confirm_account"();
+
 ALTER TABLE ONLY "public"."attribute_value"
     ADD CONSTRAINT "attribute_value_attribute_id_fkey" FOREIGN KEY ("attribute_id") REFERENCES "public"."attributes"("id") ON DELETE CASCADE;
 
