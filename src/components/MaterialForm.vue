@@ -58,6 +58,27 @@
             </span>
           </div>
         </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">SKU Code</h3>
+            <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
+              Abbreviation used for this attribute on a SKU/Part Number
+            </span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="skuCode.value.value"
+              variant="outlined"
+              density="compact"
+              name="SkuCode"
+              placeholder="GFRC"
+              :error-messages="skuCode.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
         <template v-if="props.new || props.edit">
           <v-divider class="border-opacity-100 tw-my-6"></v-divider>
           <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
@@ -230,6 +251,7 @@ interface Material {
   slug?: string;
   image_url?: string | null;
   color?: Color[];
+  sku_code?: string | null;
 }
 
 interface Props {
@@ -318,12 +340,14 @@ const { handleSubmit } = useForm({
       name: yup.string().min(2).required(),
       slug: yup.string(),
       image: yup.string(),
+      sku_code: yup.string(),
     })
   ),
 });
 
 const name = useField<string>('name');
 const slug = useField<string>('slug');
+const skuCode = useField<string>('sku_code');
 const imageUrl = useField<string>('image');
 const imageFile: Ref<File | null> = ref<File | null>(null);
 const imagePreviewURL: Ref<string | null> = ref<string | null>(null);
@@ -334,6 +358,7 @@ const fillMaterialInformation = () => {
     name.value.value = props.material?.name || '';
     slug.value.value = props.material?.slug || '';
     imageUrl.value.value = props.material?.image_url || '';
+    skuCode.value.value = props.material?.sku_code || '';
   }
 }
 
@@ -394,12 +419,10 @@ const handleUpdate = async (form: Material) => {
       .select();
     if (error) throw error;
     if(mtrl.length) {
-      console.log('BEFORE', imageUrl.value.value);
       name.value.value = mtrl[0].name;
       slug.value.value = mtrl[0].slug;
-      console.log('mtrl', mtrl[0].image_url);
       imageUrl.value.value = mtrl[0].image_url;
-      console.log('AFTER', imageUrl.value.value);
+      skuCode.value.value = mtrl[0].sku_code;
     }
     notify({
       title: 'Material updated successfully',
