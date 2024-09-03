@@ -16,7 +16,20 @@ Deno.serve(async (req: Request) => {
   prepareVirtualFile('./aws/credentials');
 
   if (req.method === 'DELETE') {
-    const s3Client = new S3Client({});
+    let s3Client = null;
+    if (Deno.env.get('ENVIRONMENT') === "local") {
+      s3Client = new S3Client({
+        region: 'us-east-2',
+        endpoint: Deno.env.get('LOCAL_AWS_DOMAIN'),
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: 'test',
+          secretAccessKey: 'test'
+        }
+      });
+    } else {
+      s3Client = new S3Client({});
+    }
     const cloudFrontClient = new CloudFrontClient({});
 
     const cloudFrontDomain = Deno.env.get('CLOUDFRONT_DOMAIN');
@@ -64,7 +77,7 @@ Deno.serve(async (req: Request) => {
       } catch (e) {
         console.error(e);
         return new Response(JSON.stringify({ message: 'Error deleting old file', error: e }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-      }  
+      }
     } else {
       return new Response(JSON.stringify({ message: 'Previous Image Url is required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
