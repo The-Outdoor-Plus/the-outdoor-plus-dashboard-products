@@ -14,21 +14,33 @@
             <div class="tw-text-base">{{ subtitle }}</div>
           </div>
         </div>
-        <v-btn
-          v-if="!readonly"
-          type="submit"
-          color="primary"
-        >
-          {{ props.new ? 'Create Product' : 'Save' }}
-        </v-btn>
-        <v-btn
-          v-if="readonly"
-          color="purple"
-          append-icon="mdi-pencil"
-          @click.prevent="$router.push(`/products/edit/${route.params.id}`)"
-        >
-          Edit
-        </v-btn>
+        <div>
+          <v-btn
+            v-if="edit"
+            color="green"
+            append-icon="mdi-file-document-plus-outline"
+            @click="generateVariations"
+          >
+            Generate Variations
+          </v-btn>
+          <v-btn
+            v-if="!readonly"
+            type="submit"
+            color="primary"
+            class="ml-6"
+          >
+            {{ props.new ? 'Create Product' : 'Save' }}
+          </v-btn>
+          <v-btn
+            v-if="readonly"
+            color="purple"
+            append-icon="mdi-pencil"
+            class="ml-6"
+            @click.prevent="$router.push(`/products/edit/${route.params.id}`)"
+          >
+            Edit
+          </v-btn>
+        </div>
       </div>
       <div class="tw-w-full xl:tw-w-7/12 2xl:tw-w-8/12 tw-px-5 tw-mb-12">
         <v-card class="py-10 px-10" rounded="lg" :loading="isLoading">
@@ -112,6 +124,36 @@
               </div>
             </div>
           </div>
+          <!-- Product SKU Formula -->
+          <div class="tw-w-full tw-flex tw-flex-col">
+              <div class="tw-w-full tw-mb-1.5">
+                <h3 class="tw-font-semibold tw-mt-1">SKU Formula</h3>
+                <span class="tw-text-gray-500 tw-text-sm">In order to generate Variations, you need to provide a SKU Formula, which is gonna tell the generator how to gnerate the SKU.
+                  <br>
+                  Attributes list:
+                  <br>
+                  <template v-for="(attr, i) in attributesList" :key="i">
+                    <span>
+                      {{ attr.name }}: <b>{{ attr.sku_var }}</b>
+                    </span>
+                    <br>
+                  </template>
+                  Example formula: <b>OPT-TESTBOWL{MAT}{IGN}{SZE}-{CLR}-{GAS}</b>
+                </span>
+              </div>
+              <div class="tw-w-full tw-mt-3 lg:tw-mt-0">
+                <v-text-field
+                  v-model="skuFormula.value.value"
+                  variant="outlined"
+                  density="compact"
+                  name="SKUFormula"
+                  placeholder="OPT-TEST{MAT}"
+                  :error-messages="skuFormula.errorMessage.value"
+                  :readonly="readonly"
+                >
+                </v-text-field>
+              </div>
+            </div>
           <!-- Product Short Description -->
           <div class="tw-w-full tw-flex tw-flex-col">
             <div class="tw-w-full tw-mb-1.5">
@@ -1025,7 +1067,7 @@ const loadAttributesList = async () => {
     attributesLoading.value = true;
     const { data, error } = await supabase
       .from('attributes')
-      .select('id, name');
+      .select('id, name, sku_var');
     if (error) throw error;
     attributesList.value = data;
   } catch (e: any) {
@@ -1096,16 +1138,47 @@ const getAttributeItemValue = (tableName: string | undefined) => {
   return 'value';
 }
 
-const loadAttributeValues = async (attrId: number) => {
+const loadAttributeValues = async (attrId: number, materialIds: number[] = []) => {
   try {
     isAttributeValuesLoading.value = true;
     const { data, error } = await supabase
       .from('attribute_value')
-      .select('id, attribute_id, value, material(id, name), color(id, name), gas(id, name), ignition(id, name)')
+      .select(`id,
+        attribute_id,
+        value,
+        sku_code,
+        material(
+          id,
+          name,
+          sku_code
+        ),
+        color(
+          id,
+          name,
+          sku_code,
+          material_id
+        ),
+        gas(
+          id,
+          name,
+          sku_code
+        ),
+        ignition(
+          id,
+          name,
+          sku_code
+        )`)
       .eq('attribute_id', attrId);
     if (error) throw error;
-    if (data)
-      attributeValuesList.value[attrId] = (data as unknown as AttributeValue[]);
+    if (data) {
+      let transformedData = data as unknown as AttributeValue[];
+      if (data.length && data[0]?.color) {
+        transformedData = transformedData.filter((attr) => {
+          return materialIds.includes((attr.color as any).material_id)
+        });
+      }
+      attributeValuesList.value[attrId] = transformedData;
+    }
   } catch (e) {
     console.error(e);
   } finally {
@@ -1183,8 +1256,6 @@ const onAttributeValueChange = (e: any, attributeId: number) => {
   const { addedIds, deletedIds } = compareAttributes(attrValues, e);
   attributeValuesToAdd.value[attributeId] = addedIds;
   attributeValuesToDelete.value[attributeId] = deletedIds;
-  console.log('Added', addedIds);
-  console.log('Deleted', deletedIds);
   // attributesToRemove.value.filter((attr))
 }
 
@@ -1203,6 +1274,7 @@ const setAttributes = async (productId: number) => {
     isLoading.value = true;
     const saveProductAttributes: Promise<any>[] = [];
     const saveProductConfigurations: Promise<any>[] = [];
+    const updateProductAttributes: Promise<any>[] = [];
     const deleteProductAttributes: Promise<any>[] = [];
     const deleteProductConfigurations: Promise<any>[] = [];
     let attributeValues: number[] = [];
@@ -1225,6 +1297,13 @@ const setAttributes = async (productId: number) => {
           saveProductAttributes.push(saveProductAttribute(productId, attribute));
         }
       });
+
+      attributes.value.forEach((attribute: Attribute) => {
+        if (!attributesToAdd.value.includes(attribute?.id || 0) && !attributesToRemove.value.includes(attribute?.id || 0)) {
+          updateProductAttributes.push(updateProductAttribute(productId, attribute));
+        }
+      })
+
       const valuesToDelete = Object.values(attributeValuesToDelete.value).flatMap(value => value);
       const valuesToAdd = Object.values(attributeValuesToAdd.value).flatMap(value => value);
 
@@ -1246,6 +1325,27 @@ const setAttributes = async (productId: number) => {
     const deleteConfigurationPromiseResult = await Promise.allSettled(deleteProductConfigurations);
     const attributePromiseResult = await Promise.allSettled(saveProductAttributes);
     const configurationPromiseResult = await Promise.allSettled(saveProductConfigurations);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+const updateProductAttribute = async (productId: number, payload: Attribute) => {
+  try {
+    isLoading.value = true;
+    const form = {
+      product_id: productId,
+      attribute_id: payload.id,
+      fill_values: payload.fill_values,
+    }
+
+    const { error } = await supabase
+      .from('product_attribute')
+      .update(form)
+      .match({ product_id: productId, attribute_id: payload.id });
+      if (error) throw error;
   } catch (e) {
     console.error(e);
   } finally {
@@ -1456,6 +1556,7 @@ const landscapePrice = useField<number>('landscape_price');
 const mapPrice = useField<number>('map_price');
 const masterDistributorPrice = useField<number>('master_distributor_price');
 const msrpPrice = useField<number>('msrp_price');
+const skuFormula = useField<string>('sku_formula');
 
 
 const fillProductInformation = async () => {
@@ -1516,8 +1617,12 @@ watch(
   async () => {
     if (props.productAttributes) {
       const attributeValuesPromise: Promise<void>[] = [];
+      const productAttributesHasMaterial = props.productAttributes.find((prodAttr) => prodAttr.table_name === 'material');
+      let materialIds: number[] = [];
+      if (productAttributesHasMaterial)
+        materialIds = (productAttributesHasMaterial as any).attribute_values.map((attrVals: any) => attrVals.permanent_attribute_id);
       props.productAttributes.forEach((attr) => {
-        attributeValuesPromise.push(loadAttributeValues(attr.id || 0));
+        attributeValuesPromise.push(loadAttributeValues(attr.id || 0, materialIds));
       });
       await Promise.allSettled(attributeValuesPromise);
       attributes.value = JSON.parse(JSON.stringify(props.productAttributes));
@@ -1609,6 +1714,71 @@ const handleUpdate = async (values: Product) => {
   }
 }
 
+const isValidSkuFormula = (formula: string): boolean => {
+  const regex = /\{[A-Z0-9_]+\}/i;
+  return regex.test(formula);
+}
+
+const generateVariations = async () => {
+  try {
+    isLoading.value = true;
+    if (skuFormula.value.value && props.product?.id) {
+      if (isValidSkuFormula(skuFormula.value.value)) {
+        const { data, error } = await supabase.functions.invoke('generate-variations', {
+          body: {
+            sku_formula: skuFormula.value.value,
+            product_name: name.value.value,
+            product_id: props.product.id,
+            product_configuration: props.productAttributes,
+            certifications: certifications.value,
+            dealer_price: dealerPrice.value.value,
+            distributor_price: distributorPrice.value.value,
+            group_price: groupPrice.value.value,
+            master_distributor_price: masterDistributorPrice.value.value,
+            internet_price: internetPrice.value.value,
+            landscape_price: landscapePrice.value.value,
+            map_price: mapPrice.value.value,
+            msrp_price: msrpPrice.value.value
+          }
+        });
+        if (error) throw error;
+        if (data) {
+          notify({
+            title: `${data.variationsCreated} variations generated.`,
+            text: `${data.variationsCreated} out of ${data.possibleCombinations} variations generated successfully <br> ${data.duplicateSkus} variations already present.`,
+            type: 'success',
+            duration: 7000,
+          });
+        }
+      } else {
+        notify({
+          title: 'Invalid SKU Formula',
+          text: 'Please make sure that the SKU Formula is a valid formula.',
+          type: 'warn',
+          duration: 6000,
+        });
+      }
+    } else {
+      notify({
+        title: 'Please set a SKU Formula.',
+        text: 'Please set a SKU Formula in order to generate variations',
+        type: 'info',
+        duration: 6000,
+      });
+    }
+  } catch (e: any) {
+    console.error(e);
+    notify({
+      title: 'Error generating variations',
+      text: e?.message || 'An error ocurred trying to update the product. Please contact TOP support.',
+      type: 'error',
+      duration: 6000,
+    });
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 const submit = handleSubmit(async (values) => {
   let form: Product = JSON.parse(JSON.stringify(values)) as typeof values;
   // if (!isParent.value || !isParentGroup.value) {
@@ -1675,7 +1845,6 @@ const submit = handleSubmit(async (values) => {
     isLoading.value = false;
   }
 })
-
 </script>
 
 <style lang="scss" scoped>

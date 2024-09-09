@@ -49,7 +49,7 @@ onMounted(async () => {
     loading.value = true;
     const { data, error } = await supabase
       .from('material')
-      .select(`id, name, slug, image_url, color (id, name, slug, image_url)`)
+      .select(`id, name, slug, image_url, sku_code, color (id, name, slug, image_url)`)
       .eq('id', route.params.id);
     if (error) throw error;
     if (data.length) material.value = data[0];
