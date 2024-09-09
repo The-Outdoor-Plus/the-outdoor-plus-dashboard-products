@@ -1,0 +1,1 @@
+alter table "public"."product" add column "sku_formula" text;
