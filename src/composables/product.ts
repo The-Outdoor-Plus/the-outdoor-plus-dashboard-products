@@ -1,5 +1,5 @@
 import { supabase } from "@/supabase";
-import { Attribute, Documents, Image, SpecificationSheet } from "@/types/product";
+import { Attribute, AttributeValue, Color, Documents, Image, SpecificationSheet } from "@/types/product";
 import { notify } from "@kyvg/vue3-notification";
 import { Ref, ref } from "vue";
 
@@ -28,24 +28,183 @@ export function useProduct() {
     }
   }
 
-  const loadProductConfiguration = async (product_id: number) => {
+  const loadAllAttributesValues = async (attribute_id: number, material_id: number | undefined = undefined) => {
+    try {
+      const { data, error } = await supabase
+        .from('attributes')
+        .select(`
+          id,
+          name,
+          table_name,
+          sku_var,
+          attribute_value(
+            id,
+            value,
+            sku_code,
+            material(
+              id,
+              name,
+              sku_code
+            ),
+            color(
+              id,
+              name,
+              sku_code,
+              material_id
+            ),
+            gas(
+              id,
+              name,
+              sku_code
+            ),
+            ignition(
+              id,
+              name,
+              sku_code
+            )
+          )
+        `)
+        .eq('id', attribute_id);
+      if (error) throw error;
+      return data.map((prodAttr) => {
+        if (prodAttr.table_name === 'color') {
+          if (material_id) {
+            return {
+              ...prodAttr,
+              attribute_value: prodAttr.attribute_value.filter(attrVal => (attrVal.color as any).material_id === material_id),
+            }
+          }
+        }
+        return prodAttr;
+      });
+    } catch (e: any) {
+      console.error(e);
+    }
+  }
+
+  const loadProductConfiguration = async (product_id: number, fillValuesAttributes: any[]) => {
     try {
       productLoading.value = true;
       const { data: attribute_values, error } = await supabase
         .from('product_configuration')
-        .select('value:value_id(id, attribute_id)')
+        .select(`value:value_id(
+          id,
+          attribute_id,
+          sku_code, value,
+          material(
+            id,
+            name,
+            sku_code
+          ),
+          gas(
+            id,
+            name,
+            sku_code
+          ),
+          ignition(
+            id,
+            name,
+            sku_code
+          ),
+          color(
+            id,
+            name,
+            sku_code
+          )
+        )`)
         .eq(`product_id`, product_id);
       if (error) throw error;
+      const fillValAttrsPromise: Promise<any>[] = [];
+
+      const colorFillAttribute = fillValuesAttributes.find((prodAttr) => {
+        const attribute = prodAttr.attribute as Attribute;
+        return attribute?.table_name === 'color';
+      });
+      if (colorFillAttribute) {
+        const materialAttribute = attribute_values.find((attrVal) => {
+          const attribute = attrVal.value as AttributeValue;
+          return !!attribute?.material;
+        });
+        fillValuesAttributes = fillValuesAttributes.map((prodAttr) => {
+          const attribute = prodAttr.attribute as Attribute;
+          if (attribute.table_name === 'color') {
+            return {
+              ...prodAttr,
+              material_id: (materialAttribute?.value as AttributeValue)?.material?.id || 0,
+            }
+          }
+          return prodAttr;
+        });
+      }
+
+      fillValuesAttributes.forEach((fillVal) => {
+        fillValAttrsPromise.push(loadAllAttributesValues(fillVal?.attribute?.id || 0, fillVal?.material_id || undefined));
+      });
+      const fillValues = await Promise.allSettled(fillValAttrsPromise);
       const attributeValues: { [key: number]: any } = {};
+      const attrVals: { [key: number]: any } = {};
       attribute_values.forEach((attrVal: any) => {
         const attrId = attrVal.value.attribute_id as number
         if (!attributeValues[attrId]) {
           attributeValues[attrId] = [];
         }
+        if (!attrVals[attrId]) {
+          attrVals[attrId] = [];
+        }
         attributeValues[attrId].push(attrVal.value.id);
+        attrVals[attrId].push({
+          id: attrVal.value.id,
+          permanent_attribute_id: attrVal?.value?.color?.id ||
+            attrVal?.value?.ignition?.id ||
+            attrVal?.value?.gas?.id ||
+            attrVal?.value?.material?.id || null,
+          attribute_id: attrVal.value.attribute_id,
+          value: attrVal?.value?.color?.name ||
+            attrVal?.value?.ignition?.name ||
+            attrVal?.value?.gas?.name ||
+            attrVal?.value?.material?.name ||
+            attrVal?.value?.value || null,
+          sku_code: attrVal?.value?.color?.sku_code ||
+            attrVal?.value?.ignition?.sku_code ||
+            attrVal?.value?.gas?.sku_code ||
+            attrVal?.value?.material?.sku_code ||
+            attrVal?.value?.sku_code || null,
+        })
         attrValues.value.push(attrVal.value.id);
       });
-      return attributeValues;
+
+      fillValues.forEach((fillVal) => {
+        if (fillVal.status === 'fulfilled') {
+          fillVal.value?.[0].attribute_value.forEach((attrVal: any) => {
+            if (!attrVals[fillVal.value?.[0].id]) {
+              attrVals[fillVal.value?.[0].id] = [];
+            }
+            attrVals[fillVal.value?.[0].id].push({
+              id: attrVal?.id || null,
+              attribute_id: fillVal.value?.[0].id,
+              permanent_attribute_id: attrVal?.color?.id ||
+                attrVal?.ignition?.id ||
+                attrVal?.gas?.id ||
+                attrVal?.material?.id || null,
+              value: attrVal?.color?.name ||
+                attrVal?.ignition?.name ||
+                attrVal?.gas?.name ||
+                attrVal?.material?.name ||
+                attrVal?.value || null,
+              sku_code: attrVal?.color?.sku_code ||
+                attrVal?.ignition?.sku_code ||
+                attrVal?.gas?.sku_code ||
+                attrVal?.material?.sku_code ||
+                attrVal?.sku_code || null,
+            });
+          })
+        }
+      });
+
+      return {
+        attributeValues,
+        attrVals,
+      };
     } catch (e) {
       console.error(e);
     } finally {
@@ -58,16 +217,33 @@ export function useProduct() {
       productLoading.value = true;
       const { data, error } = await supabase
         .from('product_attribute')
-        .select('id, product_id, attribute:attribute_id(id, name, table_name), fill_values')
+        .select(`
+          id,
+          product_id,
+          attribute:attribute_id(
+            id,
+            name,
+            table_name,
+            sku_var
+          ),
+          fill_values
+        `)
         .eq(`product_id`, product_id);
       if (error) throw error;
-      const attributeValue = await loadProductConfiguration(product_id);
+      const fillValuesAttributes = data.filter((prodAttr) => !!prodAttr.fill_values);
+      const config = await loadProductConfiguration(product_id, fillValuesAttributes);
+      if (!config) {
+        throw new Error('Error loading product configuration');
+      }
+      const { attributeValues, attrVals } = config;
       const attributes = data.map((attr: any) => ({
         id: attr.attribute?.id,
         name: attr.attribute?.name,
         table_name: attr.attribute?.table_name,
         fill_values: attr.fill_values,
-        attribute_value: attributeValue?.[attr.attribute?.id],
+        sku_var: attr.attribute?.sku_var,
+        attribute_value: attributeValues?.[attr.attribute?.id],
+        attribute_values: attrVals?.[attr.attribute?.id],
       }));
       return attributes as Attribute[];
     } catch (e) {

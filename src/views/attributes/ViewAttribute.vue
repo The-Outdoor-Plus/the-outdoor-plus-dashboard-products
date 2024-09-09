@@ -58,9 +58,10 @@ onMounted(async() => {
     loading.value = true;
     const { data, error } = await supabase
       .from('attributes')
-      .select(`id, name, slug, values: attribute_value(
+      .select(`id, name, slug, sku_var, values: attribute_value(
         id,
-        value
+        value,
+        sku_code
       )`)
       .eq('id', route.params.id);
     if (error) throw error;
@@ -70,6 +71,7 @@ onMounted(async() => {
         values: item.values.map((value: any) => ({
           value: value.value,
           id: value.id,
+          sku_code: value.sku_code,
         })),
       }));
       attribute.value = flattenedData[0];

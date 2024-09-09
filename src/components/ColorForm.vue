@@ -57,6 +57,27 @@
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">SKU Code</h3>
+            <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
+              Abbreviation used for this attribute on a SKU/Part Number
+            </span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="skuCode.value.value"
+              variant="outlined"
+              density="compact"
+              name="SkuCode"
+              placeholder="WHT"
+              :error-messages="skuCode.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Material</h3>
             <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
             </span>
@@ -211,6 +232,7 @@ interface Color {
   slug?: string;
   material_id?: number;
   image_url?: string;
+  sku_code?: string | null;
 }
 
 interface Props {
@@ -324,6 +346,7 @@ const { handleSubmit } = useForm({
       slug: yup.string(),
       material: yup.number().required(),
       image: yup.string(),
+      sku_code: yup.string(),
     })
   ),
 });
@@ -332,6 +355,7 @@ const name = useField<string>('name');
 const slug = useField<string>('slug');
 const material = useField<number>('material');
 const imageUrl = useField<string>('image');
+const skuCode = useField<string>('sku_code');
 const imageFile: Ref<File | null> = ref<File | null>(null);
 const imagePreviewURL: Ref<string | null> = ref<string | null>(null);
 const oldImageUrl: Ref<string> = ref<string>('');
@@ -342,6 +366,7 @@ const fillColorInformation = () => {
     slug.value.value = props.color?.slug || '';
     material.value.value = props.color?.material_id || 0;
     imageUrl.value.value = props?.color?.image_url || '';
+    skuCode.value.value = props.color?.sku_code || '';
   }
 }
 
@@ -407,6 +432,7 @@ const handleUpdate = async (form: Color) => {
       slug.value.value = clr[0].slug;
       material.value.value = clr[0].material_id;
       imageUrl.value.value = clr[0].image_url;
+      skuCode.value.value = clr[0].sku_code;
     }
     notify({
       title: 'Color updated successfully',

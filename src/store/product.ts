@@ -98,6 +98,7 @@ export const useProductStore = defineStore('product', {
         map_price: yup.number().nullable(),
         master_distributor_price: yup.number().nullable(),
         msrp_price: yup.number().nullable(),
+        sku_formula: yup.string().nullable(),
       }),
     );
 
@@ -119,6 +120,7 @@ export const useProductStore = defineStore('product', {
       shortDescription: '',
       description: '',
       websiteLink: '',
+      skuFormula: '',
     }
 
     const productKeys = [
@@ -163,6 +165,7 @@ export const useProductStore = defineStore('product', {
       'map_price',
       'master_distributor_price',
       'msrp_price',
+      'sku_formula',
     ];
 
     // const formValidation = toTypedSchema(

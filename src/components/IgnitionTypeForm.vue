@@ -54,6 +54,27 @@
             </span>
           </div>
         </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">SKU Code</h3>
+            <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
+              Abbreviation used for this attribute on a SKU/Part Number
+            </span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="skuCode.value.value"
+              variant="outlined"
+              density="compact"
+              name="SkuCode"
+              placeholder="E110V"
+              :error-messages="skuCode.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
         <v-divider class="border-opacity-100 tw-mb-6 tw-mt-1"></v-divider>
         <div class="tw-w-full">
           <v-spacer></v-spacer>
@@ -87,6 +108,7 @@ interface IgnitionType {
   id?: number;
   name: string;
   slug?: string;
+  sku_code?: string | null;
 }
 
 interface Props {
@@ -170,17 +192,20 @@ const { handleSubmit } = useForm({
     yup.object({
       name: yup.string().min(2).required(),
       slug: yup.string(),
+      sku_code: yup.string(),
     })
   ),
 });
 
 const name = useField<string>('name');
 const slug = useField<string>('slug');
+const skuCode = useField<string>('sku_code');
 
 const fillIgnitionTypeInformation = () => {
   if (props.edit || props.readonly) {
     name.value.value = props.ignitionType?.name || '';
     slug.value.value = props.ignitionType?.slug || '';
+    skuCode.value.value = props.ignitionType?.sku_code || '';
   }
 }
 
@@ -249,6 +274,7 @@ const handleUpdate = async (values: IgnitionType) => {
     if(ignition.length) {
       name.value.value = ignition[0].name;
       slug.value.value = ignition[0].slug;
+      skuCode.value.value = ignition[0].sku_code;
     }
     notify({
       title: 'Ignition Type updated successfully',

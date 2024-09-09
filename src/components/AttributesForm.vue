@@ -37,22 +37,58 @@
         <v-divider class="border-opacity-100 tw-my-6"></v-divider>
         <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
           <div class="tw-w-full lg:tw-w-3/12">
+            <h3 class="tw-text-base tw-font-semibold tw-mt-1">SKU Variable</h3>
+            <span v-if="!props.readonly" class="tw-text-sm tw-text-gray-500 tw-mt-1">
+              Variable that is going to be used to identify the attribute.
+            </span>
+          </div>
+          <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 xl:tw-w-4/12">
+            <v-text-field
+              v-model="skuVar.value.value"
+              variant="outlined"
+              density="compact"
+              name="SkuVar"
+              placeholder="SHP"
+              :error-messages="skuVar.errorMessage.value"
+              :readonly="readonly"
+            >
+            </v-text-field>
+          </div>
+        </div>
+        <v-divider class="border-opacity-100 tw-my-6"></v-divider>
+        <div class="tw-w-full tw-flex tw-flex-col lg:tw-flex-row">
+          <div class="tw-w-full lg:tw-w-3/12">
             <h3 class="tw-text-base tw-font-semibold tw-mt-1">Values</h3>
           </div>
           <div class="tw-w-full tw-mt-3 lg:tw-mt-0 lg:tw-w-7/12 ">
             <div class="tw-flex tw-flex-wrap tw-flex-col lg:tw-flex-row lg:tw-gap-8">
               <div class="tw-w-full lg:tw-w-8/12">
-                <v-text-field
-                  v-if="!readonly"
-                  v-model="tempValue"
-                  class="tw-w-full"
-                  variant="outlined"
-                  density="compact"
-                  name="AttributeValue"
-                  placeholder="Attribute Value"
-                  :readonly="readonly"
-                  @keydown.enter.prevent="addTempValue"
-                ></v-text-field>
+                <div class="tw-w-full tw-flex">
+                  <v-text-field
+                    v-if="!readonly"
+                    v-model="tempValue"
+                    class="tw-w-7/12"
+                    variant="outlined"
+                    density="compact"
+                    name="AttributeValue"
+                    label="Attribute Value"
+                    placeholder="Attribute Value"
+                    :readonly="readonly"
+                    @keydown.enter.prevent="addTempValue"
+                  ></v-text-field>
+                  <v-text-field
+                    v-if="!readonly"
+                    v-model="tempSkuCode"
+                    class="tw-w-5/12 ml-4"
+                    variant="outlined"
+                    density="compact"
+                    label="SKU Code"
+                    name="AttributeValueSkuCode"
+                    placeholder="BLK"
+                    :readonly="readonly"
+                    @keydown.enter.prevent="addTempValue"
+                  ></v-text-field>
+                </div>
                 <v-btn
                   v-if="!readonly"
                   class="tw-mb-4"
@@ -90,21 +126,7 @@
                   :closable="!readonly"
                   @click:close="removeValue(i)"
                 >
-                  {{ (value as AttributeValue).value }} (id: {{ (value as AttributeValue).id }})
-                </v-chip>
-              </template>
-              <template
-                v-else-if="props.new"
-              >
-                <v-chip
-                  v-for="(value, i) in values"
-                  class="tw-mr-4 tw-mb-4"
-                  :key="i"
-                  :ripple="false"
-                  :closable="!readonly"
-                  @click:close="removeValue(i)"
-                >
-                  {{ (value as string) }}
+                  {{ (value as AttributeValue).value }} (SKU Code: {{ (value as AttributeValue).sku_code }}) (id: {{ (value as AttributeValue).id }})
                 </v-chip>
               </template>
               <template
@@ -118,7 +140,7 @@
                   :closable="!readonly"
                   @click:close="removeValue(i)"
                 >
-                  {{ (value as AttributeValue).value }}
+                  {{ (value as AttributeValue).value }} (SKU Code: {{ (value as AttributeValue).sku_code }})
                 </v-chip>
               </template>
             </div>
@@ -176,7 +198,7 @@
                 :key="i"
                 :ripple="false"
               >
-                {{ attr }}
+                {{ attr.value }}
               </v-chip>
             </template>
           </div>
@@ -211,6 +233,7 @@ interface Attribute {
   slug?: string;
   table_name?: string;
   values?: string[] | AttributeValue[];
+  sku_var?: string | null;
 }
 
 interface AttributeValue {
@@ -221,6 +244,7 @@ interface AttributeValue {
   color_id?: number;
   gas_id?: number;
   ignition_id?: number;
+  sku_code?: string | null;
 }
 
 interface Props {
@@ -246,6 +270,7 @@ const loadingAttributes = ref(false);
 const importValuesDialog = ref(false);
 
 const tempValue: Ref<string> = ref<string>('');
+const tempSkuCode: Ref<string> = ref<string>('');
 const values: Ref<string[] | AttributeValue[]> = ref<string[] | AttributeValue[]>([]);
 const attributes: Ref<Attribute[]> = ref<Attribute[]>([]);
 const attributeValues: Ref<AttributeValue[]> = ref<AttributeValue[]>([]);
@@ -263,10 +288,12 @@ const props = withDefaults(defineProps<Props>(), {
 const fillAttributeInformation = () => {
   if (props.readonly) {
     name.value.value = JSON.parse(JSON.stringify(props.attribute?.name || ''));
+    skuVar.value.value = JSON.parse(JSON.stringify(props.attribute?.sku_var || ''));
     values.value = JSON.parse(JSON.stringify(props.attribute?.values || []));
   }
   if (props.edit) {
     name.value.value = JSON.parse(JSON.stringify(props.attribute?.name || ''));
+    skuVar.value.value = JSON.parse(JSON.stringify(props.attribute?.sku_var || ''));
     values.value = JSON.parse(JSON.stringify(props.attribute?.values || []));
   }
 }
@@ -305,10 +332,11 @@ const subtitle = computed(() => {
 
 const addTempValue = () => {
   if (props.new) {
-    const valAlreadyExists = (values.value as string[]).find((item) => item === tempValue.value);
+    const valAlreadyExists = (values.value as AttributeValue[]).find((item) => item.value === tempValue.value);
     if (!valAlreadyExists) {
-      if (tempValue.value) (values.value as string[]).push(tempValue.value);
+      if (tempValue.value) (values.value as AttributeValue[]).push({ value: tempValue.value, sku_code: tempSkuCode.value || null });
       tempValue.value = '';
+      tempSkuCode.value = '';
     } else {
       notify({
         title: 'Value already exists',
@@ -326,8 +354,9 @@ const addTempValue = () => {
         if (valIsOnDeleteQueue)
           (values.value as AttributeValue[]).push(valIsOnDeleteQueue);
         else
-          (values.value as AttributeValue[]).push({ value: tempValue.value });
+          (values.value as AttributeValue[]).push({ value: tempValue.value, sku_code: tempSkuCode.value });
         tempValue.value = '';
+        tempSkuCode.value = '';
       } else {
         notify({
           title: 'Value already exists',
@@ -363,17 +392,22 @@ const loadItems = async () => {
         id, name, table_name,
         values: attribute_value (
           value,
+          sku_code,
           material: material_id (
-            name
+            name,
+            sku_code
           ),
           color: color_id (
-            name
+            name,
+            sku_code
           ),
           gas: gas_id (
-            name
+            name,
+            sku_code
           ),
           ignition: ignition_id (
-            name
+            name,
+            sku_code
           )
         )
       `);
@@ -384,12 +418,18 @@ const loadItems = async () => {
         for (const key of keys) {
           if (value[key] !== null && key !== 'value') {
             if (typeof value[key] === 'object') {
-              return value[key].name;
+              return {
+                value: value[key].name,
+                sku_code: value[key].sku_code
+              }
             } else {
               return value[key];
             }
           } else if (key === 'value' && value[key] !== null) {
-            return value[key];
+            return {
+              value: value[key],
+              sku_code: value.sku_code,
+            }
           }
         }
       });
@@ -418,18 +458,24 @@ const loadItems = async () => {
 }
 
 const selectedAttributeValues = computed(() => {
-  return attributes.value.find(a => attributeToLoad.value === a.id)?.values || [];
+  return attributes.value.find(a => attributeToLoad.value === a.id)?.values as AttributeValue[] || [];
 });
 
 const importValues = () => {
-  if (props.new)
-    values.value.push(...JSON.parse(JSON.stringify(selectedAttributeValues.value)));
-  else if (props.edit) {
-    const tempValues = selectedAttributeValues.value.map((val) => ({
-      value: val,
-    }));
-    values.value.push(...JSON.parse(JSON.stringify(tempValues)));
-  }
+  const tempValues = selectedAttributeValues.value.map((val) => ({
+    value: (val as AttributeValue).value,
+    sku_code: (val as AttributeValue).sku_code
+  }));
+  values.value.push(...JSON.parse(JSON.stringify(tempValues)));
+  // if (props.new)
+  //   values.value.push(...JSON.parse(JSON.stringify(selectedAttributeValues.value)));
+  // else if (props.edit) {
+  //   const tempValues = selectedAttributeValues.value.map((val) => ({
+  //     value: (val as AttributeValue).value,
+  //     sku_code: (val as AttributeValue).sku_code
+  //   }));
+  //   values.value.push(...JSON.parse(JSON.stringify(tempValues)));
+  // }
   importValuesDialog.value = false;
 }
 
@@ -444,19 +490,20 @@ const { handleSubmit } = useForm({
     yup.object({
       name: yup.string().min(2).required(),
       value: yup.string().min(1),
+      skuVar: yup.string()
     })
   ),
 });
 
 const name = useField<string>('name');
-const value = useField<string>('value');
+const skuVar = useField<string>('sku_var');
 
-const createAttributeValue = async (attributeId: number, value: string) => {
+const createAttributeValue = async (attributeId: number, value: string, skuCode?: string) => {
   try {
     isLoading.value = true;
     const { error } = await supabase
       .from('attribute_value')
-      .insert({ attribute_id: attributeId, value });
+      .insert({ attribute_id: attributeId, value, sku_code: skuCode });
     if (error) throw error;
   } catch (e: any) {
     console.error(e);
@@ -501,8 +548,8 @@ const handleCreate = async (form: Attribute) => {
     if (error) throw error;
     if (attr.length) {
       const attrValuesPromises: Promise<void>[] = [];
-      (values.value as string[]).forEach((val) => {
-        attrValuesPromises.push(createAttributeValue(attr[0].id, val));
+      (values.value as AttributeValue[]).forEach((val) => {
+        attrValuesPromises.push(createAttributeValue(attr[0].id, val.value, val.sku_code || undefined));
       });
 
       await Promise.all(attrValuesPromises);
@@ -537,12 +584,13 @@ const handleUpdate = async (form: Attribute) => {
     if (error) throw error;
     if (attribute.length) {
       name.value.value = attribute[0].name;
-      const newValues = (values.value as AttributeValue[]).filter((val) => !val.id).map((val) => val.value);
+      skuVar.value.value = attribute[0].sku_var;
+      const newValues = (values.value as AttributeValue[]).filter((val) => !val.id);
       const idsToDelete = valuesToDelete.value.map((val) => val.id);
 
       const attrValuesPromises: Promise<void>[] = [];
       newValues.forEach((val) => {
-        attrValuesPromises.push(createAttributeValue(attribute[0].id, val));
+        attrValuesPromises.push(createAttributeValue(attribute[0].id, val.value, val.sku_code || undefined));
       });
 
       if (idsToDelete.length)

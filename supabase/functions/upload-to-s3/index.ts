@@ -16,7 +16,20 @@ Deno.serve(async (req: Request) => {
   prepareVirtualFile('./aws/credentials')
 
   if (req.method === 'POST') {
-    const s3Client = new S3Client({});
+    let s3Client = null;
+    if (Deno.env.get('ENVIRONMENT') === "local") {
+      s3Client = new S3Client({
+        region: 'us-east-2',
+        endpoint: Deno.env.get('LOCAL_AWS_DOMAIN'),
+        forcePathStyle: true,
+        credentials: {
+          accessKeyId: 'test',
+          secretAccessKey: 'test'
+        }
+      });
+    } else {
+      s3Client = new S3Client({});
+    }
 
     const cloudFrontDomain = Deno.env.get('CLOUDFRONT_DOMAIN');
 

@@ -23,6 +23,7 @@ export interface Attribute {
   slug?: string;
   attribute_value?: AttributeValue[];
   fill_values?: boolean;
+  sku_var?: string;
 }
 
 export interface AttributeValues {
@@ -41,6 +42,7 @@ export interface AttributeValue {
   color?: Color;
   gas?: GasType;
   ignition?: IgnitionType;
+  sku_code?: string;
 }
 
 export interface Shape {
@@ -202,6 +204,7 @@ export interface Product {
   master_distributor_price?: number | null;
   msrp_price?: number | null;
   btu?: number | null;
+  sku_formula?: string | null;
 }
 
 export interface Props {
