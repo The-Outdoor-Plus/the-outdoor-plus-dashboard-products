@@ -46,6 +46,7 @@ const variationKeys = [
   'enabled',
   'name',
   'sku',
+  'parent_id',
   'upc_codes',
   'encoded_upc_codes',
   'short_description',

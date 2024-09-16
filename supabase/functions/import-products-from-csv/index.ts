@@ -7,8 +7,8 @@ import { parse } from "jsr:@std/csv";
 // import { readCSV } from "https://deno.land/std@0.203.0/csv/mod.ts";
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { Database } from "../_shared/types/supabase.ts";
-import { Product, RecordData } from "../_shared/types/products.ts";
-import { extractProducts, filterFormPayload, handleCreateProduct, transformRecordData } from "./methods.ts";
+import { Product, RecordData, Variation } from "../_shared/types/products.ts";
+import { extractProducts, filterFormPayload, handleCreateProduct, handleFiles, transformRecordData, handleProductAttributes, handleVariationAttributes, handleCreateVariation } from "./methods.ts";
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
@@ -47,11 +47,36 @@ Deno.serve(async (req: Request) => {
 
       const products: Product[] = extractProducts(recordData);
 
-      const form = filterFormPayload<Product>(products[0], 'productKeys');
-      const newProduct = await handleCreateProduct(form, supabaseClient);
+      const results = {};
+
+      products.forEach(async (product: Product) => {
+        try {
+          const productForm = filterFormPayload<Product>(product, 'productKeys');
+          const newProduct = await handleCreateProduct(productForm, supabaseClient);
+
+          // const variationsPromise: Promise<any>[] = [];
+
+          if (newProduct && newProduct[0].id) {
+            await handleFiles(newProduct[0].id || 0, newProduct[0].name, 'product', product.images, supabaseClient, 'image');
+            await handleFiles(newProduct[0].id || 0, newProduct[0].name, 'product', product.specification_sheets, supabaseClient, 'specification_sheet');
+            await handleFiles(newProduct[0].id || 0, newProduct[0].name, 'product', product.documents, supabaseClient, 'documents');
+            const { attributesResponse, configurationResponse } = await handleProductAttributes(product, newProduct[0].id, supabaseClient);
+
+            product.variations?.forEach(async (variation: Variation) => {
+              // variationsPromise.push(handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient));
+              await handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient);
+            })
+          }
+
+          // const variationsResult = await Promise.allSettled(variationsPromise);
+        } catch (e) {
+          console.error(e);
+          return;
+        }
+      });
 
       return new Response(
-        JSON.stringify({ message: 'Working', newProduct, products }),
+        JSON.stringify({ message: 'Working', results, products }),
         { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } },
       )
     }
