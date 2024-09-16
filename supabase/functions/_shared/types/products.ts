@@ -1,11 +1,34 @@
+import { TablesInsert } from "./supabase.ts";
+
 export type ProductType = 'VARIABLE' | 'SIMPLE' | '';
 
 export type Parent = `SKU:${string}` | `ID:${string}` | '';
+export type TableName = 'product_image' | 'variation_image';
+export type FileType = 'image' | 'documents' | 'specification_sheet';
+export type EntityForm = TablesInsert<'product_image'> | TablesInsert<'variation_image'> |
+  TablesInsert<'product_documents'> | TablesInsert<'variation_documents'> |
+  TablesInsert<'product_specification_sheet'> | TablesInsert<'variation_specification_sheet'> | null;
+export type FileForm = TablesInsert<'image'> | TablesInsert<'documents'> | TablesInsert<'specification_sheet'>;
+export type FileTypeExtension = '.jpg' | '.pdf';
+export type ColumName = 'product_id' | 'variation_id';
+export type RntityType = 'product' | 'variation';
 
 export type AttributeIds = `attribute_id_${number}`;
 export type AttributeFillValues = `attribute_fill_values_${number}`;
 export type ProductAttributeValuesIds = `product_attribute_values_ids_${number}`;
 export type VariationAttributeValue = `variation_attribute_value_${number}`;
+export type GroupedAttributesKey = `attribute_${number}`;
+
+export interface ProductGroupedAttributes {
+  attribute_id: number;
+  attribute_fill_values: boolean;
+  product_attribute_values_ids: number[];
+}
+
+export interface VariationGroupedAttributes {
+  attribute_id: number;
+  variation_attribute_value: number;
+}
 
 export interface RecordData {
   id: string;
@@ -142,4 +165,12 @@ export interface Product {
   [key: AttributeFillValues]: boolean;
   [key: ProductAttributeValuesIds]: number[];
   variations?: Variation[];
+}
+
+export interface ProductImage {
+  product_id?: number | null;
+  display_order?: number | null;
+  is_primary?: boolean | null;
+  variation_id?: number | null;
+  image_id?: number | null;
 }
