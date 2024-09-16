@@ -33,8 +33,6 @@ Deno.serve(async (req: Request) => {
 
     const cloudFrontDomain = Deno.env.get('CLOUDFRONT_DOMAIN');
 
-    console.log('cloudFrontFomain', cloudFrontDomain);
-
     const getDateForVersioning = () => {
       const currDate = new Date();
 
@@ -83,6 +81,43 @@ Deno.serve(async (req: Request) => {
       return str;
     }
 
+    const getContentTypeFromExtension = (filename: string): string => {
+      const extension = filename.split('.')?.[1] || null;
+      if (!extension) {
+        return 'application/octet-stream';
+      }
+
+      switch(extension) {
+        case 'tiff':
+        case 'tif':
+          return 'image/tiff';
+        case 'jpg':
+        case 'jpeg':
+          return 'image/jpeg';
+        case 'png':
+          return 'image/png';
+        case 'webp':
+          return 'image/webp';
+        case 'avif':
+          return 'image/avif';
+        case 'txt':
+          return 'text/plain';
+        case 'svg':
+          return  'image/svg+xml';
+        case 'pdf':
+          return 'application/pdf';
+        case 'docx':
+          return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        case 'xlsx':
+          return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        case 'csv':
+          return 'text/csv';
+        case 'epub':
+          return 'application/epub+zip';
+        default:
+          return 'application/octet-stream';
+      }
+    }
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
@@ -95,13 +130,13 @@ Deno.serve(async (req: Request) => {
 
       if (prependPath) fileName = `${prependPath}${fileName}`;
       const objectKeyPath = removeLeadingSlash(objectKeyName(fileName));
-      console.info(objectKeyPath);
 
       const uploadParams = {
         Bucket: Deno.env.get("AWS_BUCKET"),
         Key: objectKeyPath,
         Body: fileContent,
-        ContentType: file.type,
+        ContentType: getContentTypeFromExtension(file.name),
+        // ContentDisposition: `inline; filename="${file.name}"; filename*=UTF-8''${encodeURIComponent(file.name).toString()}`,
       }
 
       const fileUrl = `${cloudFrontDomain}${objectKeyPath}`.replace(/([^:]\/)\/+/g, "$1");
