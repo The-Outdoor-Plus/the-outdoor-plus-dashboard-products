@@ -54,7 +54,7 @@ Deno.serve(async (req: Request) => {
           const productForm = filterFormPayload<Product>(product, 'productKeys');
           const newProduct = await handleCreateProduct(productForm, supabaseClient);
 
-          // const variationsPromise: Promise<any>[] = [];
+          const variationsPromise: Promise<any>[] = [];
 
           if (newProduct && newProduct[0].id) {
             await handleFiles(newProduct[0].id || 0, newProduct[0].name, 'product', product.images, supabaseClient, 'image');
@@ -63,12 +63,12 @@ Deno.serve(async (req: Request) => {
             const { attributesResponse, configurationResponse } = await handleProductAttributes(product, newProduct[0].id, supabaseClient);
 
             product.variations?.forEach(async (variation: Variation) => {
-              // variationsPromise.push(handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient));
-              await handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient);
+              variationsPromise.push(handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient));
+              // await handleCreateVariation({ ...variation, parent_id: newProduct[0].id }, supabaseClient);
             })
           }
 
-          // const variationsResult = await Promise.allSettled(variationsPromise);
+          const variationsResult = await Promise.allSettled(variationsPromise);
         } catch (e) {
           console.error(e);
           return;

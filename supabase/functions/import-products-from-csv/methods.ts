@@ -152,7 +152,7 @@ export function extractProducts(recordData: RecordData[]): Product[] {
               const variation: Variation = {
                 id: +rowChild.id || null,
                 sku: rowChild.sku,
-                name: rowChild.sku,
+                name: rowChild.name,
                 parent_id: parent_id === row.id ? +parent_id : null,
                 dealer_price: parseFloat(rowChild?.dealer_price.replace(',', '')) || null,
                 images: extractStrArray(rowChild.images).filter(img => !!img),
@@ -499,6 +499,37 @@ export async function fetchFile(fileUrl: string, fallbackExtension: string = '.j
   }
 }
 
+export async function checkExistingFile(fileName: string, fileType: FileType, supabaseClient: SupabaseClient<Database>) {
+  try {
+    const { data, error } = await supabaseClient
+      .from(fileType)
+      .select('*')
+      .eq('name', fileName);
+    if (error) throw error;
+    if (data) {
+      if (data.length) {
+        return {
+          existingId: data[0].id,
+          existingUrl: data[0].url,
+          existingName: data[0].name,
+        }
+      }
+    }
+    return {
+      existingId: null,
+      existingUrl: null,
+      existingName: null,
+    }
+  } catch (e) {
+    console.error(e);
+    return {
+      existingId: null,
+      existingUrl: null,
+      existingName: null,
+    }
+  }
+}
+
 export async function handleSettingFiles(productName: string, imageUrl: string, supabaseClient: SupabaseClient<Database>, fileType: FileType) {
   try {
     const { file: fileImage, filename } = await fetchFile(imageUrl, fileTypeExtension(fileType));
@@ -513,16 +544,25 @@ export async function handleSettingFiles(productName: string, imageUrl: string, 
 
     formData.append('path', path);
 
-    const { data, error } = await supabaseClient.functions.invoke('upload-to-s3', {
-      body: formData,
-    });
+    const existingFile = await checkExistingFile(filename, fileType, supabaseClient);
 
-    if (error) throw error;
-    if (data && data.fileUrl) {
-      return {
-        url: data.fileUrl,
-        filename,
-      };
+    if (!existingFile.existingId) {
+      const { data, error } = await supabaseClient.functions.invoke('upload-to-s3', {
+        body: formData,
+      });
+      if (error) throw error;
+      if (data && data.fileUrl) {
+        return {
+          id: null,
+          url: data.fileUrl,
+          filename,
+        };
+      }
+    }
+    return {
+      id: existingFile.existingId,
+      url: existingFile.existingUrl,
+      filename: existingFile.existingName,
     }
   } catch (e) {
     console.error(e);
@@ -537,11 +577,16 @@ async function saveFile(
   fileType: FileType,
 ) {
   try {
-    const { data: file, error } = await supabaseClient
-      .from(fileType)
-      .upsert(fileForm as TablesInsert<typeof fileType>)
-      .select(`id`);
-    if (error) throw error;
+    let file = null;
+    if (!fileForm.id) {
+      const { data, error } = await supabaseClient
+        .from(fileType)
+        .upsert(fileForm as TablesInsert<typeof fileType>)
+        .select(`id`);
+      if (error) throw error;
+      file = data;
+    }
+
     let entityForm: EntityForm = null;
     if (entityType === 'product') {
       let form: TablesInsert<'product_image'> |
@@ -551,7 +596,7 @@ async function saveFile(
       if (fileType === 'image') {
         form = {
           product_id: productImgForm?.product_id || 0,
-          image_id: file[0].id,
+          image_id: fileForm?.id || file?.[0].id || 0,
           display_order: productImgForm?.display_order || 0,
           is_primary: productImgForm?.is_primary || false,
         } as TablesInsert<'product_image'>;
@@ -559,13 +604,13 @@ async function saveFile(
       if (fileType === 'documents') {
         form = {
           product_id: productImgForm?.product_id || 0,
-          document_id: file[0].id,
+          document_id: fileForm?.id || file?.[0].id || 0,
         } as TablesInsert<'product_documents'>;
       }
       if (fileType === 'specification_sheet') {
         form = {
           product_id: productImgForm?.product_id || 0,
-          specification_sheet_id: file[0].id,
+          specification_sheet_id: fileForm?.id || file?.[0].id || 0,
         } as TablesInsert<'product_specification_sheet'>;
       }
       entityForm = form;
@@ -576,8 +621,8 @@ async function saveFile(
 
       if (fileType === 'image') {
         form = {
-          variation_id: productImgForm?.product_id || 0,
-          image_id: file[0].id,
+          variation_id: productImgForm?.variation_id || 0,
+          image_id: fileForm?.id || file?.[0].id || 0,
           display_order: productImgForm?.display_order || 0,
           is_primary: productImgForm?.is_primary || false,
         } as TablesInsert<'variation_image'>;
@@ -585,15 +630,15 @@ async function saveFile(
 
       if (fileType === 'documents') {
         form = {
-          variation_id: productImgForm?.product_id || 0,
-          document_id: file[0].id,
+          variation_id: productImgForm?.variation_id || 0,
+          document_id: fileForm?.id || file?.[0].id || 0,
         } as TablesInsert<'variation_documents'>;
       }
 
       if (fileType === 'specification_sheet') {
         form = {
-          variation_id: productImgForm?.product_id || 0,
-          specification_sheet_id: file[0].id,
+          variation_id: productImgForm?.variation_id || 0,
+          specification_sheet_id: fileForm?.id || file?.[0].id || 0,
         } as TablesInsert<'variation_specification_sheet'>;
       }
       entityForm = form;
@@ -632,6 +677,7 @@ export async function handleFiles(
     imagesResponse.forEach((imgResponse, index) => {
       if (imgResponse.status === 'fulfilled') {
         const imageForm = {
+          id: imgResponse.value.id,
           url: imgResponse.value.url,
           name: imgResponse.value.filename,
         }
